@@ -1,0 +1,80 @@
+{
+  "app": {
+    "name": "Mosaica",
+    "loading": "加载中..."
+  },
+  "splash": {
+    "intro": "增强沉浸式语言学习",
+    "ai": "计算机视觉 AI"
+  },
+  "Register": {
+    "tab_title": "创建账号",
+    "email_placeholder": "请输入邮箱",
+    "password_placeholder": "请输入密码",
+    "btn_register": "注册",
+    "have_account": "已有账号？去登录"
+  },
+  "home": {
+    "tab_title": "生成场景",
+    "prompt_placeholder": "描述一个你想练习的场景...",
+    "btn_generate": "AI 生成",
+    "btn_take_photo": "拍照",
+    "empty_hint": "点击任意高亮物体查看词汇。"
+  },
+  "auth": {
+    "welcome": "欢迎回来",
+    "login": "登录",
+    "login_page": {
+      "title": "欢迎",
+      "email_label": "邮箱地址",
+      "email_hint": "name@example.com",
+      "password_label": "密码",
+      "password_hint": "••••••••",
+      "remember_me": "记住我",
+      "forgot_password": "忘记密码？",
+      "button": "登录",
+      "dont_have_account": "还没有账号？",
+      "sign_up_now": "立即注册",
+      "error_fallback": "登录失败，请稍后重试"
+    },
+    "register": {
+      "title": "注册",
+      "subtitle": "现在开始你的沉浸式德语学习之旅。",
+      "email_label": "邮箱地址",
+      "email_hint": "hello@example.com",
+      "password_label": "密码",
+      "password_hint": "••••••••",
+      "current_level": "当前德语水平",
+      "goal_level": "目标熟练度",
+      "button": "注册",
+      "copyright": "© 2024 Szenen Augmented Linguistics. 保留所有权利。",
+      "privacy_policy": "隐私政策",
+      "terms_of_service": "服务条款",
+      "help_center": "帮助中心",
+      "empty_fields": "请输入邮箱和密码。",
+      "error_fallback": "注册失败，请检查网络或邮箱是否被占用。"
+    },
+    "level_descriptions": {
+      "A1": "基础入门",
+      "A2": "初级进阶",
+      "B1": "日常交流",
+      "B2": "熟练应用",
+      "C1": "流利精通"
+    }
+  },
+  "network_errors": {
+    "error_400": "Bad Request: 请求参数或语法错误",
+    "error_401": "Unauthorized: 身份验证失败或 Token 已失效",
+    "error_403": "Forbidden: 无权访问该资源或接口",
+    "error_404": "Not Found: 请求的资源或接口不存在",
+    "error_413": "Payload Too Large: 上传的数据大小超出服务器限制",
+    "error_422": "Unprocessable Entity: 数据格式正确但内容验证失败",
+    "error_500": "Internal Server Error: 后端服务器内部异常",
+    "error_503": "Service Unavailable: 后端服务暂时不可用或正在维护",
+    "error_timeout": "Connection Timeout: 网络请求或响应超时",
+    "error_connection": "Connection Error: 无法连接到服务器，请检查网络",
+    "error_cancel": "Request Cancelled: 请求已被客户端主动取消",
+    "error_unknown": "Unknown Error: 发生了未知的网络或系统异常",
+    "error_no_auth": "Unauthorized: 无效的认证信息，请重新登录"
+  }
+}

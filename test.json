@@ -1,0 +1,154 @@
+{
+  "id": "3cf670b0-fcc0-4cf8-839d-3761a6e9cfbb",
+  "user_id": "fada8975-9cfb-4fc2-baeb-bd8c92dc34cb",
+  "source_type": "photo",
+  "source_image_url": "https://szenen-deutsch-images-104884.s3.eu-central-1.amazonaws.com/users/fada8975-9cfb-4fc2-baeb-bd8c92dc34cb/scenes/3cf670b0-fcc0-4cf8-839d-3761a6e9cfbb/source.jpg",
+  "annotated_image_url": "https://szenen-deutsch-images-104884.s3.eu-central-1.amazonaws.com/users/fada8975-9cfb-4fc2-baeb-bd8c92dc34cb/scenes/3cf670b0-fcc0-4cf8-839d-3761a6e9cfbb/annotated.jpg",
+  "detection_result": [
+    {
+      "id": 1,
+      "bbox": [81, 52, 384, 495],
+      "label": "chair",
+      "confidence": 0.909
+    },
+    {
+      "id": 2,
+      "bbox": [316, 441, 450, 496],
+      "label": "bowl",
+      "confidence": 0.434
+    },
+    {
+      "id": 3,
+      "bbox": [472, 470, 515, 496],
+      "label": "bottle",
+      "confidence": 0.28
+    },
+    {
+      "id": 4,
+      "bbox": [472, 470, 539, 496],
+      "label": "bottle",
+      "confidence": 0.277
+    }
+  ],
+  "llm_result": {
+    "cards": [
+      {
+        "ipa": "ʃtuːl",
+        "word": "Stuhl",
+        "plural": "Stühle",
+        "article": "der",
+        "object_id": 1,
+        "cefr_level": "A1",
+        "common_errors": [],
+        "grammar_notes": [
+          "Stuhl is masculine and uses 'der' as the definite article."
+        ],
+        "related_words": ["Sessel - armchair", "Bank - bench"],
+        "translation_l1": "chair",
+        "example_sentence": {
+          "de": "Eine Person sitzt auf dem Stuhl, während die andere ihren Fuß hält.",
+          "l1": "One person is sitting on the chair while the other is holding their foot."
+        }
+      },
+      {
+        "ipa": "ˈʃʏsl̩",
+        "word": "Schüssel",
+        "plural": "Schüsseln",
+        "article": "die",
+        "object_id": 2,
+        "cefr_level": "A2",
+        "common_errors": [],
+        "grammar_notes": [
+          "Schüssel is feminine and uses 'die' as the definite article."
+        ],
+        "related_words": ["Teller - plate", "Becher - mug"],
+        "translation_l1": "bowl",
+        "example_sentence": {
+          "de": "Die Schüssel steht auf dem Boden, während die beiden Personen interagieren.",
+          "l1": "The bowl is on the floor while the two people interact."
+        }
+      }
+    ],
+    "scene": {
+      "scene_tags": ["room", "care", "interaction"],
+      "description_de": "In einem Raum mit Holzwänden sitzen zwei Personen. Eine Person sitzt auf einem Stuhl und die andere kümmert sich um ihren Fuß. Ein Schüssel ist auf dem Boden.",
+      "description_l1": "In a room with wooden walls, two people are sitting. One person is sitting on a chair and the other is attending to their foot. A bowl is on the floor.",
+      "estimated_cefr": "B1",
+      "spatial_relations": [
+        { "case": "Dativ", "relation": "auf", "object_id": 0, "subject_id": 1 },
+        { "case": "Dativ", "relation": "auf", "object_id": 0, "subject_id": 2 }
+      ],
+      "suggested_dialogue": []
+    },
+    "skipped_objects": [
+      { "reason": "duplicate of object #4", "object_id": 3 },
+      { "reason": "too low confidence to identify clearly", "object_id": 4 }
+    ]
+  },
+  "needs_review": false,
+  "cards": [
+    {
+      "id": "f7cefe11-6834-4ca0-93d6-9d310cbfcd66",
+      "scene_id": "3cf670b0-fcc0-4cf8-839d-3761a6e9cfbb",
+      "user_id": "fada8975-9cfb-4fc2-baeb-bd8c92dc34cb",
+      "object_label": "chair",
+      "lemma": "stuhl",
+      "content": {
+        "object_id": 1,
+        "word": "Stuhl",
+        "article": "der",
+        "plural": "Stühle",
+        "ipa": "ʃtuːl",
+        "translation_l1": "chair",
+        "cefr_level": "A1",
+        "example_sentence": {
+          "de": "Eine Person sitzt auf dem Stuhl, während die andere ihren Fuß hält.",
+          "l1": "One person is sitting on the chair while the other is holding their foot."
+        },
+        "grammar_notes": [
+          "Stuhl is masculine and uses 'der' as the definite article."
+        ],
+        "common_errors": [],
+        "related_words": ["Sessel - armchair", "Bank - bench"]
+      },
+      "cefr_level": "A1",
+      "scene_tags": ["room", "care", "interaction"],
+      "is_reviewed": false,
+      "is_official": false,
+      "generation_count": 1,
+      "created_at": "2026-05-31T10:39:54.652433"
+    },
+    {
+      "id": "60496dd7-36a2-41a6-b86b-0f26450f6478",
+      "scene_id": "3cf670b0-fcc0-4cf8-839d-3761a6e9cfbb",
+      "user_id": "fada8975-9cfb-4fc2-baeb-bd8c92dc34cb",
+      "object_label": "bowl",
+      "lemma": "schüssel",
+      "content": {
+        "object_id": 2,
+        "word": "Schüssel",
+        "article": "die",
+        "plural": "Schüsseln",
+        "ipa": "ˈʃʏsl̩",
+        "translation_l1": "bowl",
+        "cefr_level": "A2",
+        "example_sentence": {
+          "de": "Die Schüssel steht auf dem Boden, während die beiden Personen interagieren.",
+          "l1": "The bowl is on the floor while the two people interact."
+        },
+        "grammar_notes": [
+          "Schüssel is feminine and uses 'die' as the definite article."
+        ],
+        "common_errors": [],
+        "related_words": ["Teller - plate", "Becher - mug"]
+      },
+      "cefr_level": "A2",
+      "scene_tags": ["room", "care", "interaction"],
+      "is_reviewed": false,
+      "is_official": false,
+      "generation_count": 1,
+      "created_at": "2026-05-31T10:39:54.652663"
+    }
+  ],
+  "created_at": "2026-05-31T10:39:54.642162Z"
+}
