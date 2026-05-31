@@ -652,7 +652,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     );
   }
 
-  // Helper: Bottom Nav Item
+  // Helper: Bottom Nav Item 
   Widget _buildNavItem(IconData icon, String label, bool isActive) {
     return Expanded(
       child: InkWell(
