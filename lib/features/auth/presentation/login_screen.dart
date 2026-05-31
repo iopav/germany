@@ -443,7 +443,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
     );
   }
 
-  // 辅助构建：背景高斯模糊圆块
+
   Widget _buildBlurBlob(Color color) {
     return Container(
       decoration: BoxDecoration(
