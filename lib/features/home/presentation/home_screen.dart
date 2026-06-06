@@ -279,7 +279,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                                         _buildMenuOption(
                                           Icons.photo_camera,
                                           'Camera',
-                                          () => _pickImage(ImageSource.camera),
+                                          () =>  (ImageSource.camera),
                                         ),
                                         Divider(
                                           height: 1,

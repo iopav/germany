@@ -2,7 +2,7 @@ class ApiConstants {
   ApiConstants._();
 
   // 1. 基础配置
-  static const String baseDomain = 'http://szenen-deutsch-alb-1804104420.eu-central-1.elb.amazonaws.com';
+  static const String baseDomain = 'https://api.mosaica.at';
   static const String apiPrefix = '/api/v1';
   static const String baseUrl = '$baseDomain$apiPrefix';
 

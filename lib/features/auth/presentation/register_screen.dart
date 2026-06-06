@@ -438,7 +438,7 @@ class LevelDialPicker extends StatelessWidget {
                 // 旋转的大轮盘
                 // ===============================================
                 Positioned(
-                  // 🛠️ 修复 1：将原来的 top: 40 改为 top: 56，使小圆圈完美居中于光晕
+                  
                   top: 56, 
                   child: AnimatedRotation(
                     turns: wheelRotation / 360,
@@ -456,7 +456,7 @@ class LevelDialPicker extends StatelessWidget {
                       ),
                       // 绘制 5 个等级选项
                       child: Stack(
-                        // 🛠️ 修复 2：极其关键！禁止 Stack 裁剪溢出的子组件
+                        
                         clipBehavior: Clip.none, 
                         children: List.generate(levels.length, (index) {
                           final isActive = index == selectedIndex;
