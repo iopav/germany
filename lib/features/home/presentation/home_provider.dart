@@ -47,6 +47,7 @@ class HomeNotifier extends Notifier<HomeState> {
     try {
       final pickedFile = await _picker.pickImage(source: source);
       if (pickedFile == null) {
+        state = state.copyWith(clearError: true);
         return null;
       }
 
@@ -121,6 +122,36 @@ class HomeNotifier extends Notifier<HomeState> {
       throw Exception(message);
     }
   }
+  Future<SceneEntity> generateFromText(String prompt) async {
+    if (prompt.trim().isEmpty) {
+      final error = '请输入描述文本';
+      state = state.copyWith(errorMessage: error);
+      throw Exception(error);
+    }
+
+    state = state.copyWith(isGenerating: true, clearError: true);
+
+    try {
+      final HomeInterface homeInterface = ref.read(homeInterfaceProvider);
+      final result = await homeInterface.createSceneFromText(prompt: prompt);
+      final llmCards = _readLlmCardsCount(result.llmResult);
+      AppLogger.i(
+        '[Home] LLM,llm_result_cards_count=$llmCards',
+      );
+
+      state = state.copyWith(
+        isGenerating: false,
+        latestScene: result,
+        clearError: true,
+      );
+      return result;
+    } catch (e) {
+      final message = e.toString().replaceAll('Exception: ', '');
+      state = state.copyWith(isGenerating: false, errorMessage: message);
+      throw Exception(message);
+    }
+  }
+
 
   int _readLlmCardsCount(Map<String, dynamic> llmResult) {
     final cards = llmResult['cards'];

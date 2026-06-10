@@ -60,6 +60,7 @@ class ImmersiveScreen extends StatefulWidget {
 class _ImmersiveScreenState extends State<ImmersiveScreen> {
   VocabularyItem? selectedItem;
   bool isSceneSummaryCollapsed = false;
+  final Set<VocabularyItem> _favoriteItems = <VocabularyItem>{};
   late final List<VocabularyItem> vocabularyList;
   late final String backgroundImageUrl;
   late final String sceneDescription;
@@ -373,6 +374,22 @@ class _ImmersiveScreenState extends State<ImmersiveScreen> {
     });
   }
 
+  Future<void> _toggleFavorite(VocabularyItem item) async {
+    final isNowFavorite = !_favoriteItems.contains(item);
+
+    setState(() {
+      if (isNowFavorite) {
+        _favoriteItems.add(item);
+      } else {
+        _favoriteItems.remove(item);
+      }
+    });
+
+    await _sendFavoriteToApi(item, isNowFavorite);
+  }
+
+  Future<void> _sendFavoriteToApi(VocabularyItem item, bool isFavorite) async {}
+
   Widget _buildSceneSummaryBody() {
     return Padding(
       padding: const EdgeInsets.only(top: 10),
@@ -464,6 +481,7 @@ class _ImmersiveScreenState extends State<ImmersiveScreen> {
               onItemTap: (item) => setState(() => selectedItem = item),
             ),
           ),
+          if (false)
           Positioned(
             top: MediaQuery.of(context).padding.top + 76,
             left: 24,
@@ -480,6 +498,7 @@ class _ImmersiveScreenState extends State<ImmersiveScreen> {
                     Row(
                       children: [
                         Expanded(
+                          
                           child: GestureDetector(
                             behavior: HitTestBehavior.opaque,
                             onTap: _toggleSceneSummary,
@@ -496,6 +515,7 @@ class _ImmersiveScreenState extends State<ImmersiveScreen> {
                               ),
                             ),
                           ),
+                        
                         ),
                         IconButton(
                           onPressed: _toggleSceneSummary,
@@ -524,6 +544,7 @@ class _ImmersiveScreenState extends State<ImmersiveScreen> {
               ),
             ),
           ),
+          
           Positioned(
             top: MediaQuery.of(context).padding.top + 16,
             left: 24,
@@ -697,6 +718,13 @@ class _ImmersiveScreenState extends State<ImmersiveScreen> {
                     ),
                   ],
                 ),
+                // IconButton(//收藏夹按钮
+                //   icon: Icon(
+                //     _favoriteItems.contains(item) ? Icons.star : Icons.star_border,
+                //     color: _favoriteItems.contains(item) ? Colors.amberAccent : Colors.white70,
+                //   ),
+                //   onPressed: () => _toggleFavorite(item),
+                // ),
                 IconButton(
                   icon: const Icon(Icons.close, color: Colors.white70),
                   onPressed: () => setState(() => selectedItem = null),

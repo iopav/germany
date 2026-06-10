@@ -37,13 +37,13 @@ class ApiConstants {
   static String sceneDetail(String id) => '/scenes/$id'; 
 
   // --- 词卡模块 (Cards) ---
-  static const String cardsDue = '/cards/due';
-  static const String cardsBase = '/cards/';
+  static const String cardsDue = '/cards/due'; //待复习的词卡列表
+  static const String cardsList = '/cards/';
   static String cardDetail(String id) => '/cards/$id';
 
   // --- 复习模块 (Reviews) ---
-  static const String reviewsBase = '/reviews/';
-  static const String reviewsStats = '/reviews/stats';
+  static const String reviewsSubmit = '/reviews/'; //post提交复习结果
+  static const String reviewsStats = '/reviews/stats'; //get获取复习统计
 
   // 5. 超时时间设置
   static const int defaultTimeoutSeconds = 15;

@@ -22,7 +22,7 @@ class AuthService {
     // 2. 将返回的字典塞给 Model 的 fromJson
     return AuthResponseModel.fromJson(response.data);
   }
-
+// "access_token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmYWRhODk3NS05Y2ZiLTRmYzItYmFlYi1iZDhjOTJkYzM0Y2IiLCJleHAiOjE3ODE2MDM2MjV9.lhSOSdXn-xGx0yVJXdjXPbsCE6uKtW_rHnNcQk4mzwI","token_type":"bearer","user":{"id":"fada8975-9cfb-4fc2-baeb-bd8c92dc34cb"
   Future<AuthResponseModel> login(String email, String password) async {
     // print('baseurl+api${_dio.options.baseUrl + ApiConstants.authLogin}');
     final response = await _dio.post(

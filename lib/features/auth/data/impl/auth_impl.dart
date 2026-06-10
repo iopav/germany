@@ -52,6 +52,8 @@ class AuthImplementation implements AuthInterface {
     try {
       // print('$email $password in impl');
       final authModel = await _authService.login(email, password);
+      AppLogger.i('[AuthImpl] login success,user:${authModel.user.email}');
+      print('[AuthImpl] login success');
       return authModel.toEntity();
     } on DioException catch (e) {
       throw Exception(
@@ -69,6 +71,7 @@ class AuthImplementation implements AuthInterface {
   Future<UserEntity> getCurrentUser() async {
     try {
       final userModel = await _authService.getCurrentUser();
+      
       return userModel.toEntity();
     } catch (e) {
       AppLogger.e('获取用户信息失败', e);

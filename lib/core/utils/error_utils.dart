@@ -3,6 +3,40 @@ import 'package:dio/dio.dart';
 class ErrorUtils {
   ErrorUtils._();
 
+  static String dioFallbackMessage(
+    DioException error, {
+    required String operation,
+  }) {
+    switch (error.type) {
+      case DioExceptionType.connectionTimeout:
+      case DioExceptionType.sendTimeout:
+      case DioExceptionType.receiveTimeout:
+        return 'The request to $operation timed out. Please try again.';
+      case DioExceptionType.connectionError:
+        return 'Unable to connect to the server. Please check your connection.';
+      case DioExceptionType.cancel:
+        return 'The request to $operation was cancelled.';
+      case DioExceptionType.badResponse:
+        final statusCode = error.response?.statusCode;
+        if (statusCode == null) {
+          return 'Failed to $operation. Please try again.';
+        }
+        return 'Failed to $operation with status code $statusCode.';
+      default:
+        return 'Failed to $operation. Please try again.';
+    }
+  }
+
+  static String extractDioMessage(
+    DioException error, {
+    required String operation,
+  }) {
+    return extractMessage(
+      error,
+      fallback: dioFallbackMessage(error, operation: operation),
+    );
+  }
+
   static String extractMessage(
     Object error, {
     required String fallback,

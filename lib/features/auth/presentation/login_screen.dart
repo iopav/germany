@@ -2,19 +2,24 @@ import 'dart:ui';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:germany/core/utils/error_utils.dart';
 import 'auth_provider.dart';
 import 'register_screen.dart';
 
+const String _rememberPasswordKey = 'auth_remember_password_v1';
+const String _rememberedEmailKey = 'auth_remembered_email_v1';
+const String _rememberedPasswordKey = 'auth_remembered_password_v1';
+const FlutterSecureStorage _secureStorage = FlutterSecureStorage();
+
 ///颜色体系
 class _AppColors {
   static const Color background = Color(0xFFFAF8FF);
-  static const Color surface = Color(0xFFFAF8FF);
   static const Color primary = Color(0xFF004AC6);
   static const Color onPrimary = Color(0xFFFFFFFF);
   static const Color secondary = Color(0xFF712AE2);
   static const Color tertiaryContainer = Color(0xFFBC4800);
-  
+
   static const Color onSurface = Color(0xFF131B2E);
   static const Color onSurfaceVariant = Color(0xFF434655);
   static const Color outline = Color(0xFF737686);
@@ -29,10 +34,11 @@ class LoginScreen extends ConsumerStatefulWidget {
   ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProviderStateMixin {
+class _LoginScreenState extends ConsumerState<LoginScreen>
+    with SingleTickerProviderStateMixin {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  
+
   bool _obscurePassword = true;
   bool _rememberMe = false;
 
@@ -46,6 +52,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
       vsync: this,
       duration: const Duration(seconds: 10),
     )..repeat(reverse: true);
+    _restoreRememberedCredentials();
   }
 
   @override
@@ -71,6 +78,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
 
     final nextState = ref.read(authProvider);
     nextState.whenOrNull(
+      data: (user) {
+        if (user != null) {
+          _saveRememberedCredentials(email, password);
+        }
+      },
       error: (error, stack) {
         final message = ErrorUtils.extractMessage(
           error,
@@ -87,6 +99,42 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
         );
       },
     );
+  }
+
+  Future<void> _restoreRememberedCredentials() async {
+    final rememberPassword =
+        await _secureStorage.read(key: _rememberPasswordKey) == 'true';
+    final rememberedEmail = await _secureStorage.read(key: _rememberedEmailKey);
+    final rememberedPassword = await _secureStorage.read(
+      key: _rememberedPasswordKey,
+    );
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _rememberMe = rememberPassword;
+      if (rememberPassword) {
+        _emailController.text = rememberedEmail ?? '';
+        _passwordController.text = rememberedPassword ?? '';
+      }
+    });
+  }
+
+  Future<void> _saveRememberedCredentials(String email, String password) async {
+    await _secureStorage.write(
+      key: _rememberPasswordKey,
+      value: _rememberMe ? 'true' : 'false',
+    );
+
+    if (_rememberMe) {
+      await _secureStorage.write(key: _rememberedEmailKey, value: email);
+      await _secureStorage.write(key: _rememberedPasswordKey, value: password);
+      return;
+    }
+
+    await _secureStorage.delete(key: _rememberedEmailKey);
+    await _secureStorage.delete(key: _rememberedPasswordKey);
   }
 
   @override
@@ -113,21 +161,27 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
                     left: -screenWidth * 0.1 - offset,
                     width: screenWidth * 0.8,
                     height: screenWidth * 0.8,
-                    child: _buildBlurBlob(_AppColors.primary.withOpacity(0.08)),
+                    child: _buildBlurBlob(
+                      _AppColors.primary.withValues(alpha: 0.08),
+                    ),
                   ),
                   Positioned(
                     top: screenHeight * 0.4 - offset,
                     right: -screenWidth * 0.2 + offset,
                     width: screenWidth * 0.7,
                     height: screenWidth * 0.7,
-                    child: _buildBlurBlob(_AppColors.secondary.withOpacity(0.08)),
+                    child: _buildBlurBlob(
+                      _AppColors.secondary.withValues(alpha: 0.08),
+                    ),
                   ),
                   Positioned(
                     bottom: -screenHeight * 0.05 + offset,
                     left: screenWidth * 0.2 - offset,
                     width: screenWidth * 0.6,
                     height: screenWidth * 0.6,
-                    child: _buildBlurBlob(_AppColors.tertiaryContainer.withOpacity(0.06)),
+                    child: _buildBlurBlob(
+                      _AppColors.tertiaryContainer.withValues(alpha: 0.06),
+                    ),
                   ),
                 ],
               );
@@ -138,7 +192,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
           SafeArea(
             child: Center(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 40,
+                ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -151,18 +208,22 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
-                            color: _AppColors.primary.withOpacity(0.3),
+                            color: _AppColors.primary.withValues(alpha: 0.3),
                             blurRadius: 16,
                             offset: const Offset(0, 8),
                           ),
                         ],
                       ),
-                      child: const Icon(Icons.language, color: _AppColors.onPrimary, size: 36),
+                      child: const Icon(
+                        Icons.language,
+                        color: _AppColors.onPrimary,
+                        size: 36,
+                      ),
                     ),
                     const SizedBox(height: 16),
                     Text(
                       'app.name'.tr(),
-                      style:const TextStyle(
+                      style: const TextStyle(
                         fontFamily: 'Space Grotesk',
                         fontSize: 24,
                         fontWeight: FontWeight.w700,
@@ -179,7 +240,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
                         borderRadius: BorderRadius.circular(24),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
+                            color: Colors.black.withValues(alpha: 0.05),
                             blurRadius: 20,
                             offset: const Offset(0, 4),
                           ),
@@ -192,8 +253,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
                           child: Container(
                             padding: const EdgeInsets.all(32),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.7),
-                              border: Border.all(color: Colors.white.withOpacity(0.4)),
+                              color: Colors.white.withValues(alpha: 0.7),
+                              border: Border.all(
+                                color: Colors.white.withValues(alpha: 0.4),
+                              ),
                               borderRadius: BorderRadius.circular(24),
                             ),
                             child: Column(
@@ -211,7 +274,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
                                 const SizedBox(height: 32),
 
                                 // 邮箱输入框
-                                _buildInputLabel('auth.login_page.email_label'.tr()),
+                                _buildInputLabel(
+                                  'auth.login_page.email_label'.tr(),
+                                ),
                                 const SizedBox(height: 8),
                                 _buildTextField(
                                   controller: _emailController,
@@ -222,12 +287,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
                                 const SizedBox(height: 24),
 
                                 // 密码输入框
-                                _buildInputLabel('auth.login_page.password_label'.tr()),
+                                _buildInputLabel(
+                                  'auth.login_page.password_label'.tr(),
+                                ),
                                 const SizedBox(height: 8),
                                 _buildTextField(
                                   controller: _passwordController,
                                   icon: Icons.lock_outline,
-                                  hintText: 'auth.login_page.password_hint'.tr(),
+                                  hintText: 'auth.login_page.password_hint'
+                                      .tr(),
                                   obscureText: _obscurePassword,
                                   isPassword: true,
                                 ),
@@ -235,11 +303,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
 
                                 // 记住我 & 忘记密码
                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     Expanded(
                                       child: GestureDetector(
-                                        onTap: () => setState(() => _rememberMe = !_rememberMe),
+                                        onTap: () => setState(
+                                          () => _rememberMe = !_rememberMe,
+                                        ),
                                         child: Row(
                                           children: [
                                             SizedBox(
@@ -247,22 +318,31 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
                                               height: 20,
                                               child: Checkbox(
                                                 value: _rememberMe,
-                                                onChanged: (val) => setState(() => _rememberMe = val!),
+                                                onChanged: (val) => setState(
+                                                  () => _rememberMe = val!,
+                                                ),
                                                 activeColor: _AppColors.primary,
-                                                side: const BorderSide(color: _AppColors.outline),
-                                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                                                side: const BorderSide(
+                                                  color: _AppColors.outline,
+                                                ),
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(4),
+                                                ),
                                               ),
                                             ),
                                             const SizedBox(width: 8),
                                             Expanded(
                                               child: Text(
-                                                'auth.login_page.remember_me'.tr(),
+                                                'auth.login_page.remember_me'
+                                                    .tr(),
                                                 maxLines: 1,
                                                 overflow: TextOverflow.ellipsis,
                                                 style: TextStyle(
                                                   fontFamily: 'Inter',
                                                   fontSize: 14,
-                                                  color: _AppColors.onSurfaceVariant,
+                                                  color: _AppColors
+                                                      .onSurfaceVariant,
                                                 ),
                                               ),
                                             ),
@@ -277,10 +357,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
                                         style: TextButton.styleFrom(
                                           padding: EdgeInsets.zero,
                                           minimumSize: Size.zero,
-                                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                          tapTargetSize:
+                                              MaterialTapTargetSize.shrinkWrap,
                                         ),
                                         child: Text(
-                                          'auth.login_page.forgot_password'.tr(),
+                                          'auth.login_page.forgot_password'
+                                              .tr(),
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
                                           style: TextStyle(
@@ -301,24 +383,33 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
                                   width: double.infinity,
                                   height: 56,
                                   child: ElevatedButton(
-                                    onPressed: authState.isLoading ? null : _handleLogin,
+                                    onPressed: authState.isLoading
+                                        ? null
+                                        : _handleLogin,
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: _AppColors.primary,
                                       foregroundColor: _AppColors.onPrimary,
                                       elevation: 8,
-                                      shadowColor: _AppColors.primary.withOpacity(0.5),
+                                      shadowColor: _AppColors.primary
+                                          .withValues(alpha: 0.5),
                                       shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(999),
+                                        borderRadius: BorderRadius.circular(
+                                          999,
+                                        ),
                                       ),
                                     ),
                                     child: authState.isLoading
                                         ? const SizedBox(
                                             width: 24,
                                             height: 24,
-                                            child: CircularProgressIndicator(color: _AppColors.onPrimary, strokeWidth: 2),
+                                            child: CircularProgressIndicator(
+                                              color: _AppColors.onPrimary,
+                                              strokeWidth: 2,
+                                            ),
                                           )
                                         : Row(
-                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
                                             children: [
                                               Text(
                                                 'auth.login_page.button'.tr(),
@@ -329,7 +420,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
                                                 ),
                                               ),
                                               SizedBox(width: 8),
-                                              Icon(Icons.arrow_forward, size: 20),
+                                              Icon(
+                                                Icons.arrow_forward,
+                                                size: 20,
+                                              ),
                                             ],
                                           ),
                                   ),
@@ -357,7 +451,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
                         GestureDetector(
                           onTap: () {
                             // 跳往注册页
-                            Navigator.push(context, MaterialPageRoute(builder: (_) => const RegisterScreen()));
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const RegisterScreen(),
+                              ),
+                            );
                           },
                           child: Text(
                             'auth.login_page.sign_up_now'.tr(),
@@ -410,10 +509,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
       controller: controller,
       obscureText: obscureText,
       keyboardType: keyboardType,
-      style: const TextStyle(fontFamily: 'Inter', fontSize: 16, color: _AppColors.onSurface),
+      style: const TextStyle(
+        fontFamily: 'Inter',
+        fontSize: 16,
+        color: _AppColors.onSurface,
+      ),
       decoration: InputDecoration(
         hintText: hintText,
-        hintStyle: TextStyle(color: _AppColors.outlineVariant.withOpacity(0.8)),
+        hintStyle: TextStyle(
+          color: _AppColors.outlineVariant.withValues(alpha: 0.8),
+        ),
         filled: true,
         fillColor: _AppColors.surfaceContainerLow,
         contentPadding: const EdgeInsets.symmetric(vertical: 16),
@@ -424,16 +529,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
                   _obscurePassword ? Icons.visibility : Icons.visibility_off,
                   color: _AppColors.outline,
                 ),
-                onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                onPressed: () =>
+                    setState(() => _obscurePassword = !_obscurePassword),
               )
             : null,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: _AppColors.outlineVariant.withOpacity(0.5)),
+          borderSide: BorderSide(
+            color: _AppColors.outlineVariant.withValues(alpha: 0.5),
+          ),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: _AppColors.outlineVariant.withOpacity(0.5)),
+          borderSide: BorderSide(
+            color: _AppColors.outlineVariant.withValues(alpha: 0.5),
+          ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -442,7 +552,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
       ),
     );
   }
-
 
   Widget _buildBlurBlob(Color color) {
     return Container(

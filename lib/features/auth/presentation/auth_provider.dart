@@ -22,7 +22,9 @@ class AuthNotifier extends AsyncNotifier<UserEntity?> {
     try {
       // 步骤 1：读取本地存储的 access_token
       final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString(ApiConstants.keyToken);
+      // final token = prefs.getString(ApiConstants.keyToken);
+      // debug
+      final token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmYWRhODk3NS05Y2ZiLTRmYzItYmFlYi1iZDhjOTJkYzM0Y2IiLCJleHAiOjE3ODE2MDM2MjV9.lhSOSdXn-xGx0yVJXdjXPbsCE6uKtW_rHnNcQk4mzwI";
 
       // 步骤 3：如果没有 token → 返回 null（代表未登录）
       if (token == null || token.isEmpty) {
@@ -30,7 +32,7 @@ class AuthNotifier extends AsyncNotifier<UserEntity?> {
       }
 
       // 步骤 2：如果有 token → 调用获取当前用户接口
-      // 这里通过依赖注入拿到你的接口履约者
+      // 这里通过依赖注入拿到接口履约者
       final AuthInterface authInterface = ref.read(authInterfaceProvider);
       
       // 执行 GET /auth/me 逻辑
@@ -51,7 +53,7 @@ class AuthNotifier extends AsyncNotifier<UserEntity?> {
   // 供外部（如登录按钮）调用的手动登录方法
   Future<void> login(String email, String password) async {
     try {
-      // print('$email $password');
+      print('login in provider');
       final AuthInterface authInterface = ref.read(authInterfaceProvider);
       final authEntity = await authInterface.login(email, password);
       

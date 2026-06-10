@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../widgets/app_shell_scaffold.dart';
 import '../../features/auth/presentation/auth_provider.dart';
 import '../../features/auth/presentation/login_screen.dart';
 import '../../features/home/presentation/home_screen.dart';
@@ -32,10 +33,19 @@ class RootWrapper extends ConsumerWidget {
 
         // 如果用户实体存在，根据 role 角色初始化路由和主页
         if (user.role == 'reviewer') {
-          return const HomeScreen(); // 审核员工作台
+          return const AppShellScaffold(
+            currentIndex: 0,
+            title: 'Scenes',//style?
+            
+            child: HomeScreen(showChrome: false),
+          ); // 审核员工作台
           // return const ReviewerDashboard(); // 审核员工作台
         } else {
-          return const HomeScreen(); // 普通用户首页
+          return const AppShellScaffold(
+            currentIndex: 0,
+            title: 'Scenes',
+            child: HomeScreen(showChrome: false),
+          ); // 普通用户首页
         }
       },
     );

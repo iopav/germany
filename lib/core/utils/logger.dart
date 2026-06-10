@@ -6,6 +6,8 @@ class AppLogger {
 
   // 配置 Logger 的输出样式
   static final Logger _logger = Logger(
+    filter: ProductionFilter(),
+    level: Level.trace,
     printer: PrettyPrinter(
       methodCount: 0, // 不打印方法堆栈（保持控制台清爽）
       errorMethodCount: 5, // 只有 Error 时才打印前 5 层堆栈，方便找 Bug
