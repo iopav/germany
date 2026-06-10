@@ -32,10 +32,10 @@ final dioProvider = Provider<Dio>((ref) {
           return handler.next(options);
         }
 
-        // final prefs = await SharedPreferences.getInstance();
-        // final token = prefs.getString(ApiConstants.keyToken);
-        String? token;
-        token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmYWRhODk3NS05Y2ZiLTRmYzItYmFlYi1iZDhjOTJkYzM0Y2IiLCJleHAiOjE3ODE2MDM2MjV9.lhSOSdXn-xGx0yVJXdjXPbsCE6uKtW_rHnNcQk4mzwI";
+        final prefs = await SharedPreferences.getInstance();
+        final token = prefs.getString(ApiConstants.keyToken);
+        // String? token;
+        // token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmYWRhODk3NS05Y2ZiLTRmYzItYmFlYi1iZDhjOTJkYzM0Y2IiLCJleHAiOjE3ODE2MDM2MjV9.lhSOSdXn-xGx0yVJXdjXPbsCE6uKtW_rHnNcQk4mzwI";
 
         if (token != null && token.isNotEmpty) {
           options.headers['Authorization'] = 'Bearer $token';
