@@ -18,7 +18,8 @@ jobs:
           flutter-version: '3.x'
           
       - run: flutter pub get
-      - run: flutter build web --release --base-href /      
+      - run: flutter build web --release --base-href "/"
+      
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v4  # 升级到 v4
         with:
