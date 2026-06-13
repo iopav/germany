@@ -6,7 +6,8 @@ import '../../features/home/presentation/home_screen.dart';
 import '../../features/reviews/presentation/favorite_screen.dart';
 import '../../features/reviews/presentation/reviews_screen.dart';
 import '../../features/reviews/presentation/sessionsummary_screen.dart';
-import '../../features/profile/presentation/profile_screen.dart';
+import '../../features/scenes/presentation/history_screen.dart';
+import '../../features/settings/presentation/settings_screen.dart';
 import '../utils/dev_screen.dart';
 import '../utils/root_wrapper.dart';
 import '../widgets/app_shell_scaffold.dart';
@@ -40,17 +41,27 @@ final GoRouter appRouter = GoRouter(
       path: '/reviews/session',
       builder: (context, state) => const ReviewCardScreen(),
     ),
-    GoRoute(
-      path: '/app/profile',
-      builder: (context, state) => const AppShellScaffold(
-        currentIndex: 2,
-        title: 'Profile',
-        child: ProfileScreen(),
-      ),
-    ),
+
     GoRoute(
       path: '/review-summary',
       builder: (context, state) => const SessionSummaryScreen(),
+    ),
+
+    GoRoute(
+      path: '/history',
+      builder: (context, state) => const AppShellScaffold(
+        currentIndex: 2,
+        title: 'History',
+        child: HistoryScreen(),
+      ),
+    ),
+    GoRoute(
+      path: '/settings',
+      builder: (context, state) => const AppShellScaffold(
+        currentIndex: 3,
+        title: 'Settings',
+        child: SettingsScreen(),
+      ),
     ),
     GoRoute(path: '/dev', builder: (context, state) => const DevScreen()),
   ],

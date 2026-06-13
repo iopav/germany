@@ -210,6 +210,60 @@ class ReviewsNotifier extends AsyncNotifier<ReviewsState> {
     }
   }
 
+  Future<List<SceneEntity>> prefetchUpcomingScenes({int count = 3}) async {
+    final current = state.value;
+    if (current == null || current.queue.isEmpty || count <= 0) {
+      return const <SceneEntity>[];
+    }
+
+    final reviewsInterface = ref.read(reviewsInterfaceProvider);
+    final updatedScenes = Map<String, SceneEntity>.from(current.scenesById);
+    final prefetchedScenes = <SceneEntity>[];
+    final endIndex = (current.currentIndex + count)
+        .clamp(0, current.queue.length)
+        .toInt();
+
+    for (var index = current.currentIndex; index < endIndex; index++) {
+      final review = current.queue[index];
+      final cachedScene = updatedScenes[review.sceneId];
+      if (cachedScene != null) {
+        prefetchedScenes.add(cachedScene);
+        continue;
+      }
+
+      if (_loadingSceneIds.contains(review.sceneId)) {
+        continue;
+      }
+
+      _loadingSceneIds.add(review.sceneId);
+      try {
+        final scene = await reviewsInterface.fetchSceneForReview(
+          review.sceneId,
+        );
+        updatedScenes[review.sceneId] = scene;
+        prefetchedScenes.add(scene);
+      } catch (e) {
+        AppLogger.w(
+          '[ReviewsProvider] prefetch scene failed scene=${review.sceneId}: $e',
+        );
+      } finally {
+        _loadingSceneIds.remove(review.sceneId);
+      }
+    }
+
+    final latest = state.value;
+    if (latest != null) {
+      state = AsyncData(
+        latest.copyWith(
+          scenesById: {...latest.scenesById, ...updatedScenes},
+          clearError: true,
+        ),
+      );
+    }
+
+    return prefetchedScenes;
+  }
+
   Future<void> submitTypedAnswer(String typedAnswer) async {
     final current = state.value;
     final review = current?.currentReview;
@@ -255,11 +309,16 @@ class ReviewsNotifier extends AsyncNotifier<ReviewsState> {
         '[ReviewsProvider] submit review success card=${review.id}, rating=$rating',
       );
 
+      final shouldReviewAgain = rating <= 2;
+      final updatedQueue = shouldReviewAgain
+          ? [...current.queue, review]
+          : current.queue;
       final nextIndex = current.currentIndex + 1;
-      final finished = nextIndex >= current.queue.length;
+      final finished = nextIndex >= updatedQueue.length;
 
       final updated = current.copyWith(
-        currentIndex: nextIndex.clamp(0, current.queue.length),
+        queue: updatedQueue,
+        currentIndex: nextIndex.clamp(0, updatedQueue.length),
         isSubmitting: false,
         sessionCompleted: finished,
         submittedRatings: [...current.submittedRatings, rating],
@@ -309,6 +368,38 @@ class ReviewsNotifier extends AsyncNotifier<ReviewsState> {
 final reviewsProvider = AsyncNotifierProvider<ReviewsNotifier, ReviewsState>(
   ReviewsNotifier.new,
 );
+
+class ReviewCardsNotifier extends AsyncNotifier<List<ReviewEntity>> {
+  @override
+  Future<List<ReviewEntity>> build() async {
+    return _fetchCards();
+  }
+
+  Future<List<ReviewEntity>> _fetchCards() async {
+    final reviewsInterface = ref.read(reviewsInterfaceProvider);
+    return reviewsInterface.fetchCards();
+  }
+
+  Future<void> refresh() async {
+    state = const AsyncLoading();
+    try {
+      state = AsyncData(await _fetchCards());
+    } catch (e, stack) {
+      state = AsyncError(
+        ErrorUtils.extractMessage(
+          e,
+          fallback: 'Failed to fetch cards. Please try again.',
+        ),
+        stack,
+      );
+    }
+  }
+}
+
+final reviewCardsProvider =
+    AsyncNotifierProvider<ReviewCardsNotifier, List<ReviewEntity>>(
+      ReviewCardsNotifier.new,
+    );
 
 class _ReviewSessionSnapshot {
   final List<ReviewEntity> queue;

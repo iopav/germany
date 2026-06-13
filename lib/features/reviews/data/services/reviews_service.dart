@@ -13,10 +13,23 @@ class ReviewsService {
 
   Future<List<ReviewResponseModel>> fetchReviews() async {
     final response = await _dio.get(ApiConstants.cardsDue);
-    final responseJson = response.data as List<dynamic>;
+    final responseJson = _readList(response.data);
 
     return responseJson
-        .map((json) => ReviewResponseModel.fromMap(json as Map<String, dynamic>))
+        .map(
+          (json) => ReviewResponseModel.fromMap(json as Map<String, dynamic>),
+        )
+        .toList();
+  }
+
+  Future<List<ReviewResponseModel>> fetchCards() async {
+    final response = await _dio.get(ApiConstants.cardsList);
+    final responseJson = _readList(response.data);
+
+    return responseJson
+        .map(
+          (json) => ReviewResponseModel.fromMap(json as Map<String, dynamic>),
+        )
         .toList();
   }
 
@@ -35,11 +48,34 @@ class ReviewsService {
 
   Future<List<ReviewStateModel>> fetchReviewStats() async {
     final response = await _dio.get(ApiConstants.reviewsStats);
-    final statsJson = response.data as List<dynamic>;
+    final statsJson = _readList(response.data);
 
     return statsJson
         .map((json) => ReviewStateModel.fromMap(json as Map<String, dynamic>))
         .toList();
+  }
+
+  List<dynamic> _readList(dynamic payload) {
+    if (payload is List) {
+      return payload;
+    }
+
+    if (payload is Map) {
+      for (final key in const ['data', 'items', 'results', 'cards']) {
+        final value = payload[key];
+        if (value is List) {
+          return value;
+        }
+        if (value is Map) {
+          final nested = _readList(value);
+          if (nested.isNotEmpty) {
+            return nested;
+          }
+        }
+      }
+    }
+
+    throw FormatException('Expected list response, got ${payload.runtimeType}');
   }
 }
 

@@ -1,11 +1,11 @@
-
-
 import '../../data/models/reviews_model.dart';
 import '../entity/reviews_entity.dart';
 import '../../../home/domain/entity/home_stats_entity.dart';
 
 abstract class ReviewsInterface {
   Future<List<ReviewEntity>> fetchReviews();
+  Future<List<ReviewEntity>> fetchCards();
+
   /// 提交评分/复习结果，参数为数据层的 `ReviewPostModel`（含 `cardId` 与 `rating`）。
   Future<void> submitReview(ReviewPostModel reviewPost);
   Future<List<ReviewStateModel>> fetchReviewStats();
@@ -15,5 +15,4 @@ abstract class ReviewsInterface {
 
   /// 把前端 outcome 文本（例如 "again","hard","good","easy"）映射为评分 1..4
   int ratingFromOutcome(String outcome);
-
 }

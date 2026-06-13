@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:germany/core/widgets/scene_image_cache.dart';
 import 'package:germany/core/utils/error_utils.dart';
 import 'package:go_router/go_router.dart';
 
@@ -161,6 +162,49 @@ class _ReviewCardScreenState extends ConsumerState<ReviewCardScreen>
     }
 
     context.go('/reviews');
+  }
+
+  Future<void> _handleForgottenAnswer(String answer) async {
+    setState(() {
+      _isError = true;
+      _isSuccess = false;
+      _answerFeedbackText = answer;
+    });
+    _shakeController.forward(from: 0.0);
+
+    await Future.delayed(const Duration(seconds: 1));
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _isError = false;
+      _answerFeedbackText = null;
+    });
+    _textController.clear();
+    await ref.read(reviewsProvider.notifier).submitRating(1);
+  }
+
+  Future<void> _handleMasteredAnswer() async {
+    setState(() {
+      _isSuccess = true;
+      _isError = false;
+      _answerFeedbackText = null;
+    });
+
+    await ref.read(reviewsProvider.notifier).submitRating(4);
+
+    if (!mounted) {
+      return;
+    }
+
+    Future.delayed(const Duration(seconds: 1), () {
+      if (mounted) {
+        setState(() => _isSuccess = false);
+        _textController.clear();
+      }
+    });
   }
 
   Future<bool> _confirmExitReview() async {
@@ -522,8 +566,7 @@ class _ReviewCardScreenState extends ConsumerState<ReviewCardScreen>
                     child: _buildActionChip(
                       'Mastered',
                       isSolid: true,
-                      onTap: () =>
-                          ref.read(reviewsProvider.notifier).submitRating(4),
+                      onTap: _handleMasteredAnswer,
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -531,8 +574,7 @@ class _ReviewCardScreenState extends ConsumerState<ReviewCardScreen>
                     child: _buildActionChip(
                       'I don\'t know',
                       isSolid: false,
-                      onTap: () =>
-                          ref.read(reviewsProvider.notifier).submitRating(1),
+                      onTap: () => _handleForgottenAnswer(answer),
                     ),
                   ),
                 ],
@@ -840,7 +882,7 @@ class _PositionedSceneViewerState extends State<_PositionedSceneViewer> {
     _detachListener();
     _lastImageUrl = imageUrl;
 
-    final provider = NetworkImage(imageUrl);
+    final provider = SceneImageCache.provider(imageUrl);
     final stream = provider.resolve(createLocalImageConfiguration(context));
     _imageStreamListener = ImageStreamListener(
       (info, _) {
@@ -1015,36 +1057,7 @@ class _PositionedSceneViewerState extends State<_PositionedSceneViewer> {
   }
 
   String _resolveImageUrl(SceneEntity? scene) {
-    if (scene == null) {
-      return '';
-    }
-
-    final raw = scene.raw;
-    final candidates = [
-      _readRawString(raw, ['original_image_url', 'originalImageUrl']),
-      _readRawString(raw, ['uploaded_image_url', 'uploadedImageUrl']),
-      _readRawString(raw, ['source_image_url', 'sourceImageUrl']),
-      scene.sourceImageUrl,
-      scene.annotatedImageUrl,
-    ];
-
-    for (final candidate in candidates) {
-      if (candidate.trim().isNotEmpty) {
-        return candidate;
-      }
-    }
-
-    return '';
-  }
-
-  String _readRawString(Map<String, dynamic> raw, List<String> keys) {
-    for (final key in keys) {
-      final value = raw[key];
-      if (value is String && value.trim().isNotEmpty) {
-        return value;
-      }
-    }
-    return '';
+    return SceneImageCache.resolveSceneImageUrl(scene);
   }
 }
 

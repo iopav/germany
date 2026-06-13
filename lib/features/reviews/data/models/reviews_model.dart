@@ -1,6 +1,5 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 
-
 // Response Get Due Cards Api V1 Cards Due GetCollapse allarray<object>
 // ItemsCollapse allobject
 // idstringuuid
@@ -49,8 +48,6 @@ class ReviewResponseModel {
     this.createdAt,
   });
 
-
-
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'id': id,
@@ -72,24 +69,24 @@ class ReviewResponseModel {
     final createdAtValue = map['createdAt'] ?? map['created_at'];
 
     return ReviewResponseModel(
-      id: map['id'] as String,
-      sceneId: map['scene_id'] as String,
-      userId: map['user_id'] as String,
-      objectLabel: map['object_label'] as String,
-      lemma: map['lemma'] as String,
-      content:Map<String, dynamic>.from(map['content'] as Map<String, dynamic>),
-      cefrLevel: CEFRLevel.fromJson(map['cefr_level'] as String),
-      sceneTags: map['scene_tags'] != null
-          ? List<String>.from(map['scene_tags'] as List)
-          : null,
-      isReviewed: map['is_reviewed'] as bool,
-      isOfficial: map['is_official'] as bool,
-      generationCount: map['generation_count'] as int,
+      id: _readString(map, ['id']),
+      sceneId: _readString(map, ['scene_id', 'sceneId']),
+      userId: _readString(map, ['user_id', 'userId']),
+      objectLabel: _readString(map, ['object_label', 'objectLabel', 'word']),
+      lemma: _readString(map, ['lemma', 'word', 'object_label']),
+      content: _readMap(map['content']),
+      cefrLevel: _readCefrLevel(map['cefr_level'] ?? map['cefrLevel']),
+      sceneTags: _readStringList(map['scene_tags'] ?? map['sceneTags']),
+      isReviewed: _readBool(map['is_reviewed'] ?? map['isReviewed']),
+      isOfficial: _readBool(map['is_official'] ?? map['isOfficial']),
+      generationCount: _readInt(
+        map['generation_count'] ?? map['generationCount'],
+      ),
       createdAt: createdAtValue is String
           ? DateTime.tryParse(createdAtValue)
           : createdAtValue is int
-              ? DateTime.fromMillisecondsSinceEpoch(createdAtValue)
-              : null,
+          ? DateTime.fromMillisecondsSinceEpoch(createdAtValue)
+          : null,
     );
   }
 
@@ -112,28 +109,20 @@ class ReviewResponseModel {
 
   String toJson() => json.encode(toMap());
 
-  factory ReviewResponseModel.fromJson(String source) => ReviewResponseModel.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory ReviewResponseModel.fromJson(String source) =>
+      ReviewResponseModel.fromMap(json.decode(source) as Map<String, dynamic>);
 }
-
 
 class ReviewPostModel {
   final String cardId;
   final int rating;
-  ReviewPostModel({
-    required this.cardId,
-    required this.rating,
-  });
+  ReviewPostModel({required this.cardId, required this.rating});
 
   Map<String, dynamic> toMap() {
-    return <String, dynamic>{
-      'card_id': cardId,
-      'rating': rating,
-    };
+    return <String, dynamic>{'card_id': cardId, 'rating': rating};
   }
 
   String toJson() => json.encode(toMap());
-
-
 }
 // {
 //   "reviewed_today": 0,
@@ -161,10 +150,73 @@ class ReviewStateModel {
   }
 
   String toJson() => json.encode({
-        'reviewed_today': reviewedToday,
-        'due_count': dueCount,
-        'total_cards': totalCards,
-      });
+    'reviewed_today': reviewedToday,
+    'due_count': dueCount,
+    'total_cards': totalCards,
+  });
 
-  factory ReviewStateModel.fromJson(String source) => ReviewStateModel.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory ReviewStateModel.fromJson(String source) =>
+      ReviewStateModel.fromMap(json.decode(source) as Map<String, dynamic>);
+}
+
+String _readString(
+  Map<String, dynamic> json,
+  List<String> keys, {
+  String fallback = '',
+}) {
+  for (final key in keys) {
+    final value = json[key];
+    if (value is String && value.trim().isNotEmpty) {
+      return value.trim();
+    }
+  }
+  return fallback;
+}
+
+Map<String, dynamic>? _readMap(dynamic value) {
+  if (value is Map<String, dynamic>) {
+    return Map<String, dynamic>.from(value);
+  }
+  if (value is Map) {
+    return Map<String, dynamic>.from(value);
+  }
+  return null;
+}
+
+List<String>? _readStringList(dynamic value) {
+  if (value is List) {
+    return value.map((item) => item.toString()).toList();
+  }
+  return null;
+}
+
+bool _readBool(dynamic value) {
+  if (value is bool) {
+    return value;
+  }
+  if (value is num) {
+    return value != 0;
+  }
+  if (value is String) {
+    return value.toLowerCase() == 'true' || value == '1';
+  }
+  return false;
+}
+
+int _readInt(dynamic value) {
+  if (value is int) {
+    return value;
+  }
+  if (value is num) {
+    return value.toInt();
+  }
+  return int.tryParse(value?.toString() ?? '') ?? 0;
+}
+
+CEFRLevel _readCefrLevel(dynamic value) {
+  final text = value?.toString().trim().toUpperCase() ?? '';
+  return CEFRLevel.values.firstWhere(
+    (level) => level.value == text,
+    orElse: () => CEFRLevel.a1,
+  );
 }

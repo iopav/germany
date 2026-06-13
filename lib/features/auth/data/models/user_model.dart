@@ -23,7 +23,6 @@ class UserModel {
     required this.createdAt,
   });
 
-
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
       id: json['id'] as String,
@@ -33,9 +32,32 @@ class UserModel {
       role: UserRole.fromJson(json['role'] as String),
       isVerified: json['is_verified'] as bool,
       isTest: json['is_test'] as bool,
-      createdAt: DateTime.parse(json['created_at'] as String),    
+      createdAt: DateTime.parse(json['created_at'] as String),
     );
   }
+
+  UserModel copyWith({
+    String? id,
+    String? email,
+    L1Language? l1Language,
+    CEFRLevel? targetLevel,
+    UserRole? role,
+    bool? isVerified,
+    bool? isTest,
+    DateTime? createdAt,
+  }) {
+    return UserModel(
+      id: id ?? this.id,
+      email: email ?? this.email,
+      l1Language: l1Language ?? this.l1Language,
+      targetLevel: targetLevel ?? this.targetLevel,
+      role: role ?? this.role,
+      isVerified: isVerified ?? this.isVerified,
+      isTest: isTest ?? this.isTest,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
+
   UserEntity toEntity() {
     return UserEntity(
       id: id,
@@ -45,7 +67,6 @@ class UserModel {
     );
   }
 }
-
 
 class AuthResponseModel {
   final String accessToken;
@@ -58,11 +79,10 @@ class AuthResponseModel {
     required this.user,
   });
 
-  
   factory AuthResponseModel.fromJson(Map<String, dynamic> json) {
     return AuthResponseModel(
-      accessToken: json['access_token'] as String,    
-      tokenType: json['token_type'] as String,        
+      accessToken: json['access_token'] as String,
+      tokenType: json['token_type'] as String,
       user: UserModel.fromJson(json['user'] as Map<String, dynamic>),
     );
   }

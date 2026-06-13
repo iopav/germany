@@ -4,6 +4,8 @@ class SceneEntity {
   final String sourceType;
   final String sourceImageUrl;
   final String annotatedImageUrl;
+  final String status;
+  final String errorMessage;
   final List<SceneDetectionEntity> detectionResult;
   final Map<String, dynamic> llmResult;
   final bool needsReview;
@@ -17,6 +19,8 @@ class SceneEntity {
     required this.sourceType,
     required this.sourceImageUrl,
     required this.annotatedImageUrl,
+    required this.status,
+    required this.errorMessage,
     required this.detectionResult,
     required this.llmResult,
     required this.needsReview,

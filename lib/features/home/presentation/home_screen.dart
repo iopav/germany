@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:germany/core/widgets/scene_image_cache.dart';
 import 'package:image_picker/image_picker.dart';
 
 import 'home_provider.dart';
@@ -94,6 +95,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
       final scene = await ref.read(homeProvider.notifier).generateScene();
       if (!mounted) return;
 
+      await SceneImageCache.precacheScene(context, scene);
+      if (!mounted) return;
+
       Navigator.of(
         context,
       ).push(MaterialPageRoute(builder: (_) => ImmersiveScreen(scene: scene)));
@@ -131,6 +135,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
             // level: _selectedLevel,
           );
 
+      if (!mounted) return;
+
+      await SceneImageCache.precacheScene(context, generatedResult);
       if (!mounted) return;
 
       // 清空输入框

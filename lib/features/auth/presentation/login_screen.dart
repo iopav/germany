@@ -137,6 +137,26 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     await _secureStorage.delete(key: _rememberedPasswordKey);
   }
 
+  Future<void> _showForgotPasswordDialog() async {
+    await showDialog<void>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Reset Password'),
+          content: const Text(
+            'Please send your account email to rozen@gmail.com to reset your password.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     // 监听状态，用于控制按钮的 Loading 以及弹出报错
@@ -353,7 +373,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                     const SizedBox(width: 8),
                                     Flexible(
                                       child: TextButton(
-                                        onPressed: () {},
+                                        onPressed: _showForgotPasswordDialog,
                                         style: TextButton.styleFrom(
                                           padding: EdgeInsets.zero,
                                           minimumSize: Size.zero,

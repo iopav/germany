@@ -3,14 +3,12 @@ import 'dart:convert';
 
 import 'package:germany/core/emus/app_enums.dart';
 
-import '../../../home/domain/entity/home_stats_entity.dart';
-
 class ReviewEntity {
   final String id;
   final String sceneId;
   final String userId;
   final String objectLabel;
-  final String lemma;//answer  
+  final String lemma; //answer
   final Map<String, dynamic>? content;
   final CEFRLevel cefrLevel;
   final List<String>? sceneTags;
@@ -33,10 +31,6 @@ class ReviewEntity {
     required this.generationCount,
     this.createdAt,
   });
-
-  
-
-
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
@@ -62,17 +56,24 @@ class ReviewEntity {
       userId: map['userId'] as String,
       objectLabel: map['objectLabel'] as String,
       lemma: map['lemma'] as String,
-      content: map['content'] != null ? Map<String, dynamic>.from(map['content'] as Map<String, dynamic>) : null,
+      content: map['content'] != null
+          ? Map<String, dynamic>.from(map['content'] as Map<String, dynamic>)
+          : null,
       cefrLevel: CEFRLevel.fromJson(map['cefrLevel'] as String),
-      sceneTags: map['sceneTags'] != null ? List<String>.from(map['sceneTags'] as List<String>) : null,
+      sceneTags: map['sceneTags'] != null
+          ? List<String>.from(map['sceneTags'] as List<String>)
+          : null,
       isReviewed: map['isReviewed'] as bool,
       isOfficial: map['isOfficial'] as bool,
       generationCount: map['generationCount'] as int,
-      createdAt: map['createdAt'] != null ? DateTime.fromMillisecondsSinceEpoch(map['createdAt'] as int) : null,
+      createdAt: map['createdAt'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(map['createdAt'] as int)
+          : null,
     );
   }
 
   String toJson() => json.encode(toMap());
 
-  factory ReviewEntity.fromJson(String source) => ReviewEntity.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory ReviewEntity.fromJson(String source) =>
+      ReviewEntity.fromMap(json.decode(source) as Map<String, dynamic>);
 }

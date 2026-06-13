@@ -32,9 +32,10 @@ class ApiConstants {
 
 
   // --- 场景模块 (Scenes) ---
-  static const String scenesBase = '/scenes/'; 
+  static const String scenesBase = '/scenes/'; //post提交生成请求，get获取列表
   static const String scenesGenerateText = '/scenes/generate-text';
   static String sceneDetail(String id) => '/scenes/$id'; 
+  static String deleteScene(String id) => '/scenes/$id';
 
   // --- 词卡模块 (Cards) ---
   static const String cardsDue = '/cards/due'; //待复习的词卡列表

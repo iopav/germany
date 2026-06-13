@@ -23,7 +23,10 @@ class AppShellScaffold extends StatelessWidget {
         context.go('/reviews');
         break;
       case 2:
-        context.go('/app/profile');
+        context.go('/history');
+        break;
+      case 3:
+        context.go('/settings');
         break;
     }
   }
@@ -138,10 +141,16 @@ class AppShellScaffold extends StatelessWidget {
                   label: 'Reviews',
                 ),
                 BottomNavigationBarItem(
+                  icon: Icon(Icons.history_outlined),
+                  activeIcon: Icon(Icons.history),
+                  label: 'History',
+                ),
+                BottomNavigationBarItem(
                   icon: Icon(Icons.person_outline),
                   activeIcon: Icon(Icons.person),
-                  label: 'Profile',
+                  label: 'Settings',
                 ),
+                
               ],
             ),
           ),

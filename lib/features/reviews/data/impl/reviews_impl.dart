@@ -22,7 +22,10 @@ class ReviewsImpl implements ReviewsInterface {
       final result = await _reviewsService.fetchReviews();
       return result.map((item) => item.toEntity()).toList();
     } on DioException catch (e) {
-      final message = ErrorUtils.extractDioMessage(e, operation: 'fetch due reviews');
+      final message = ErrorUtils.extractDioMessage(
+        e,
+        operation: 'fetch due reviews',
+      );
       AppLogger.w('[ReviewsImpl] Failed to fetch due reviews: $message');
       throw Exception(message);
     } catch (e) {
@@ -32,11 +35,29 @@ class ReviewsImpl implements ReviewsInterface {
   }
 
   @override
+  Future<List<ReviewEntity>> fetchCards() async {
+    try {
+      final result = await _reviewsService.fetchCards();
+      return result.map((item) => item.toEntity()).toList();
+    } on DioException catch (e) {
+      final message = ErrorUtils.extractDioMessage(e, operation: 'fetch cards');
+      AppLogger.w('[ReviewsImpl] Failed to fetch cards: $message');
+      throw Exception(message);
+    } catch (e) {
+      AppLogger.w('[ReviewsImpl] Failed to fetch cards: $e');
+      throw Exception('Failed to fetch cards. Please try again.');
+    }
+  }
+
+  @override
   Future<void> submitReview(ReviewPostModel reviewPost) async {
     try {
       await _reviewsService.submitReview(reviewPost);
     } on DioException catch (e) {
-      final message = ErrorUtils.extractDioMessage(e, operation: 'submit review');
+      final message = ErrorUtils.extractDioMessage(
+        e,
+        operation: 'submit review',
+      );
       AppLogger.w('[ReviewsImpl] Failed to submit review: $message');
       throw Exception(message);
     } catch (e) {
@@ -50,7 +71,10 @@ class ReviewsImpl implements ReviewsInterface {
     try {
       return await _reviewsService.fetchReviewStats();
     } on DioException catch (e) {
-      final message = ErrorUtils.extractDioMessage(e, operation: 'fetch review stats');
+      final message = ErrorUtils.extractDioMessage(
+        e,
+        operation: 'fetch review stats',
+      );
       AppLogger.w('[ReviewsImpl] Failed to fetch review stats: $message');
       throw Exception(message);
     } catch (e) {
@@ -71,7 +95,10 @@ class ReviewsImpl implements ReviewsInterface {
       await _cacheScene(model);
       return model.toEntity();
     } on DioException catch (e) {
-      final message = ErrorUtils.extractDioMessage(e, operation: 'fetch review scene');
+      final message = ErrorUtils.extractDioMessage(
+        e,
+        operation: 'fetch review scene',
+      );
       AppLogger.w('[ReviewsImpl] Failed to fetch review scene: $message');
       throw Exception(message);
     } catch (e) {

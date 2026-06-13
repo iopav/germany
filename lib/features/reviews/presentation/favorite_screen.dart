@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:germany/core/widgets/scene_image_cache.dart';
 import 'package:go_router/go_router.dart';
 
 import '../domain/entity/reviews_entity.dart';
@@ -22,17 +23,41 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
     super.initState();
     Future.microtask(() {
       if (mounted) {
-        ref.read(reviewsProvider.future);
+        ref.read(reviewCardsProvider.future);
+        _warmUpReviewImages();
       }
     });
+  }
+
+  Future<void> _warmUpReviewImages() async {
+    await ref.read(reviewsProvider.future);
+    if (!mounted) {
+      return;
+    }
+
+    final scenes = await ref
+        .read(reviewsProvider.notifier)
+        .prefetchUpcomingScenes(count: 4);
+    if (!mounted) {
+      return;
+    }
+
+    for (final scene in scenes) {
+      await SceneImageCache.precacheScene(context, scene);
+      if (!mounted) {
+        return;
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final reviewsAsync = ref.watch(reviewsProvider);
+    final cardsAsync = ref.watch(reviewCardsProvider);
     final reviewState = reviewsAsync.asData?.value;
-    final queue = reviewState?.queue ?? const <ReviewEntity>[];
-    final filteredQueue = _filterCardsBySelectedLevel(queue);
+    final dueQueue = reviewState?.queue ?? const <ReviewEntity>[];
+    final cards = cardsAsync.asData?.value ?? const <ReviewEntity>[];
+    final filteredCards = _filterCardsBySelectedLevel(cards);
 
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -40,8 +65,8 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
       // appBar: _buildAppBar(),
       body: SingleChildScrollView(
         padding: const EdgeInsets.only(
-          top:12,
-         
+          top: 12,
+
           left: 16.0,
           right: 16.0,
           bottom: 100.0, // 为 BottomNav 留出空间
@@ -49,15 +74,15 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeroSection(queue.length),
-            const SizedBox(height: 24),
-            _buildStatsRow(queue, reviewState?.masteredCount ?? 0),
-            const SizedBox(height: 24),
+            _buildHeroSection(dueQueue.length),
+            const SizedBox(height: 16),
+            // _buildStatsRow(cards, reviewState?.masteredCount ?? 0),
+            // const SizedBox(height: 24),
             _buildFilters(),
             const SizedBox(height: 24),
             _buildListHeader(),
             const SizedBox(height: 16),
-            _buildVocabList(filteredQueue),
+            _buildVocabList(filteredCards),
           ],
         ),
       ),
@@ -65,7 +90,26 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
     );
   }
 
-  void _startReview() {
+  Future<void> _startReview() async {
+    final current = ref.read(reviewsProvider).asData?.value;
+    if (current == null ||
+        current.sessionCompleted ||
+        current.currentReview == null) {
+      await ref.read(reviewsProvider.notifier).refresh();
+    }
+
+    if (!mounted) {
+      return;
+    }
+
+    final updated = ref.read(reviewsProvider).asData?.value;
+    if (updated == null || updated.currentReview == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No cards due for review right now.')),
+      );
+      return;
+    }
+
     context.go('/reviews/session');
   }
 
@@ -168,12 +212,12 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
           ),
           const SizedBox(height: 20),
           ReviewPressable(
-            onTap: _startReview,
+            onTap: () => _startReview(),
             pressedScale: 0.97,
             builder: (context, isHovered, isPressed) {
               return IgnorePointer(
                 child: ElevatedButton.icon(
-                  onPressed: _startReview,
+                  onPressed: () => _startReview(),
                   icon: const Icon(Icons.bolt, color: Color(0xFF004AC6)),
                   label: const Text(
                     'Start Review',

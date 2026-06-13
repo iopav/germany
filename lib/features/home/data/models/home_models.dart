@@ -6,6 +6,8 @@ class SceneResponseModel {
   final String sourceType;
   final String sourceImageUrl;
   final String annotatedImageUrl;
+  final String status;
+  final String errorMessage;
   final List<SceneDetectionEntity> detectionResult;
   final Map<String, dynamic> llmResult;
   final bool needsReview;
@@ -19,6 +21,8 @@ class SceneResponseModel {
     required this.sourceType,
     required this.sourceImageUrl,
     required this.annotatedImageUrl,
+    required this.status,
+    required this.errorMessage,
     required this.detectionResult,
     required this.llmResult,
     required this.needsReview,
@@ -28,9 +32,9 @@ class SceneResponseModel {
   });
 
   factory SceneResponseModel.fromJson(Map<String, dynamic> json) {
-    final payload = json['data'] is Map<String, dynamic>
+    final payload = json['data'] is Map
         ? Map<String, dynamic>.from(json['data'] as Map)
-        : json;
+        : Map<String, dynamic>.from(json);
 
     return SceneResponseModel(
       id: _readString(payload, ['id', 'scene_id']),
@@ -44,12 +48,16 @@ class SceneResponseModel {
         'annotated_image_url',
         'annotatedImageUrl',
       ]),
+      status: _readString(payload, ['status']),
+      errorMessage: _readString(payload, ['error_message', 'errorMessage']),
       detectionResult: _readDetectionList(payload['detection_result']),
       llmResult: _readMap(payload['llm_result']),
       needsReview: _readBool(payload['needs_review']),
-        cards: _readCards(payload)
+      cards: _readCards(payload)
           .whereType<Map>()
-          .map((item) => SceneCardModel.fromJson(Map<String, dynamic>.from(item)))
+          .map(
+            (item) => SceneCardModel.fromJson(Map<String, dynamic>.from(item)),
+          )
           .toList(),
       createdAt: _readDateTime(payload['created_at']),
       raw: Map<String, dynamic>.from(payload),
@@ -63,6 +71,8 @@ class SceneResponseModel {
       sourceType: sourceType,
       sourceImageUrl: sourceImageUrl,
       annotatedImageUrl: annotatedImageUrl,
+      status: status,
+      errorMessage: errorMessage,
       detectionResult: detectionResult,
       llmResult: llmResult,
       needsReview: needsReview,
@@ -266,7 +276,11 @@ List<SceneDetectionEntity> _readDetectionList(dynamic value) {
   if (value is List) {
     return value
         .whereType<Map>()
-        .map((item) => SceneDetectionModel.fromJson(Map<String, dynamic>.from(item)).toEntity())
+        .map(
+          (item) => SceneDetectionModel.fromJson(
+            Map<String, dynamic>.from(item),
+          ).toEntity(),
+        )
         .toList();
   }
   return const [];
@@ -275,7 +289,11 @@ List<SceneDetectionEntity> _readDetectionList(dynamic value) {
 List<double> _readDoubleList(dynamic value) {
   if (value is List) {
     return value
-        .map((item) => item is num ? item.toDouble() : double.tryParse(item.toString()) ?? 0)
+        .map(
+          (item) => item is num
+              ? item.toDouble()
+              : double.tryParse(item.toString()) ?? 0,
+        )
         .toList();
   }
   return const [];

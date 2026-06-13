@@ -1,6 +1,8 @@
 import 'dart:ui';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:germany/core/widgets/scene_image_cache.dart';
 
 import '../../../core/constants/level_color_constants.dart';
 import '../../../core/utils/logger.dart';
@@ -80,26 +82,20 @@ class _ImmersiveScreenState extends State<ImmersiveScreen> {
     final detections = scene?.detectionResult ?? const <SceneDetectionEntity>[];
     final cards = scene?.cards ?? const <SceneCardEntity>[];
     final usedDetectionIndexes = <int>{};
-    final mappedVocabulary = cards
-        .asMap()
-        .entries
-        .map(
-          (entry) {
-            final matchedDetection = _findDetectionForCard(
-              entry.value,
-              detections,
-              usedDetectionIndexes,
-              cardIndex: entry.key,
-            );
+    final mappedVocabulary = cards.asMap().entries.map((entry) {
+      final matchedDetection = _findDetectionForCard(
+        entry.value,
+        detections,
+        usedDetectionIndexes,
+        cardIndex: entry.key,
+      );
 
-            return _cardToVocabularyItem(
-              entry.value,
-              resolvedBackgroundImageUrl,
-              matchedDetection,
-            );
-          },
-        )
-        .toList();
+      return _cardToVocabularyItem(
+        entry.value,
+        resolvedBackgroundImageUrl,
+        matchedDetection,
+      );
+    }).toList();
 
     AppLogger.i(
       '[Immersive] detection_count=${detections.length}, cards_count=${cards.length}, rendered_vocabulary_count=${mappedVocabulary.length}',
@@ -198,14 +194,8 @@ class _ImmersiveScreenState extends State<ImmersiveScreen> {
         card.article,
         content['article']?.toString() ?? '',
       ]),
-      plural: _readString([
-        card.plural,
-        content['plural']?.toString() ?? '',
-      ]),
-      ipa: _readString([
-        card.ipa,
-        content['ipa']?.toString() ?? '',
-      ]),
+      plural: _readString([card.plural, content['plural']?.toString() ?? '']),
+      ipa: _readString([card.ipa, content['ipa']?.toString() ?? '']),
       de: _readString([
         content['word']?.toString() ?? '',
         card.objectLabel,
@@ -269,14 +259,12 @@ class _ImmersiveScreenState extends State<ImmersiveScreen> {
   SceneDetectionEntity? _findDetectionForCard(
     SceneCardEntity card,
     List<SceneDetectionEntity> detections,
-    Set<int> usedDetectionIndexes,
-    {
+    Set<int> usedDetectionIndexes, {
     required int cardIndex,
   }) {
     for (var index = 0; index < detections.length; index++) {
       final detection = detections[index];
-      if (
-          !usedDetectionIndexes.contains(index) &&
+      if (!usedDetectionIndexes.contains(index) &&
           card.objectId > 0 &&
           detection.id == card.objectId) {
         usedDetectionIndexes.add(index);
@@ -301,8 +289,7 @@ class _ImmersiveScreenState extends State<ImmersiveScreen> {
       }
     }
 
-    if (
-        cardIndex >= 0 &&
+    if (cardIndex >= 0 &&
         cardIndex < detections.length &&
         !usedDetectionIndexes.contains(cardIndex)) {
       usedDetectionIndexes.add(cardIndex);
@@ -340,7 +327,10 @@ class _ImmersiveScreenState extends State<ImmersiveScreen> {
 
   List<String> _readStringListDynamic(dynamic value) {
     if (value is List) {
-      return value.map((item) => item.toString()).where((item) => item.trim().isNotEmpty).toList();
+      return value
+          .map((item) => item.toString())
+          .where((item) => item.trim().isNotEmpty)
+          .toList();
     }
     if (value is String && value.trim().isNotEmpty) {
       return [value];
@@ -409,16 +399,11 @@ class _ImmersiveScreenState extends State<ImmersiveScreen> {
           if (needsReview) ...[
             const SizedBox(height: 10),
             Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 10,
-                vertical: 6,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
                 color: Colors.amber.withOpacity(0.16),
                 borderRadius: BorderRadius.circular(999),
-                border: Border.all(
-                  color: Colors.amber.withOpacity(0.4),
-                ),
+                border: Border.all(color: Colors.amber.withOpacity(0.4)),
               ),
               child: const Text(
                 'AI may make mistakes. Please review the results.',
@@ -437,13 +422,7 @@ class _ImmersiveScreenState extends State<ImmersiveScreen> {
               runSpacing: 8,
               children: sceneTags
                   .take(4)
-                  .map(
-                    (tag) => _buildTag(
-                      tag,
-                      Colors.white10,
-                      Colors.white70,
-                    ),
-                  )
+                  .map((tag) => _buildTag(tag, Colors.white10, Colors.white70))
                   .toList(),
             ),
           ],
@@ -462,12 +441,14 @@ class _ImmersiveScreenState extends State<ImmersiveScreen> {
         children: [
           Positioned.fill(
             child: Center(
-              child: Image.network(
-                backgroundImageUrl,
+              child: CachedNetworkImage(
+                imageUrl: backgroundImageUrl,
                 fit: BoxFit.contain,
                 width: screenSize.width,
                 height: screenSize.height,
                 alignment: Alignment.center,
+                errorWidget: (_, __, ___) =>
+                    const ColoredBox(color: Colors.black),
               ),
             ),
           ),
@@ -482,69 +463,67 @@ class _ImmersiveScreenState extends State<ImmersiveScreen> {
             ),
           ),
           if (false)
-          Positioned(
-            top: MediaQuery.of(context).padding.top + 76,
-            left: 24,
-            right: 24,
-            child: GlassContainer(
-              borderRadius: BorderRadius.circular(24),
-              blur: 18,
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          
-                          child: GestureDetector(
-                            behavior: HitTestBehavior.opaque,
-                            onTap: _toggleSceneSummary,
-                            child: const Padding(
-                              padding: EdgeInsets.symmetric(vertical: 2),
-                              child: Text(
-                                'Scene Summary',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w700,
-                                  letterSpacing: 0.2,
+            Positioned(
+              top: MediaQuery.of(context).padding.top + 76,
+              left: 24,
+              right: 24,
+              child: GlassContainer(
+                borderRadius: BorderRadius.circular(24),
+                blur: 18,
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: GestureDetector(
+                              behavior: HitTestBehavior.opaque,
+                              onTap: _toggleSceneSummary,
+                              child: const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 2),
+                                child: Text(
+                                  'Scene Summary',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                    letterSpacing: 0.2,
+                                  ),
                                 ),
                               ),
                             ),
                           ),
-                        
-                        ),
-                        IconButton(
-                          onPressed: _toggleSceneSummary,
-                          splashRadius: 18,
-                          icon: Icon(
-                            isSceneSummaryCollapsed
-                                ? Icons.keyboard_arrow_down
-                                : Icons.keyboard_arrow_up,
-                            color: Colors.white70,
-                            size: 20,
+                          IconButton(
+                            onPressed: _toggleSceneSummary,
+                            splashRadius: 18,
+                            icon: Icon(
+                              isSceneSummaryCollapsed
+                                  ? Icons.keyboard_arrow_down
+                                  : Icons.keyboard_arrow_up,
+                              color: Colors.white70,
+                              size: 20,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                    AnimatedCrossFade(
-                      firstChild: const SizedBox.shrink(),
-                      secondChild: _buildSceneSummaryBody(),
-                      crossFadeState: isSceneSummaryCollapsed
-                          ? CrossFadeState.showFirst
-                          : CrossFadeState.showSecond,
-                      duration: const Duration(milliseconds: 220),
-                      sizeCurve: Curves.easeInOut,
-                    ),
-                  ],
+                        ],
+                      ),
+                      AnimatedCrossFade(
+                        firstChild: const SizedBox.shrink(),
+                        secondChild: _buildSceneSummaryBody(),
+                        crossFadeState: isSceneSummaryCollapsed
+                            ? CrossFadeState.showFirst
+                            : CrossFadeState.showSecond,
+                        duration: const Duration(milliseconds: 220),
+                        sizeCurve: Curves.easeInOut,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-          
+
           Positioned(
             top: MediaQuery.of(context).padding.top + 16,
             left: 24,
@@ -598,16 +577,27 @@ class _ImmersiveScreenState extends State<ImmersiveScreen> {
                     height: 160,
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     // 底部小卡缩略图横条：这里按横向列表渲染每张 vocabulary 缩略卡。
-                    child: ListView.separated(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      scrollDirection: Axis.horizontal,
-                      itemCount: vocabularyList.length,
-                      separatorBuilder: (_, _) => const SizedBox(width: 16),
-                      itemBuilder: (context, index) {
-                        final item = vocabularyList[index];
-                        final isActive = selectedItem == item;
-                        return _buildVocabularyCard(item, isActive);
-                      },
+                    child: ScrollConfiguration(
+                      behavior: ScrollConfiguration.of(context).copyWith(
+                        dragDevices: {
+                          PointerDeviceKind.touch,
+                          PointerDeviceKind.mouse,
+                          PointerDeviceKind.trackpad,
+                        },
+                      ),
+                      child: ListView.separated(
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        scrollDirection: Axis.horizontal,
+                        physics: const BouncingScrollPhysics(),
+                        primary: false,
+                        itemCount: vocabularyList.length,
+                        separatorBuilder: (_, _) => const SizedBox(width: 16),
+                        itemBuilder: (context, index) {
+                          final item = vocabularyList[index];
+                          final isActive = selectedItem == item;
+                          return _buildVocabularyCard(item, isActive);
+                        },
+                      ),
                     ),
                   ),
                 ),
@@ -624,34 +614,7 @@ class _ImmersiveScreenState extends State<ImmersiveScreen> {
     String? label,
     required VoidCallback onTap,
   }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: GlassContainer(
-        borderRadius: BorderRadius.circular(30),
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: label != null ? 16 : 12,
-            vertical: 10,
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, color: Colors.white, size: 20),
-              if (label != null) ...[
-                const SizedBox(width: 8),
-                Text(
-                  label,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ],
-          ),
-        ),
-      ),
-    );
+    return _PressableGlassButton(icon: icon, label: label, onTap: onTap);
   }
 
   Widget _buildGlassPill(String text) {
@@ -673,101 +636,200 @@ class _ImmersiveScreenState extends State<ImmersiveScreen> {
   }
 
   Widget _buildDetailPanel(VocabularyItem item) {
+    final media = MediaQuery.of(context);
+    final viewportHeight = mathMax(
+      180,
+      media.size.height - media.padding.top - media.padding.bottom,
+    );
+    final maxPanelHeight = (viewportHeight - 260)
+        .clamp(180.0, viewportHeight)
+        .toDouble();
+
     return GlassContainer(
       borderRadius: BorderRadius.circular(20),
       borderOpacity: 0.3,
       blur: 20,
       // 详情面板：这里展示完整词条信息。
       // 从上到下依次是：词头 / IPA / 翻译、标签、语法说明、常见错误、相关词、例句。
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      item.article.isNotEmpty ? '${item.article} ${item.word}' : item.word,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    if (item.ipa.isNotEmpty)
-                      Text(
-                        '[${item.ipa}]',
-                        style: TextStyle(
-                          color: Colors.white.withOpacity(0.75),
-                          fontSize: 14,
-                          fontStyle: FontStyle.italic,
-                        ),
-                      ),
-                    Text(
-                      item.translationL1.isNotEmpty ? item.translationL1 : item.en,
-                      style: TextStyle(
-                        color: Colors.white.withOpacity(0.7),
-                        fontSize: 16,
-                        fontStyle: FontStyle.italic,
-                      ),
-                    ),
-                  ],
-                ),
-                // IconButton(//收藏夹按钮
-                //   icon: Icon(
-                //     _favoriteItems.contains(item) ? Icons.star : Icons.star_border,
-                //     color: _favoriteItems.contains(item) ? Colors.amberAccent : Colors.white70,
-                //   ),
-                //   onPressed: () => _toggleFavorite(item),
-                // ),
-                IconButton(
-                  icon: const Icon(Icons.close, color: Colors.white70),
-                  onPressed: () => setState(() => selectedItem = null),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                _buildTag(item.level, Colors.white24, Colors.white),
-                const SizedBox(width: 8),
-                _buildTag(
-                  item.article,//change
-                  Colors.blue.withOpacity(0.3),
-                  Colors.blue.shade200,
-                ),
-                const SizedBox(width: 8),
-                // _buildTag(item.type, Colors.white10, Colors.white70),
-              ],
-            ),
-            if (item.plural.isNotEmpty || item.objectId > 0) ...[
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxHeight: maxPanelHeight),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (item.plural.isNotEmpty)
-                    _buildTag(
-                      'Plural: ${item.plural}',
-                      Colors.white10,
-                      Colors.white70,
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          item.article.isNotEmpty
+                              ? '${item.article} ${item.word}'
+                              : item.word,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 24,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        if (item.ipa.isNotEmpty)
+                          Text(
+                            '[${item.ipa}]',
+                            style: TextStyle(
+                              color: Colors.white.withOpacity(0.75),
+                              fontSize: 14,
+                              fontStyle: FontStyle.italic,
+                            ),
+                          ),
+                        Text(
+                          item.translationL1.isNotEmpty
+                              ? item.translationL1
+                              : item.en,
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.7),
+                            fontSize: 16,
+                            fontStyle: FontStyle.italic,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
                     ),
-                  if (item.objectId > 0)
-                    _buildTag(
-                      'ID: ${item.objectId}',
-                      Colors.white10,
-                      Colors.white70,
-                    ),
+                  ),
+                  // IconButton(//收藏夹按钮
+                  //   icon: Icon(
+                  //     _favoriteItems.contains(item) ? Icons.star : Icons.star_border,
+                  //     color: _favoriteItems.contains(item) ? Colors.amberAccent : Colors.white70,
+                  //   ),
+                  //   onPressed: () => _toggleFavorite(item),
+                  // ),
+                  IconButton(
+                    icon: const Icon(Icons.close, color: Colors.white70),
+                    onPressed: () => setState(() => selectedItem = null),
+                  ),
                 ],
               ),
-            ],
-            if (item.grammarNotes.isNotEmpty) ...[
               const SizedBox(height: 12),
+              Row(
+                children: [
+                  _buildTag(item.level, Colors.white24, Colors.white),
+                  const SizedBox(width: 8),
+                  _buildTag(
+                    item.article, //change
+                    Colors.blue.withOpacity(0.3),
+                    Colors.blue.shade200,
+                  ),
+                  const SizedBox(width: 8),
+                  // _buildTag(item.type, Colors.white10, Colors.white70),
+                ],
+              ),
+              if (item.plural.isNotEmpty || item.objectId > 0) ...[
+                const SizedBox(height: 12),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    if (item.plural.isNotEmpty)
+                      _buildTag(
+                        'Plural: ${item.plural}',
+                        Colors.white10,
+                        Colors.white70,
+                      ),
+                    if (item.objectId > 0)
+                      _buildTag(
+                        'ID: ${item.objectId}',
+                        Colors.white10,
+                        Colors.white70,
+                      ),
+                  ],
+                ),
+              ],
+              if (item.grammarNotes.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.05),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.white.withOpacity(0.1)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Grammar Notes',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      ...item.grammarNotes.map(
+                        (note) => Padding(
+                          padding: const EdgeInsets.only(bottom: 6),
+                          child: Text(
+                            '• $note',
+                            style: TextStyle(
+                              color: Colors.white.withOpacity(0.78),
+                              fontSize: 13,
+                              height: 1.4,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+              if (item.commonErrors.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.red.withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.red.withOpacity(0.2)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Common Errors',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      ...item.commonErrors.map(
+                        (errorText) => Padding(
+                          padding: const EdgeInsets.only(bottom: 6),
+                          child: Text(
+                            '• $errorText',
+                            style: TextStyle(
+                              color: Colors.white.withOpacity(0.78),
+                              fontSize: 13,
+                              height: 1.4,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+              const SizedBox(height: 16),
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(16),
@@ -779,118 +841,43 @@ class _ImmersiveScreenState extends State<ImmersiveScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Grammar Notes',
-                      style: TextStyle(
+                    Text(
+                      item.sentenceDe,
+                      style: const TextStyle(
                         color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                        height: 1.5,
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    ...item.grammarNotes.map(
-                      (note) => Padding(
-                        padding: const EdgeInsets.only(bottom: 6),
-                        child: Text(
-                          '• $note',
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.78),
-                            fontSize: 13,
-                            height: 1.4,
-                          ),
-                        ),
+                    const SizedBox(height: 4),
+                    Text(
+                      item.sentenceEn,
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.5),
+                        fontSize: 14,
                       ),
                     ),
                   ],
                 ),
               ),
-            ],
-            if (item.commonErrors.isNotEmpty) ...[
-              const SizedBox(height: 12),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.red.withOpacity(0.08),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.red.withOpacity(0.2)),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Common Errors',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    ...item.commonErrors.map(
-                      (errorText) => Padding(
-                        padding: const EdgeInsets.only(bottom: 6),
-                        child: Text(
-                          '• $errorText',
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.78),
-                            fontSize: 13,
-                            height: 1.4,
-                          ),
+              if (item.relatedWords.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: item.relatedWords
+                      .map(
+                        (relatedWord) => _buildTag(
+                          relatedWord,
+                          Colors.white10,
+                          Colors.white70,
                         ),
-                      ),
-                    ),
-                  ],
+                      )
+                      .toList(),
                 ),
-              ),
+              ],
             ],
-            const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.05),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.white.withOpacity(0.1)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    item.sentenceDe,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      height: 1.5,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    item.sentenceEn,
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.5),
-                      fontSize: 14,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            if (item.relatedWords.isNotEmpty) ...[
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: item.relatedWords
-                    .map(
-                      (relatedWord) => _buildTag(
-                        relatedWord,
-                        Colors.white10,
-                        Colors.white70,
-                      ),
-                    )
-                    .toList(),
-              ),
-            ],
-          ],
+          ),
         ),
       ),
     );
@@ -1024,7 +1011,9 @@ class _ImmersiveScreenState extends State<ImmersiveScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       Text(
-                        item.article.isNotEmpty ? '${item.article} ${item.word}' : item.word,
+                        item.article.isNotEmpty
+                            ? '${item.article} ${item.word}'
+                            : item.word,
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 13,
@@ -1034,7 +1023,9 @@ class _ImmersiveScreenState extends State<ImmersiveScreen> {
                         overflow: TextOverflow.ellipsis,
                       ),
                       Text(
-                        item.translationL1.isNotEmpty ? item.translationL1 : item.en,
+                        item.translationL1.isNotEmpty
+                            ? item.translationL1
+                            : item.en,
                         style: TextStyle(
                           color: Colors.white.withOpacity(0.5),
                           fontSize: 9,
@@ -1088,7 +1079,8 @@ class _SceneDetectionOverlayState extends State<_SceneDetectionOverlay> {
   @override
   void didUpdateWidget(covariant _SceneDetectionOverlay oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.imageUrl != widget.imageUrl || oldWidget.items != widget.items) {
+    if (oldWidget.imageUrl != widget.imageUrl ||
+        oldWidget.items != widget.items) {
       _detachImageListener();
       _resolveImage();
     }
@@ -1099,19 +1091,16 @@ class _SceneDetectionOverlayState extends State<_SceneDetectionOverlay> {
       return;
     }
 
-    final provider = NetworkImage(widget.imageUrl);
+    final provider = SceneImageCache.provider(widget.imageUrl);
     final stream = provider.resolve(createLocalImageConfiguration(context));
-    _imageStreamListener = ImageStreamListener(
-      (info, _) {
-        if (!mounted) {
-          return;
-        }
-        setState(() {
-          _imageInfo = info;
-        });
-      },
-      onError: (_, __) {},
-    );
+    _imageStreamListener = ImageStreamListener((info, _) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _imageInfo = info;
+      });
+    }, onError: (_, __) {});
     stream.addListener(_imageStreamListener!);
     _imageStream = stream;
   }
@@ -1140,80 +1129,77 @@ class _SceneDetectionOverlayState extends State<_SceneDetectionOverlay> {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-          final viewportSize = Size(constraints.maxWidth, constraints.maxHeight);
-          final imageSize = Size(
-            imageInfo.image.width.toDouble(),
-            imageInfo.image.height.toDouble(),
-          );
-          final bottomInset = MediaQuery.of(context).padding.bottom;
-          final maxVisibleTop =
-              (viewportSize.height - _chipBottomReservedHeight - bottomInset)
-                  .clamp(_chipTopPadding, viewportSize.height - _chipTopPadding)
-                  .toDouble();
-          final placedPositions = <Offset>[];
-          final chips = <Widget>[];
+        final viewportSize = Size(constraints.maxWidth, constraints.maxHeight);
+        final imageSize = Size(
+          imageInfo.image.width.toDouble(),
+          imageInfo.image.height.toDouble(),
+        );
+        final bottomInset = MediaQuery.of(context).padding.bottom;
+        final maxVisibleTop =
+            (viewportSize.height - _chipBottomReservedHeight - bottomInset)
+                .clamp(_chipTopPadding, viewportSize.height - _chipTopPadding)
+                .toDouble();
+        final placedPositions = <Offset>[];
+        final chips = <Widget>[];
 
-          for (final entry in widget.items.asMap().entries) {
-            final item = entry.value;
-            final detection = item.detection;
-            Offset position;
+        for (final entry in widget.items.asMap().entries) {
+          final item = entry.value;
+          final detection = item.detection;
+          Offset position;
 
-            if (detection != null && detection.bbox.length >= 4) {
-              position = _detectionCenterToViewport(
-                detection,
-                viewportSize,
-                imageSize,
-              );
-            } else {
-              position = _fallbackChipPosition(
-                itemIndex: entry.key,
-                itemCount: widget.items.length,
-                viewportSize: viewportSize,
-              );
-            }
-
-            final clamped = Offset(
-              position.dx.clamp(
-                _chipHorizontalPadding,
-                viewportSize.width - _chipHorizontalPadding,
-              ),
-              position.dy.clamp(_chipTopPadding, maxVisibleTop),
+          if (detection != null && detection.bbox.length >= 4) {
+            position = _detectionCenterToViewport(
+              detection,
+              viewportSize,
+              imageSize,
             );
-
-            final resolved = _resolveChipCollision(
-              candidate: clamped,
-              placed: placedPositions,
+          } else {
+            position = _fallbackChipPosition(
+              itemIndex: entry.key,
+              itemCount: widget.items.length,
               viewportSize: viewportSize,
-              maxVisibleTop: maxVisibleTop,
-            );
-            placedPositions.add(resolved);
-
-            chips.add(
-              Positioned(
-                left: resolved.dx,
-                top: resolved.dy,
-                child: FractionalTranslation(
-                  translation: const Offset(-0.5, -0.5),
-                  child: Builder(
-                    builder: (context) {
-                      final label = item.word.isNotEmpty ? item.word : item.de;
-                      final dotColor = LevelColorConstants.forLevel(item.level);
-                      return _PressableDiscoveryChip(
-                        text: label,
-                        dotColor: dotColor,
-                        onTap: () => widget.onItemTap?.call(item),
-                      );
-                    },
-                  ),
-                ),
-              ),
             );
           }
 
-          return Stack(
-            clipBehavior: Clip.none,
-            children: chips,
+          final clamped = Offset(
+            position.dx.clamp(
+              _chipHorizontalPadding,
+              viewportSize.width - _chipHorizontalPadding,
+            ),
+            position.dy.clamp(_chipTopPadding, maxVisibleTop),
           );
+
+          final resolved = _resolveChipCollision(
+            candidate: clamped,
+            placed: placedPositions,
+            viewportSize: viewportSize,
+            maxVisibleTop: maxVisibleTop,
+          );
+          placedPositions.add(resolved);
+
+          chips.add(
+            Positioned(
+              left: resolved.dx,
+              top: resolved.dy,
+              child: FractionalTranslation(
+                translation: const Offset(-0.5, -0.5),
+                child: Builder(
+                  builder: (context) {
+                    final label = item.word.isNotEmpty ? item.word : item.de;
+                    final dotColor = LevelColorConstants.forLevel(item.level);
+                    return _PressableDiscoveryChip(
+                      text: label,
+                      dotColor: dotColor,
+                      onTap: () => widget.onItemTap?.call(item),
+                    );
+                  },
+                ),
+              ),
+            ),
+          );
+        }
+
+        return Stack(clipBehavior: Clip.none, children: chips);
       },
     );
   }
@@ -1280,10 +1266,7 @@ Widget _buildDiscoveryChip(String text, Color dotColor) {
           Container(
             width: 8,
             height: 8,
-            decoration: BoxDecoration(
-              color: dotColor,
-              shape: BoxShape.circle,
-            ),
+            decoration: BoxDecoration(color: dotColor, shape: BoxShape.circle),
           ),
           const SizedBox(width: 8),
           Text(
@@ -1299,6 +1282,85 @@ Widget _buildDiscoveryChip(String text, Color dotColor) {
   );
 }
 
+class _PressableGlassButton extends StatefulWidget {
+  final IconData icon;
+  final String? label;
+  final VoidCallback onTap;
+
+  const _PressableGlassButton({
+    required this.icon,
+    required this.onTap,
+    this.label,
+  });
+
+  @override
+  State<_PressableGlassButton> createState() => _PressableGlassButtonState();
+}
+
+class _PressableGlassButtonState extends State<_PressableGlassButton> {
+  bool _pressed = false;
+  bool _hovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final isActive = _pressed || _hovered;
+
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit: (_) => setState(() {
+        _hovered = false;
+        _pressed = false;
+      }),
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: widget.onTap,
+        onTapDown: (_) => setState(() => _pressed = true),
+        onTapUp: (_) => setState(() => _pressed = false),
+        onTapCancel: () => setState(() => _pressed = false),
+        child: AnimatedScale(
+          duration: const Duration(milliseconds: 90),
+          curve: Curves.easeOut,
+          scale: _pressed ? 0.97 : 1,
+          child: AnimatedOpacity(
+            duration: const Duration(milliseconds: 90),
+            opacity: _pressed ? 0.84 : 1,
+            child: GlassContainer(
+              borderRadius: BorderRadius.circular(30),
+              bgColor: isActive
+                  ? const Color(0x26FFFFFF)
+                  : const Color(0x1AFFFFFF),
+              borderOpacity: isActive ? 0.34 : 0.2,
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: widget.label != null ? 16 : 12,
+                  vertical: 10,
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(widget.icon, color: Colors.white, size: 20),
+                    if (widget.label != null) ...[
+                      const SizedBox(width: 8),
+                      Text(
+                        widget.label!,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _PressableDiscoveryChip extends StatefulWidget {
   final String text;
   final Color dotColor;
@@ -1311,7 +1373,8 @@ class _PressableDiscoveryChip extends StatefulWidget {
   });
 
   @override
-  State<_PressableDiscoveryChip> createState() => _PressableDiscoveryChipState();
+  State<_PressableDiscoveryChip> createState() =>
+      _PressableDiscoveryChipState();
 }
 
 class _PressableDiscoveryChipState extends State<_PressableDiscoveryChip> {
@@ -1341,7 +1404,10 @@ class _PressableDiscoveryChipState extends State<_PressableDiscoveryChip> {
                   ? const Color(0x26FFFFFF)
                   : const Color(0x1AFFFFFF),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -1390,10 +1456,7 @@ Offset _detectionCenterToViewport(
   final centerX = (detection.left + detection.right) / 2;
   final centerY = (detection.top + detection.bottom) / 2;
 
-  return Offset(
-    offsetX + centerX * scale,
-    offsetY + centerY * scale,
-  );
+  return Offset(offsetX + centerX * scale, offsetY + centerY * scale);
 }
 
 double mathMin(double a, double b) => a < b ? a : b;
@@ -1441,10 +1504,7 @@ class _DetectionCropPreview extends StatefulWidget {
   final String imageUrl;
   final SceneDetectionEntity? detection;
 
-  const _DetectionCropPreview(
-    this.imageUrl, {
-    this.detection,
-  });
+  const _DetectionCropPreview(this.imageUrl, {this.detection});
 
   @override
   State<_DetectionCropPreview> createState() => _DetectionCropPreviewState();
@@ -1464,7 +1524,8 @@ class _DetectionCropPreviewState extends State<_DetectionCropPreview> {
   @override
   void didUpdateWidget(covariant _DetectionCropPreview oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.imageUrl != widget.imageUrl || oldWidget.detection != widget.detection) {
+    if (oldWidget.imageUrl != widget.imageUrl ||
+        oldWidget.detection != widget.detection) {
       _detachImageListener();
       _resolveImage();
     }
@@ -1475,19 +1536,16 @@ class _DetectionCropPreviewState extends State<_DetectionCropPreview> {
       return;
     }
 
-    final provider = NetworkImage(widget.imageUrl);
+    final provider = SceneImageCache.provider(widget.imageUrl);
     final stream = provider.resolve(createLocalImageConfiguration(context));
-    _imageStreamListener = ImageStreamListener(
-      (info, _) {
-        if (!mounted) {
-          return;
-        }
-        setState(() {
-          _imageInfo = info;
-        });
-      },
-      onError: (_, __) {},
-    );
+    _imageStreamListener = ImageStreamListener((info, _) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _imageInfo = info;
+      });
+    }, onError: (_, __) {});
     stream.addListener(_imageStreamListener!);
     _imageStream = stream;
   }
@@ -1511,21 +1569,21 @@ class _DetectionCropPreviewState extends State<_DetectionCropPreview> {
   Widget build(BuildContext context) {
     final detection = widget.detection;
     if (detection == null || detection.bbox.length < 4) {
-      return Image.network(
-        widget.imageUrl,
+      return CachedNetworkImage(
+        imageUrl: widget.imageUrl,
         fit: BoxFit.cover,
         alignment: Alignment.center,
-        errorBuilder: (_, __, ___) => const ColoredBox(color: Colors.black12),
+        errorWidget: (_, __, ___) => const ColoredBox(color: Colors.black12),
       );
     }
 
     final imageInfo = _imageInfo;
     if (imageInfo == null) {
-      return Image.network(
-        widget.imageUrl,
+      return CachedNetworkImage(
+        imageUrl: widget.imageUrl,
         fit: BoxFit.cover,
         alignment: Alignment.center,
-        errorBuilder: (_, __, ___) => const ColoredBox(color: Colors.black12),
+        errorWidget: (_, __, ___) => const ColoredBox(color: Colors.black12),
       );
     }
 
@@ -1559,13 +1617,12 @@ class _DetectionCropPreviewState extends State<_DetectionCropPreview> {
                   child: SizedBox(
                     width: imageWidth,
                     height: imageHeight,
-                    child: Image.network(
-                      widget.imageUrl,
+                    child: CachedNetworkImage(
+                      imageUrl: widget.imageUrl,
                       fit: BoxFit.fill,
                       filterQuality: FilterQuality.medium,
-                      errorBuilder: (_, __, ___) => const ColoredBox(
-                        color: Colors.black12,
-                      ),
+                      errorWidget: (_, __, ___) =>
+                          const ColoredBox(color: Colors.black12),
                     ),
                   ),
                 ),
