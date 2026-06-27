@@ -1,46 +1,47 @@
+//  {
+//   /* Primary brand colors */
+//   --mosaica-charcoal: #1D241F;   /* main text, dark logo text, premium background */
+//   --mosaica-gold: #C8A24A;       /* primary accent, lines, highlights, CTA accent */
+//   --mosaica-terracotta: #B4553D; /* warm accent, section emphasis, secondary CTA */
+//   --mosaica-clay: #C77B43;       /* softer orange/brown accent */
+
+//   /* Supporting colors */
+//   --mosaica-sage: #7B7C5C;       /* muted green, secondary UI elements */
+//   --mosaica-slate: #5D6E70;      /* grey-blue, muted text, metadata */
+//   --mosaica-cream: #F4E8CF;      /* table headers, soft panels */
+//   --mosaica-light: #FAF7F0;      /* page/card background */
+// }
 import 'package:flutter/material.dart';
 
 class AppTheme {
-  // 定义应用的主色调
-  static const primaryColor = Colors.deepPurple;
-  static const secondaryColor = Colors.amber;
-
-  // 组装成全局的主题数据 (ThemeData)
-  static ThemeData get lightTheme {
-    return ThemeData(
-      // 1. 基础配色方案
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: primaryColor,
-        secondary: secondaryColor,
+  static final lightTheme = ThemeData(
+    brightness: Brightness.light,
+    primaryColor: const Color(0xFF1D241F), // charcoal
+    colorScheme: ColorScheme.fromSwatch().copyWith(
+      primary: const Color(0xFF1D241F), // charcoal
+      secondary: const Color(0xFFC8A24A), // gold
+      tertiary: const Color(0xFFB4553D), // terracotta
+      surface: Colors.white,
+      onPrimary: Colors.white,
+      onSecondary: Colors.white,
+      onSurface: Colors.white,
+      
+    ),
+    scaffoldBackgroundColor: const Color(0xFFFAF7F0), // light
+    appBarTheme: const AppBarTheme(
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      titleTextStyle: TextStyle(
+        color: Color(0xFF1D241F), // charcoal
+        fontSize: 20,
+        fontWeight: FontWeight.bold,
       ),
-      useMaterial3: true, // 开启谷歌最新的 UI 设计规范
-
-      // 2. 全局 AppBar (顶部导航栏) 样式
-      appBarTheme: const AppBarTheme(
-        centerTitle: true,
-        backgroundColor: primaryColor,
-        foregroundColor: Colors.white, // 文字颜色
-        elevation: 0, // 去掉阴影
-      ),
-
-      // 3. 全局 ElevatedButton (主按钮) 样式
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12), // 全局统一的按钮圆角
-          ),
-          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-        ),
-      ),
-
-      // 4. 全局卡片 (Card) 样式
-      cardTheme: const CardThemeData(
-        elevation: 2,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(16)),
-        ),
-      ),
-    );
-  }
+    ),
+    bottomNavigationBarTheme: BottomNavigationBarThemeData(
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      selectedItemColor: const Color(0xFF004AC6),
+      unselectedItemColor: const Color(0xFF434655),
+    ),
+  );
 }

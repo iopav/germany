@@ -64,13 +64,7 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
       extendBody: true, // 允许内容滚动到自定义底部导航栏的毛玻璃下方
       // appBar: _buildAppBar(),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.only(
-          top: 12,
-
-          left: 16.0,
-          right: 16.0,
-          bottom: 100.0, // 为 BottomNav 留出空间
-        ),
+        padding: ReviewStyle.favoritesPagePadding,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -178,37 +172,16 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
   Widget _buildHeroSection(int dueCount) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: const Color(0xFF004AC6),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF004AC6).withValues(alpha: 0.3),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
+      padding: ReviewStyle.heroPadding,
+      decoration: ReviewStyle.heroDecoration,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Flashcard Review',
-            style: TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ),
+          const Text('Flashcard Review', style: ReviewStyle.heroTitleTextStyle),
           const SizedBox(height: 8),
           Text(
             'Strengthen your memory with $dueCount new favorites waiting for review.',
-            style: TextStyle(
-              fontSize: 14,
-              color: Color(0xFFB4C5FF), // primary-fixed-dim
-              height: 1.4,
-            ),
+            style: ReviewStyle.heroSubtitleTextStyle,
           ),
           const SizedBox(height: 20),
           ReviewPressable(
@@ -218,89 +191,17 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
               return IgnorePointer(
                 child: ElevatedButton.icon(
                   onPressed: () => _startReview(),
-                  icon: const Icon(Icons.bolt, color: Color(0xFF004AC6)),
+                  icon: const Icon(Icons.bolt, color: ReviewStyle.primary),
                   label: const Text(
                     'Start Review',
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                    style: ReviewStyle.primaryButtonLabelTextStyle,
                   ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: const Color(0xFF004AC6),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 12,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(100),
-                    ),
-                    elevation: isHovered || isPressed ? 2 : 0,
+                  style: ReviewStyle.startReviewButtonStyle(
+                    isElevated: isHovered || isPressed,
                   ),
                 ),
               );
             },
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ====== 统计数据 Row ======
-  Widget _buildStatsRow(List<ReviewEntity> cards, int sessionMasteredCount) {
-    return Row(
-      children: [
-        Expanded(
-          child: _buildStatCard(
-            'TOTAL WORDS',
-            '${cards.length}',
-            const Color(0xFF004AC6),
-          ),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: _buildStatCard(
-            'MASTERED',
-            '${sessionMasteredCount > 0 ? sessionMasteredCount : _resolveMasteredCount(cards)}',
-            const Color(0xFF712AE2),
-          ),
-        ),
-      ],
-    );
-  }
-
-  int _resolveMasteredCount(List<ReviewEntity> cards) {
-    return cards.where((card) => card.isReviewed).length;
-  }
-
-  Widget _buildStatCard(String title, String value, Color valueColor) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF2F3FF), // surface-container-low
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: const Color(0xFFC3C6D7).withValues(alpha: 0.3),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 1.2,
-              color: Color(0xFF434655),
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: valueColor,
-            ),
           ),
         ],
       ),
@@ -323,22 +224,24 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
             builder: (context, isHovered, isPressed) {
               return AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
-                padding: const EdgeInsets.symmetric(horizontal: 20),
+                padding: ReviewStyle.filterPadding,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
                   color: isSelected
-                      ? const Color(0xFF004AC6)
+                      ? ReviewStyle.primary
                       : isHovered || isPressed
-                      ? const Color(0xFFDDE4FF)
-                      : const Color(0xFFEAEDFF),
-                  borderRadius: BorderRadius.circular(100),
+                      ? ReviewStyle.surfaceContainerHover
+                      : ReviewStyle.surfaceContainerHighest,
+                  borderRadius: ReviewStyle.pillRadius,
                 ),
                 child: Text(
                   _filters[index],
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                    color: isSelected ? Colors.white : const Color(0xFF434655),
+                    color: isSelected
+                        ? ReviewStyle.white
+                        : ReviewStyle.mutedText,
                   ),
                 ),
               );
@@ -354,14 +257,7 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Text(
-          'Your Favorites',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: Color(0xFF131B2E),
-          ),
-        ),
+        const Text('Your Favorites', style: ReviewStyle.listTitleTextStyle),
         ReviewPressable(
           onTap: _handleSortPressed,
           pressedScale: 0.97,
@@ -372,7 +268,7 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
                 icon: const Icon(Icons.sort, size: 18),
                 label: const Text('Recent'),
                 style: TextButton.styleFrom(
-                  foregroundColor: const Color(0xFF004AC6),
+                  foregroundColor: ReviewStyle.primary,
                   textStyle: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
@@ -480,27 +376,11 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
   }
 
   Color _levelColor(String level) {
-    switch (level.toUpperCase()) {
-      case 'B2':
-        return const Color(0xFF712AE2);
-      case 'C1':
-      case 'C2':
-        return const Color(0xFF943700);
-      default:
-        return const Color(0xFF004AC6);
-    }
+    return ReviewStyle.levelColor(level);
   }
 
   Color _levelBgColor(String level) {
-    switch (level.toUpperCase()) {
-      case 'B2':
-        return const Color(0xFFEADDFF);
-      case 'C1':
-      case 'C2':
-        return const Color(0xFFFFDBCE);
-      default:
-        return const Color(0xFFE2E7FF);
-    }
+    return ReviewStyle.levelBackgroundColor(level);
   }
 
   // ====== 自定义底部毛玻璃导航栏 ======
@@ -647,21 +527,8 @@ class _VocabCardState extends State<VocabCard>
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.7),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: const Color(0xFFE2E8F0).withValues(alpha: 0.5),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
+      padding: ReviewStyle.favoriteCardPadding,
+      decoration: ReviewStyle.favoriteCardDecoration,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -671,13 +538,10 @@ class _VocabCardState extends State<VocabCard>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 4,
-                ),
+                padding: ReviewStyle.levelBadgePadding,
                 decoration: BoxDecoration(
                   color: widget.levelBgColor,
-                  borderRadius: BorderRadius.circular(100),
+                  borderRadius: ReviewStyle.pillRadius,
                 ),
                 child: Text(
                   widget.level,
@@ -699,8 +563,8 @@ class _VocabCardState extends State<VocabCard>
                         child: Icon(
                           _isFavorite ? Icons.favorite : Icons.favorite_border,
                           color: _isFavorite
-                              ? const Color(0xFFBA1A1A)
-                              : const Color(0xFF434655).withValues(
+                              ? ReviewStyle.favorite
+                              : ReviewStyle.mutedText.withValues(
                                   alpha: isHovered || isPressed ? 0.7 : 0.5,
                                 ),
                           size: 26,
@@ -715,9 +579,9 @@ class _VocabCardState extends State<VocabCard>
                     builder: (context, isHovered, isPressed) {
                       return Icon(
                         Icons.delete_outline,
-                        color: const Color(
-                          0xFF434655,
-                        ).withValues(alpha: isHovered || isPressed ? 0.7 : 0.5),
+                        color: ReviewStyle.mutedText.withValues(
+                          alpha: isHovered || isPressed ? 0.7 : 0.5,
+                        ),
                         size: 26,
                       );
                     },
@@ -728,34 +592,16 @@ class _VocabCardState extends State<VocabCard>
           ),
           const SizedBox(height: 4),
           // 中间：单词及翻译
-          Text(
-            widget.word,
-            style: const TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF131B2E),
-            ),
-          ),
+          Text(widget.word, style: ReviewStyle.cardWordTextStyle),
           const SizedBox(height: 2),
-          Text(
-            widget.translation,
-            style: TextStyle(
-              fontSize: 14,
-              color: const Color(0xFF434655).withValues(alpha: 0.7),
-            ),
-          ),
+          Text(widget.translation, style: ReviewStyle.cardTranslationTextStyle),
           const SizedBox(height: 1),
-          const Divider(color: Color(0x4DC3C6D7)), // outline-variant/30
+          const Divider(color: ReviewStyle.outlineSubtle),
           const SizedBox(height: 1),
           // 底部：例句 (使用 RichText 高亮目标词汇)
           RichText(
             text: TextSpan(
-              style: const TextStyle(
-                fontSize: 15,
-                fontStyle: FontStyle.italic,
-                height: 1.5,
-                color: Color(0xFF434655),
-              ),
+              style: ReviewStyle.exampleTextStyle,
               children: [
                 TextSpan(text: widget.examplePre),
                 TextSpan(

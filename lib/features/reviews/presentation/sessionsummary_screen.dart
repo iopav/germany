@@ -120,20 +120,7 @@ class _SessionSummaryScreenState extends ConsumerState<SessionSummaryScreen>
             ),
           ),
           Positioned.fill(
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.white.withValues(alpha: 0.2),
-                    Colors.white.withValues(alpha: 0.4),
-                    const Color(0xFFFAF8FF),
-                  ],
-                  stops: const [0.0, 0.4, 0.9],
-                ),
-              ),
-            ),
+            child: Container(decoration: ReviewStyle.summaryOverlayDecoration),
           ),
 
           // 2. 顶层动态五彩纸屑
@@ -222,7 +209,7 @@ class _SessionSummaryScreenState extends ConsumerState<SessionSummaryScreen>
             bottom: 160,
             child: SingleChildScrollView(
               physics: const BouncingScrollPhysics(),
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              padding: ReviewStyle.summaryPagePadding,
               child: _buildScrollableSummaryPanel(summary),
             ),
           ),
@@ -243,7 +230,7 @@ class _SessionSummaryScreenState extends ConsumerState<SessionSummaryScreen>
 
   Widget _buildScrollableSummaryPanel(_SessionSummaryData summary) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(24),
+      borderRadius: ReviewStyle.dialogRadius,
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
         child: Container(
@@ -293,7 +280,7 @@ class _SessionSummaryScreenState extends ConsumerState<SessionSummaryScreen>
                 width: 120,
                 height: 120,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF004AC6).withValues(alpha: 0.15),
+                  color: ReviewStyle.primary.withValues(alpha: 0.15),
                   shape: BoxShape.circle,
                 ),
                 child: BackdropFilter(
@@ -318,52 +305,31 @@ class _SessionSummaryScreenState extends ConsumerState<SessionSummaryScreen>
                 child: const Icon(
                   Icons.emoji_events,
                   size: 54,
-                  color: Color(0xFF004AC6),
+                  color: ReviewStyle.primary,
                 ),
               ),
             ],
           ),
         ),
         const SizedBox(height: 16),
-        const Text(
-          'Excellent Work!',
-          style: TextStyle(
-            fontSize: 28,
-            fontWeight: FontWeight.w600,
-            color: Color(0xFF004AC6),
-            fontFamily: 'Space Grotesk',
-          ),
-        ),
+        const Text('Excellent Work!', style: ReviewStyle.summaryTitleTextStyle),
         const SizedBox(height: 4),
         const Text(
           'Daily Goal Reached!',
-          style: TextStyle(fontSize: 18, color: Color(0xFF434655)),
+          style: ReviewStyle.summarySubtitleTextStyle,
         ),
       ],
     );
   }
 
   Widget _buildMainScoreCard(_SessionSummaryData summary) {
-    return _GlassCard(
+    return ReviewSummaryGlassCard(
       child: Column(
         children: [
-          Text(
-            '${summary.mastered}',
-            style: const TextStyle(
-              fontSize: 48,
-              fontWeight: FontWeight.w700,
-              color: Color(0xFF004AC6),
-              fontFamily: 'Space Grotesk',
-            ),
-          ),
+          Text('${summary.mastered}', style: ReviewStyle.summaryScoreTextStyle),
           const Text(
             'WORDS MASTERED TODAY',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: Color(0xFF434655),
-              letterSpacing: 1.2,
-            ),
+            style: ReviewStyle.summaryMetricTitleTextStyle,
           ),
           const SizedBox(height: 24),
           Row(
@@ -371,26 +337,22 @@ class _SessionSummaryScreenState extends ConsumerState<SessionSummaryScreen>
             children: [
               const Text(
                 'Daily Goal',
-                style: TextStyle(fontSize: 12, color: Color(0xFF434655)),
+                style: ReviewStyle.summarySmallMutedTextStyle,
               ),
               Text(
                 '${(summary.progress * 100).round()}% Complete',
-                style: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF004AC6),
-                ),
+                style: ReviewStyle.summarySmallPrimaryTextStyle,
               ),
             ],
           ),
           const SizedBox(height: 8),
           // 带有平滑缓冲加载动画的进度条
           ClipRRect(
-            borderRadius: BorderRadius.circular(999),
+            borderRadius: ReviewStyle.fullPillRadius,
             child: Container(
               height: 8,
               width: double.infinity,
-              color: const Color(0xFFC3C6D7).withValues(alpha: 0.3),
+              color: ReviewStyle.outlineVariant.withValues(alpha: 0.3),
               child: TweenAnimationBuilder<double>(
                 tween: Tween<double>(begin: 0.0, end: summary.progress),
                 duration: const Duration(milliseconds: 1500),
@@ -400,10 +362,8 @@ class _SessionSummaryScreenState extends ConsumerState<SessionSummaryScreen>
                     alignment: Alignment.centerLeft,
                     widthFactor: value,
                     child: Container(
-                      decoration: const BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [Color(0xFF004AC6), Color(0xFF712AE2)],
-                        ),
+                      decoration: BoxDecoration(
+                        gradient: ReviewStyle.summaryProgressGradient,
                       ),
                     ),
                   );
@@ -420,23 +380,19 @@ class _SessionSummaryScreenState extends ConsumerState<SessionSummaryScreen>
     return Row(
       children: [
         Expanded(
-          child: _GlassCard(
-            padding: const EdgeInsets.symmetric(vertical: 16),
+          child: ReviewSummaryGlassCard(
+            padding: ReviewStyle.summaryGridCardPadding,
             child: Column(
               children: [
-                const Icon(Icons.gps_fixed, color: Color(0xFF712AE2)),
+                const Icon(Icons.gps_fixed, color: ReviewStyle.secondary),
                 const SizedBox(height: 8),
                 Text(
                   '${(summary.accuracy * 100).round()}%',
-                  style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF131B2E),
-                  ),
+                  style: ReviewStyle.summaryStatValueTextStyle,
                 ),
                 const Text(
                   'Accuracy',
-                  style: TextStyle(fontSize: 12, color: Color(0xFF434655)),
+                  style: ReviewStyle.summarySmallMutedTextStyle,
                 ),
               ],
             ),
@@ -444,23 +400,19 @@ class _SessionSummaryScreenState extends ConsumerState<SessionSummaryScreen>
         ),
         const SizedBox(width: 16),
         Expanded(
-          child: _GlassCard(
-            padding: const EdgeInsets.symmetric(vertical: 16),
+          child: ReviewSummaryGlassCard(
+            padding: ReviewStyle.summaryGridCardPadding,
             child: Column(
               children: [
-                const Icon(Icons.timer_outlined, color: Color(0xFF943700)),
+                const Icon(Icons.timer_outlined, color: ReviewStyle.tertiary),
                 const SizedBox(height: 8),
                 Text(
                   '${summary.reviewed}/${summary.total}',
-                  style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF131B2E),
-                  ),
+                  style: ReviewStyle.summaryStatValueTextStyle,
                 ),
                 const Text(
                   'Reviewed',
-                  style: TextStyle(fontSize: 12, color: Color(0xFF434655)),
+                  style: ReviewStyle.summarySmallMutedTextStyle,
                 ),
               ],
             ),
@@ -472,21 +424,17 @@ class _SessionSummaryScreenState extends ConsumerState<SessionSummaryScreen>
 
   Widget _buildStreakCard(_SessionSummaryData summary) {
     return Container(
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.7),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
-      ),
+      decoration: ReviewStyle.summaryStreakDecoration,
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: ReviewStyle.cardRadius,
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
           child: Row(
             children: [
-              Container(width: 4, height: 82, color: const Color(0xFF943700)),
+              Container(width: 4, height: 82, color: ReviewStyle.tertiary),
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: ReviewStyle.statCardPadding,
                   child: Row(
                     children: [
                       Container(
@@ -498,7 +446,7 @@ class _SessionSummaryScreenState extends ConsumerState<SessionSummaryScreen>
                         ),
                         child: const Icon(
                           Icons.local_fire_department,
-                          color: Color(0xFF943700),
+                          color: ReviewStyle.tertiary,
                         ),
                       ),
                       const SizedBox(width: 16),
@@ -508,18 +456,13 @@ class _SessionSummaryScreenState extends ConsumerState<SessionSummaryScreen>
                           children: [
                             Text(
                               '${summary.reviewed} Cards Reviewed',
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF131B2E),
-                              ),
+                              style: ReviewStyle.summaryStreakTitleTextStyle,
                             ),
                             const SizedBox(height: 2),
-                            const Text(
+                            Text(
                               'You\'re on fire! Keep it up.',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Color(0xFF434655),
+                              style: ReviewStyle.heroSubtitleTextStyle.copyWith(
+                                color: ReviewStyle.mutedText,
                               ),
                             ),
                           ],
@@ -544,7 +487,7 @@ class _SessionSummaryScreenState extends ConsumerState<SessionSummaryScreen>
         filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
         child: Container(
           color: Colors.white.withValues(alpha: 0.9),
-          padding: const EdgeInsets.fromLTRB(24, 20, 24, 32),
+          padding: ReviewStyle.summaryBottomBarPadding,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -555,16 +498,14 @@ class _SessionSummaryScreenState extends ConsumerState<SessionSummaryScreen>
                   return IgnorePointer(
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF004AC6),
-                        foregroundColor: Colors.white,
+                        backgroundColor: ReviewStyle.primary,
+                        foregroundColor: ReviewStyle.white,
                         minimumSize: const Size(double.infinity, 54),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(999),
+                          borderRadius: ReviewStyle.fullPillRadius,
                         ),
                         elevation: isHovered || isPressed ? 6 : 4,
-                        shadowColor: const Color(
-                          0xFF004AC6,
-                        ).withValues(alpha: 0.3),
+                        shadowColor: ReviewStyle.primary.withValues(alpha: 0.3),
                       ),
                       onPressed: _handleContinueHomePressed,
                       child: const Text(
@@ -586,14 +527,14 @@ class _SessionSummaryScreenState extends ConsumerState<SessionSummaryScreen>
                   return IgnorePointer(
                     child: OutlinedButton(
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: const Color(0xFF004AC6),
+                        foregroundColor: ReviewStyle.primary,
                         minimumSize: const Size(double.infinity, 54),
                         side: const BorderSide(
-                          color: Color(0xFF004AC6),
+                          color: ReviewStyle.primary,
                           width: 2,
                         ),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(999),
+                          borderRadius: ReviewStyle.fullPillRadius,
                         ),
                       ),
                       onPressed: _handleReviewHistoryPressed,
@@ -609,43 +550,6 @@ class _SessionSummaryScreenState extends ConsumerState<SessionSummaryScreen>
                 },
               ),
             ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ==========================================
-// 辅助通用毛玻璃卡片容器
-// ==========================================
-class _GlassCard extends StatelessWidget {
-  final Widget child;
-  final EdgeInsetsGeometry? padding;
-  const _GlassCard({required this.child, this.padding});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.7),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(16),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-          child: Padding(
-            padding: padding ?? const EdgeInsets.all(20.0),
-            child: child,
           ),
         ),
       ),

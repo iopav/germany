@@ -6,6 +6,8 @@ import 'package:germany/features/auth/presentation/auth_provider.dart';
 import 'package:germany/features/settings/presentation/settings_provider.dart';
 import 'package:go_router/go_router.dart';
 
+import 'settings_style.dart';
+
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
 
@@ -14,16 +16,6 @@ class SettingsScreen extends ConsumerStatefulWidget {
 }
 
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
-  final Color primary = const Color(0xFF004AC6);
-  final Color secondary = const Color(0xFF712AE2);
-  final Color background = const Color(0xFFFAF8FF);
-  final Color surface = const Color(0xFFFAF8FF);
-  final Color onSurface = const Color(0xFF131B2E);
-  final Color onSurfaceVariant = const Color(0xFF434655);
-  final Color outline = const Color(0xFF737686);
-  final Color surfaceContainer = const Color(0xFFEAEDFF);
-  final Color error = const Color(0xFFBA1A1A);
-
   final List<String> levels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
   double currentLevel = 2; // B1
   double targetLevel = 4; // C1, hydrated from /auth/me target_level.
@@ -39,14 +31,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     }
 
     return ColoredBox(
-      color: background,
+      color: SettingsStyle.background,
       child: SingleChildScrollView(
-        padding: const EdgeInsets.only(
-          top: 16,
-          left: 16,
-          right: 16,
-          bottom: 100,
-        ),
+        padding: SettingsStyle.pagePadding,
         child: Column(
           children: [
             _buildProfileHeader(user),
@@ -81,65 +68,32 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             Container(
               width: 96,
               height: 96,
-              padding: const EdgeInsets.all(4),
-              decoration: BoxDecoration(
-                color: surfaceContainer,
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: primary.withValues(alpha: 0.2),
-                  width: 4,
-                ),
-              ),
+              padding: SettingsStyle.avatarPadding,
+              decoration: SettingsStyle.avatarDecoration,
               child: CircleAvatar(backgroundImage: NetworkImage(avatarUrl)),
             ),
             Positioned(
               bottom: -4,
               right: -4,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(
-                  color: primary,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: background, width: 2),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Colors.black12,
-                      blurRadius: 4,
-                      offset: Offset(0, 2),
-                    ),
-                  ],
-                ),
+                padding: SettingsStyle.proBadgePadding,
+                decoration: SettingsStyle.proBadgeDecoration,
                 child: const Text(
                   'PRO',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: SettingsStyle.proBadgeTextStyle,
                 ),
               ),
             ),
           ],
         ),
         const SizedBox(height: 16),
-        Text(
-          displayEmail,
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.w600,
-            color: onSurface,
-          ),
-        ),
+        Text(displayEmail, style: SettingsStyle.emailTextStyle),
         const SizedBox(height: 4),
         Text(
           user == null
               ? ''
               : 'Member since ${_formatMonthYear(user.createdAt)}',
-          style: TextStyle(
-            fontSize: 14,
-            color: onSurfaceVariant,
-            fontWeight: FontWeight.w500,
-          ),
+          style: SettingsStyle.memberSinceTextStyle,
         ),
       ],
     );
@@ -147,24 +101,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   Widget _buildLearningGoalsCard(UserModel? user) {
     return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.7),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: const Color(0xFFE2E8F0).withValues(alpha: 0.8),
-        ),
-      ),
+      padding: SettingsStyle.largeCardPadding,
+      decoration: SettingsStyle.cardDecoration,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(Icons.emoji_events_outlined, color: primary),
+              Icon(Icons.emoji_events_outlined, color: SettingsStyle.primary),
               const SizedBox(width: 8),
               const Text(
                 'Learning Goals',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
+                style: SettingsStyle.cardTitleTextStyle,
               ),
             ],
           ),
@@ -173,29 +121,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text(
-                'Current Level',
-                style: TextStyle(fontSize: 14, color: onSurfaceVariant),
-              ),
+              Text('Current Level', style: SettingsStyle.fieldLabelTextStyle),
               Text(
                 levels[currentLevel.toInt()],
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w600,
-                  color: primary,
-                ),
+                style: SettingsStyle.primaryLevelTextStyle,
               ),
             ],
           ),
           const SizedBox(height: 8),
           SliderTheme(
-            data: SliderTheme.of(context).copyWith(
-              activeTrackColor: surfaceContainer,
-              inactiveTrackColor: surfaceContainer,
-              thumbColor: primary,
-              overlayColor: primary.withValues(alpha: 0.2),
-              trackHeight: 8,
-            ),
+            data: SettingsStyle.currentSliderTheme(context),
             child: Slider(
               value: currentLevel,
               min: 0,
@@ -210,29 +145,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text(
-                'Target Level',
-                style: TextStyle(fontSize: 14, color: onSurfaceVariant),
-              ),
+              Text('Target Level', style: SettingsStyle.fieldLabelTextStyle),
               Text(
                 levels[targetLevel.toInt()],
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w600,
-                  color: secondary,
-                ),
+                style: SettingsStyle.secondaryLevelTextStyle,
               ),
             ],
           ),
           const SizedBox(height: 8),
           SliderTheme(
-            data: SliderTheme.of(context).copyWith(
-              activeTrackColor: const Color(0xFFEADDFF),
-              inactiveTrackColor: const Color(0xFFEADDFF),
-              thumbColor: secondary,
-              overlayColor: secondary.withValues(alpha: 0.2),
-              trackHeight: 8,
-            ),
+            data: SettingsStyle.targetSliderTheme(context),
             child: Slider(
               value: targetLevel,
               min: 0,
@@ -257,20 +179,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   Widget _buildLevelLabels() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4),
+      padding: SettingsStyle.levelLabelPadding,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: levels
-            .map(
-              (lvl) => Text(
-                lvl,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: outline,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            )
+            .map((lvl) => Text(lvl, style: SettingsStyle.levelTickTextStyle))
             .toList(),
       ),
     );
@@ -280,24 +193,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final user = settingsState.asData?.value;
 
     return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.7),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: const Color(0xFFE2E8F0).withValues(alpha: 0.8),
-        ),
-      ),
+      padding: SettingsStyle.cardPadding,
+      decoration: SettingsStyle.cardDecoration,
       child: Row(
         children: [
           Container(
             width: 40,
             height: 40,
-            decoration: BoxDecoration(
-              color: primary.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(Icons.translate, color: primary),
+            decoration: SettingsStyle.iconCircleDecoration,
+            child: Icon(Icons.translate, color: SettingsStyle.primary),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -306,12 +210,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               children: [
                 const Text(
                   'Native Language',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                  style: SettingsStyle.tileTitleTextStyle,
                 ),
                 const SizedBox(height: 2),
                 Text(
                   user == null ? 'Loading...' : user.l1Language.label,
-                  style: TextStyle(fontSize: 13, color: onSurfaceVariant),
+                  style: SettingsStyle.tileSubtitleTextStyle,
                 ),
               ],
             ),
@@ -403,7 +307,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           content: Text(
             latestState.error.toString().replaceAll('Exception: ', ''),
           ),
-          backgroundColor: error,
+          backgroundColor: SettingsStyle.error,
         ),
       );
       return;
@@ -419,15 +323,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.only(left: 8, bottom: 16),
+          padding: SettingsStyle.sectionLabelPadding,
           child: Text(
             'ACCOUNT SETTINGS',
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 1.2,
-              color: outline,
-            ),
+            style: SettingsStyle.sectionLabelTextStyle,
           ),
         ),
         _buildSettingTile(Icons.security_outlined, 'Privacy & Security'),
@@ -441,39 +340,24 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   Widget _buildSettingTile(IconData icon, String title) {
     return InkWell(
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: SettingsStyle.cardRadius,
       onTap: () {},
       child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.7),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: const Color(0xFFE2E8F0).withValues(alpha: 0.8),
-          ),
-        ),
+        padding: SettingsStyle.cardPadding,
+        decoration: SettingsStyle.cardDecoration,
         child: Row(
           children: [
             Container(
               width: 40,
               height: 40,
-              decoration: BoxDecoration(
-                color: primary.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, color: primary),
+              decoration: SettingsStyle.iconCircleDecoration,
+              child: Icon(icon, color: SettingsStyle.primary),
             ),
             const SizedBox(width: 12),
             Expanded(
-              child: Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
+              child: Text(title, style: SettingsStyle.tileTitleTextStyle),
             ),
-            Icon(Icons.chevron_right, color: outline),
+            Icon(Icons.chevron_right, color: SettingsStyle.outline),
           ],
         ),
       ),
@@ -485,34 +369,20 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       children: [
         OutlinedButton(
           onPressed: _handleSignOut,
-          style: OutlinedButton.styleFrom(
-            foregroundColor: error,
-            side: BorderSide(color: error, width: 2),
-            minimumSize: const Size(double.infinity, 56),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(30),
-            ),
-          ),
+          style: SettingsStyle.signOutButtonStyle,
           child: const Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(Icons.logout),
               SizedBox(width: 8),
-              Text(
-                'Sign Out',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
-              ),
+              Text('Sign Out', style: SettingsStyle.signOutTextStyle),
             ],
           ),
         ),
         const SizedBox(height: 24),
         Text(
           'Version 2.4.0 (Build 892)',
-          style: TextStyle(
-            fontSize: 12,
-            color: outline.withValues(alpha: 0.6),
-            fontWeight: FontWeight.w600,
-          ),
+          style: SettingsStyle.versionTextStyle,
         ),
       ],
     );

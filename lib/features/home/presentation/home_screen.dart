@@ -1,23 +1,12 @@
 import 'dart:math' as math;
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:germany/core/widgets/scene_image_cache.dart';
 import 'package:image_picker/image_picker.dart';
 
 import 'home_provider.dart';
+import 'home_style.dart';
 import 'immersive_screen.dart';
-
-/// Maps directly to the provided Tailwind theme configuration
-class _AppColors {
-  static const Color background = Color(0xFFFAF8FF);
-  static const Color primary = Color(0xFF004AC6);
-  static const Color onSurface = Color(0xFF131B2E);
-  static const Color onSurfaceVariant = Color(0xFF434655);
-  static const Color outlineVariant = Color(0xFFC3C6D7);
-  static const Color surfaceContainerHigh = Color(0xFFE2E7FF);
-  static const Color surfaceContainerHighest = Color(0xFFDAE2FD);
-}
 
 class HomeScreen extends ConsumerStatefulWidget {
   final bool showChrome;
@@ -165,7 +154,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     final bodyPaddingBottom = widget.showChrome ? 120.0 : 24.0;
     //TODO ref listen
     return Scaffold(
-      backgroundColor: _AppColors.background,
+      backgroundColor: HomeStyle.background,
       extendBodyBehindAppBar: true,
       extendBody: true,
 
@@ -177,18 +166,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
       //           child: BackdropFilter(
       //             filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
       //             child: AppBar(
-      //               backgroundColor: _AppColors.surface.withOpacity(0.8),
+      //               backgroundColor: HomeStyle.surface.withOpacity(0.8),
       //               elevation: 0,
       //               bottom: PreferredSize(
       //                 preferredSize: const Size.fromHeight(1),
       //                 child: Container(
-      //                   color: _AppColors.outlineVariant.withOpacity(0.3),
+      //                   color: HomeStyle.outlineVariant.withOpacity(0.3),
       //                   height: 1,
       //                 ),
       //               ),
       //               title: const Row(
       //                 children: [
-      //                   Icon(Icons.language, color: _AppColors.primary),
+      //                   Icon(Icons.language, color: HomeStyle.primary),
       //                   SizedBox(width: 12),
       //                   Text(
       //                     'Scenes',
@@ -196,7 +185,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
       //                       fontFamily: 'Space Grotesk',
       //                       fontSize: 24,
       //                       fontWeight: FontWeight.w700,
-      //                       color: _AppColors.primary,
+      //                       color: HomeStyle.primary,
       //                     ),
       //                   ),
       //                 ],
@@ -205,7 +194,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
       //                 IconButton(
       //                   icon: const Icon(
       //                     Icons.help_outline,
-      //                     color: _AppColors.onSurfaceVariant,
+      //                     color: HomeStyle.onSurfaceVariant,
       //                   ),
       //                   onPressed: () {},
       //                 ),
@@ -235,23 +224,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
             ),
             children: [
               // Header Texts
-              const Text(
-                'Create Scene',
-                style: TextStyle(
-                  fontFamily: 'Space Grotesk',
-                  fontSize: 28,
-                  fontWeight: FontWeight.w600,
-                  color: _AppColors.onSurface,
-                ),
-              ),
+              const Text('Create Scene', style: HomeStyle.titleTextStyle),
               const SizedBox(height: 8),
               const Text(
                 'Capture the world or describe a moment to start your immersion journey.',
-                style: TextStyle(
-                  fontFamily: 'Inter',
-                  fontSize: 16,
-                  color: _AppColors.onSurfaceVariant,
-                ),
+                style: HomeStyle.subtitleTextStyle,
               ),
               const SizedBox(height: 32),
 
@@ -268,28 +245,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                     ),
                     onPanEnd: (_) => setState(() => _particleTouchPoint = null),
                     child: ClipRRect(
-                      borderRadius: BorderRadius.circular(32),
+                      borderRadius: HomeStyle.uploadRadius,
                       child: Stack(
                         fit: StackFit.expand,
                         children: [
                           DecoratedBox(
-                            decoration: BoxDecoration(
-                              color: _AppColors.surfaceContainerHigh
-                                  .withOpacity(0.35),
-                              borderRadius: BorderRadius.circular(32),
-                              gradient: LinearGradient(
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                                colors: [
-                                  Colors.white.withOpacity(0.58),
-                                  _AppColors.surfaceContainerHigh.withOpacity(
-                                    0.34,
-                                  ),
-                                  _AppColors.surfaceContainerHighest
-                                      .withOpacity(0.28),
-                                ],
-                              ),
-                            ),
+                            decoration: HomeStyle.uploadBackgroundDecoration,
                           ),
                           AnimatedBuilder(
                             animation: _shimmerController,
@@ -298,8 +259,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                                 painter: _UploadParticlePainter(
                                   progress: _shimmerController.value,
                                   touchPoint: _particleTouchPoint,
-                                  primary: _AppColors.primary,
-                                  accent: const Color(0xFF7C8CF8),
+                                  primary: HomeStyle.primary,
+                                  accent: HomeStyle.uploadAccent,
                                 ),
                               );
                             },
@@ -308,7 +269,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                             child: CustomPaint(
                               painter: _DashedRRectPainter(
                                 radius: 32,
-                                color: _AppColors.primary.withOpacity(0.34),
+                                color: HomeStyle.primary.withValues(
+                                  alpha: 0.34,
+                                ),
                               ),
                             ),
                           ),
@@ -322,29 +285,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                                   onTap: () => setState(
                                     () => _isMenuOpen = !_isMenuOpen,
                                   ),
-                                  child: _buildGlassContainer(
+                                  child: HomeGlassContainer(
                                     radius: 24,
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 24,
-                                      vertical: 32,
-                                    ),
+                                    padding: HomeStyle.uploadButtonPadding,
                                     child: const Column(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
                                         Icon(
                                           Icons.add_a_photo,
                                           size: 36,
-                                          color: _AppColors.primary,
+                                          color: HomeStyle.primary,
                                         ),
                                         SizedBox(height: 12),
                                         Text(
                                           'Add Scene Image',
-                                          style: TextStyle(
-                                            fontFamily: 'Inter',
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w500,
-                                            color: _AppColors.primary,
-                                          ),
+                                          style:
+                                              HomeStyle.uploadButtonTextStyle,
                                         ),
                                       ],
                                     ),
@@ -360,28 +316,28 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                                           padding: const EdgeInsets.only(
                                             top: 16,
                                           ),
-                                          child: _buildGlassContainer(
+                                          child: HomeGlassContainer(
                                             radius: 16,
                                             padding: EdgeInsets.zero,
                                             child: Column(
                                               children: [
-                                                _buildMenuOption(
-                                                  Icons.photo_camera,
-                                                  'Camera',
-                                                  () => _pickImage(
+                                                HomeMenuOption(
+                                                  icon: Icons.photo_camera,
+                                                  title: 'Camera',
+                                                  onTap: () => _pickImage(
                                                     ImageSource.camera,
                                                   ),
                                                 ),
                                                 Divider(
                                                   height: 1,
-                                                  color: _AppColors
+                                                  color: HomeStyle
                                                       .outlineVariant
-                                                      .withOpacity(0.3),
+                                                      .withValues(alpha: 0.3),
                                                 ),
-                                                _buildMenuOption(
-                                                  Icons.image,
-                                                  'Gallery',
-                                                  () => _pickImage(
+                                                HomeMenuOption(
+                                                  icon: Icons.image,
+                                                  title: 'Gallery',
+                                                  onTap: () => _pickImage(
                                                     ImageSource.gallery,
                                                   ),
                                                 ),
@@ -399,29 +355,21 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                             Positioned(
                               right: 18,
                               bottom: 16,
-                              child: _buildGlassContainer(
+                              child: HomeGlassContainer(
                                 radius: 999,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 8,
-                                ),
+                                padding: HomeStyle.selectedBadgePadding,
                                 child: const Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Icon(
                                       Icons.check_circle,
                                       size: 16,
-                                      color: _AppColors.primary,
+                                      color: HomeStyle.primary,
                                     ),
                                     SizedBox(width: 6),
                                     Text(
                                       'Image selected',
-                                      style: TextStyle(
-                                        fontFamily: 'Inter',
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600,
-                                        color: _AppColors.primary,
-                                      ),
+                                      style: HomeStyle.selectedBadgeTextStyle,
                                     ),
                                   ],
                                 ),
@@ -436,9 +384,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
               const SizedBox(height: 16),
 
               // 4. Generation Dialogue Panel
-              _buildGlassContainer(
+              HomeGlassContainer(
                 radius: 28,
-                padding: const EdgeInsets.all(16),
+                padding: HomeStyle.promptPanelPadding,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -449,34 +397,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                         Expanded(
                           child: Container(
                             height: 48,
-                            decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.05),
-                              borderRadius: BorderRadius.circular(16),
-                            ),
+                            decoration: HomeStyle.promptInputDecoration,
                             child: TextField(
                               controller: _promptController,
                               onSubmitted: homeState.isGenerating
                                   ? null
                                   : (_) => _generateFromText(),
-                              style: const TextStyle(
-                                fontFamily: 'Inter',
-                                fontSize: 16,
-                                color: _AppColors.onSurface,
-                              ),
-                              decoration: const InputDecoration(
-                                hintText: 'Describe a scene...',
-                                hintStyle: TextStyle(color: Colors.black38),
-                                prefixIcon: Icon(
-                                  Icons.auto_awesome,
-                                  color: _AppColors.primary,
-                                  size: 20,
-                                ),
-                                border: InputBorder.none,
-                                contentPadding: EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 12,
-                                ),
-                              ),
+                              style: HomeStyle.promptInputTextStyle,
+                              decoration: HomeStyle.promptInputDecorationData,
                             ),
                           ),
                         ),
@@ -529,7 +457,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                         //             fontFamily: 'Inter',
                         //             fontSize: 14,
                         //             fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                        //             color: isSelected ? _AppColors.primary : _AppColors.onSurfaceVariant,
+                        //             color: isSelected ? HomeStyle.primary : HomeStyle.onSurfaceVariant,
                         //           ),
                         //         ),
                         //       ),
@@ -546,19 +474,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                           child: Container(
                             height: 48,
                             width: 48,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF007AFF),
-                              borderRadius: BorderRadius.circular(16),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: const Color(
-                                    0xFF007AFF,
-                                  ).withOpacity(0.3),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 4),
-                                ),
-                              ],
-                            ),
+                            decoration: HomeStyle.submitButtonDecoration,
                             child: homeState.isGenerating
                                 ? const Padding(
                                     padding: EdgeInsets.all(12),
@@ -582,17 +498,23 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                       scrollDirection: Axis.horizontal,
                       child: Row(
                         children: [
-                          _buildQuickStarter(
-                            'Bakery',
-                            'A busy bakery in Berlin during morning rush.',
+                          HomeQuickStarter(
+                            label: 'Bakery',
+                            onTap: () => _fillPrompt(
+                              'A busy bakery in Berlin during morning rush.',
+                            ),
                           ),
-                          _buildQuickStarter(
-                            'Train Station',
-                            'A rainy evening at a train station in Munich.',
+                          HomeQuickStarter(
+                            label: 'Train Station',
+                            onTap: () => _fillPrompt(
+                              'A rainy evening at a train station in Munich.',
+                            ),
                           ),
-                          _buildQuickStarter(
-                            'Park',
-                            'A sunny weekend at the Tiergarten park.',
+                          HomeQuickStarter(
+                            label: 'Park',
+                            onTap: () => _fillPrompt(
+                              'A sunny weekend at the Tiergarten park.',
+                            ),
                           ),
                         ],
                       ),
@@ -618,9 +540,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                                     decoration: BoxDecoration(
                                       gradient: LinearGradient(
                                         colors: [
-                                          _AppColors.primary.withOpacity(0),
-                                          _AppColors.primary.withOpacity(0.5),
-                                          _AppColors.primary.withOpacity(0),
+                                          HomeStyle.primary.withValues(
+                                            alpha: 0,
+                                          ),
+                                          HomeStyle.primary.withValues(
+                                            alpha: 0.5,
+                                          ),
+                                          HomeStyle.primary.withValues(
+                                            alpha: 0,
+                                          ),
                                         ],
                                       ),
                                     ),
@@ -636,11 +564,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                         padding: EdgeInsets.only(top: 8),
                         child: Text(
                           'AI is generating...',
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                            fontSize: 12,
-                            color: _AppColors.onSurfaceVariant,
-                          ),
+                          style: HomeStyle.generatingTextStyle,
                         ),
                       ),
                   ],
@@ -695,122 +619,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     final minHeight = shortestSide < 360 ? 150.0 : 180.0;
 
     return math.max(preferredHeight, minHeight).toDouble();
-  }
-
-  // Helper: Frosted Glass Panel
-  Widget _buildGlassContainer({
-    required Widget child,
-    required double radius,
-    required EdgeInsets padding,
-  }) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(radius),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-        child: Container(
-          padding: padding,
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.6),
-            border: Border.all(color: Colors.white.withOpacity(0.4)),
-          ),
-          child: child,
-        ),
-      ),
-    );
-  }
-
-  // Helper: Menu Button inside Image Area
-  Widget _buildMenuOption(IconData icon, String title, VoidCallback onTap) {
-    return InkWell(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, color: _AppColors.primary, size: 20),
-            const SizedBox(width: 16),
-            Text(
-              title,
-              style: const TextStyle(
-                fontFamily: 'Inter',
-                fontSize: 14,
-                color: _AppColors.onSurface,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // Helper: Quick Starter Chip
-  Widget _buildQuickStarter(String label, String promptData) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 8),
-      child: InkWell(
-        onTap: () => _fillPrompt(promptData),
-        borderRadius: BorderRadius.circular(8),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.5),
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-              color: _AppColors.outlineVariant.withOpacity(0.3),
-            ),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text('✨', style: TextStyle(fontSize: 12)),
-              const SizedBox(width: 4),
-              Text(
-                label,
-                style: const TextStyle(
-                  fontFamily: 'Inter',
-                  fontSize: 12,
-                  color: _AppColors.onSurfaceVariant,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  // Helper: Bottom Nav Item
-  Widget _buildNavItem(IconData icon, String label, bool isActive) {
-    return Expanded(
-      child: InkWell(
-        onTap: () {},
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              icon,
-              size: 26,
-              color: isActive
-                  ? _AppColors.primary
-                  : _AppColors.onSurfaceVariant,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                fontFamily: 'Inter',
-                fontSize: 11,
-                fontWeight: FontWeight.w500,
-                color: isActive
-                    ? _AppColors.primary
-                    : _AppColors.onSurfaceVariant,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }
 
@@ -894,7 +702,7 @@ class _UploadParticlePainter extends CustomPainter {
           primary,
           accent,
           (index % 7) / 6,
-        )!.withOpacity(opacity);
+        )!.withValues(alpha: opacity);
 
       canvas.drawCircle(point, radius, paint);
     }

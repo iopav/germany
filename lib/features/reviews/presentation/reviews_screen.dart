@@ -218,31 +218,32 @@ class _ReviewCardScreenState extends ConsumerState<ReviewCardScreen>
       barrierDismissible: false,
       builder: (dialogContext) {
         return AlertDialog(
-          backgroundColor: const Color(0xFF131B2E),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
-          ),
+          backgroundColor: ReviewStyle.surfaceText,
+          shape: RoundedRectangleBorder(borderRadius: ReviewStyle.dialogRadius),
           title: const Text(
             'Leave review?',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              color: ReviewStyle.white,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           content: const Text(
             'Your completed cards have been saved. You can continue this session later.',
-            style: TextStyle(color: Colors.white70),
+            style: TextStyle(color: ReviewStyle.white70),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(false),
               child: const Text(
                 'Stay',
-                style: TextStyle(color: Colors.white70),
+                style: TextStyle(color: ReviewStyle.white70),
               ),
             ),
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(true),
               child: const Text(
                 'Leave',
-                style: TextStyle(color: Color(0xFF8FB3FF)),
+                style: TextStyle(color: ReviewStyle.reviewBlueLight),
               ),
             ),
           ],
@@ -330,7 +331,7 @@ class _ReviewCardScreenState extends ConsumerState<ReviewCardScreen>
             _handleExitRequested();
           },
           child: Scaffold(
-            backgroundColor: Colors.black,
+            backgroundColor: ReviewStyle.black,
             body: Stack(
               fit: StackFit.expand,
               children: [
@@ -361,7 +362,7 @@ class _ReviewCardScreenState extends ConsumerState<ReviewCardScreen>
                   child: SafeArea(
                     child: Padding(
                       // 底部面板和屏幕边缘保留 16px 间距，让毛玻璃卡片不会贴边。
-                      padding: const EdgeInsets.all(16.0),
+                      padding: ReviewStyle.reviewBottomOuterPadding,
                       child: _buildBottomGlassPanel(currentReview),
                     ),
                   ),
@@ -377,21 +378,21 @@ class _ReviewCardScreenState extends ConsumerState<ReviewCardScreen>
   // 加载态 UI：进入页面或刷新队列时显示黑底白色 loading。
   Widget _buildLoadingScaffold() {
     return const Scaffold(
-      backgroundColor: Colors.black,
-      body: Center(child: CircularProgressIndicator(color: Colors.white)),
+      backgroundColor: ReviewStyle.black,
+      body: Center(child: CircularProgressIndicator(color: ReviewStyle.white)),
     );
   }
 
   // 空会话 UI：当前没有可复习卡片时，给用户一个刷新入口。
   Widget _buildEmptyScaffold() {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: ReviewStyle.black,
       body: Center(
         child: TextButton(
           onPressed: () => ref.read(reviewsProvider.notifier).refresh(),
           child: const Text(
             'No cards. Refresh',
-            style: TextStyle(color: Colors.white),
+            style: TextStyle(color: ReviewStyle.white),
           ),
         ),
       ),
@@ -401,18 +402,22 @@ class _ReviewCardScreenState extends ConsumerState<ReviewCardScreen>
   // 错误态 UI：展示错误图标、错误文案和 Retry 按钮，便于重新拉取复习队列。
   Widget _buildErrorScaffold(String error) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: ReviewStyle.black,
       body: Center(
         child: Padding(
-          padding: const EdgeInsets.all(24),
+          padding: ReviewStyle.heroPadding,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.error_outline, color: Colors.white, size: 48),
+              const Icon(
+                Icons.error_outline,
+                color: ReviewStyle.white,
+                size: 48,
+              ),
               const SizedBox(height: 12),
               Text(
                 error,
-                style: const TextStyle(color: Colors.white),
+                style: const TextStyle(color: ReviewStyle.white),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 12),
@@ -430,7 +435,7 @@ class _ReviewCardScreenState extends ConsumerState<ReviewCardScreen>
   // 顶部进度栏组件：左边是关闭按钮，中间显示本轮复习进度，右边预留更多操作按钮。
   Widget _buildHeader(ReviewsState state) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+      padding: ReviewStyle.reviewHeaderPadding,
       child: Row(
         children: [
           _buildGlassIconButton(Icons.close, onTap: _handleExitRequested),
@@ -446,26 +451,18 @@ class _ReviewCardScreenState extends ConsumerState<ReviewCardScreen>
                     children: [
                       const Text(
                         'SESSION PROGRESS',
-                        style: TextStyle(
-                          color: Colors.white70,
-                          fontSize: 10,
-                          letterSpacing: 1.5,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: ReviewStyle.reviewProgressLabelTextStyle,
                       ),
                       Text(
                         '${state.completedCount} of ${state.totalCount} words',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                        ),
+                        style: ReviewStyle.reviewProgressCountTextStyle,
                       ),
                     ],
                   ),
                   const SizedBox(height: 6),
                   // 线性进度条：value 来自 ReviewsState.progress，范围 0.0 到 1.0。
                   ClipRRect(
-                    borderRadius: BorderRadius.circular(4),
+                    borderRadius: ReviewStyle.indicatorRadius,
                     child: LinearProgressIndicator(
                       value: state.progress,
                       minHeight: 6,
@@ -494,40 +491,26 @@ class _ReviewCardScreenState extends ConsumerState<ReviewCardScreen>
     final answer = review?.lemma ?? '';
 
     return ClipRRect(
-      borderRadius: BorderRadius.circular(40),
+      borderRadius: ReviewStyle.reviewPanelRadius,
       child: BackdropFilter(
         // BackdropFilter 会模糊它背后的背景图，形成毛玻璃质感。
         filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
         child: Container(
-          decoration: BoxDecoration(
-            color: const Color(0xFF131B2E).withValues(alpha: 0.75),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
-            borderRadius: BorderRadius.circular(40),
-          ),
-          padding: const EdgeInsets.all(24),
+          decoration: ReviewStyle.reviewPanelDecoration,
+          padding: ReviewStyle.reviewPanelPadding,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               // 小标题：说明当前大字显示的是需要识别/回忆的物体。
               const Text(
                 'CURRENT OBJECT',
-                style: TextStyle(
-                  color: Color(0xFFb4c5ff),
-                  fontSize: 12,
-                  letterSpacing: 2.0,
-                  fontWeight: FontWeight.w600,
-                ),
+                style: ReviewStyle.currentObjectLabelTextStyle,
               ),
               const SizedBox(height: 4),
               // 英文提示主标题：优先显示后端英文翻译，缺失时用默认占位文案。
               Text(
                 englishHint.isNotEmpty ? englishHint : 'The Table',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'Space Grotesk',
-                ),
+                style: ReviewStyle.reviewPromptTextStyle,
               ),
               const SizedBox(height: 24),
 
@@ -549,11 +532,15 @@ class _ReviewCardScreenState extends ConsumerState<ReviewCardScreen>
               const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.keyboard_return, color: Colors.white38, size: 16),
+                  Icon(
+                    Icons.keyboard_return,
+                    color: ReviewStyle.white38,
+                    size: 16,
+                  ),
                   SizedBox(width: 8),
                   Text(
                     'Press Enter to Check',
-                    style: TextStyle(color: Colors.white38, fontSize: 12),
+                    style: ReviewStyle.keyboardHintTextStyle,
                   ),
                 ],
               ),
@@ -590,15 +577,15 @@ class _ReviewCardScreenState extends ConsumerState<ReviewCardScreen>
   // 边框颜色会根据 _isSuccess / _isError 切换成绿色或红色。
   Widget _buildInputRow(String answer) {
     // 默认边框是浅色；成功变绿，错误变红。
-    Color borderColor = Colors.white10;
+    Color borderColor = ReviewStyle.white10;
     if (_isSuccess) borderColor = Colors.green.withValues(alpha: 0.5);
     if (_isError) borderColor = Colors.red.withValues(alpha: 0.5);
     final feedbackText = _answerFeedbackText;
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(20),
+        color: ReviewStyle.white.withValues(alpha: 0.05),
+        borderRadius: ReviewStyle.reviewInputRadius,
         border: Border.all(color: borderColor, width: 2),
       ),
       child: Row(
@@ -611,7 +598,7 @@ class _ReviewCardScreenState extends ConsumerState<ReviewCardScreen>
                 review: ref.read(reviewsProvider).value?.currentReview,
               ),
               style: const TextStyle(
-                color: Colors.white54,
+                color: ReviewStyle.white54,
                 fontSize: 18,
                 fontStyle: FontStyle.italic,
               ),
@@ -627,14 +614,14 @@ class _ReviewCardScreenState extends ConsumerState<ReviewCardScreen>
                   autofocus: true,
                   style: TextStyle(
                     color: feedbackText == null
-                        ? Colors.white
-                        : Colors.transparent,
+                        ? ReviewStyle.white
+                        : ReviewStyle.transparent,
                     fontSize: 24,
                   ),
                   decoration: const InputDecoration(border: InputBorder.none),
                   cursorColor: feedbackText == null
-                      ? const Color(0xFF004ac6)
-                      : Colors.transparent,
+                      ? ReviewStyle.primary
+                      : ReviewStyle.transparent,
                   onSubmitted: (value) => _handleSubmit(value, answer),
                 ),
                 if (feedbackText != null)
@@ -642,7 +629,7 @@ class _ReviewCardScreenState extends ConsumerState<ReviewCardScreen>
                     child: Text(
                       feedbackText,
                       style: const TextStyle(
-                        color: Colors.white,
+                        color: ReviewStyle.white,
                         fontSize: 24,
                         fontWeight: FontWeight.w600,
                       ),
@@ -664,24 +651,25 @@ class _ReviewCardScreenState extends ConsumerState<ReviewCardScreen>
                   height: 44,
                   decoration: BoxDecoration(
                     color: isPressed
-                        ? const Color(0xFF003A99)
+                        ? ReviewStyle.primaryPressed
                         : isHovered
-                        ? const Color(0xFF0B5BE8)
-                        : const Color(0xFF004ac6),
-                    borderRadius: BorderRadius.circular(14),
+                        ? ReviewStyle.primaryHover
+                        : ReviewStyle.primary,
+                    borderRadius: ReviewStyle.reviewSendButtonRadius,
                     boxShadow: isHovered || isPressed
                         ? [
                             BoxShadow(
-                              color: const Color(
-                                0xFF004ac6,
-                              ).withValues(alpha: 0.3),
+                              color: ReviewStyle.primary.withValues(alpha: 0.3),
                               blurRadius: 14,
                               spreadRadius: 1,
                             ),
                           ]
                         : null,
                   ),
-                  child: const Icon(Icons.arrow_forward, color: Colors.white),
+                  child: const Icon(
+                    Icons.arrow_forward,
+                    color: ReviewStyle.white,
+                  ),
                 );
               },
             ),

@@ -7,6 +7,7 @@ import 'package:germany/core/widgets/scene_image_cache.dart';
 import '../../../core/constants/level_color_constants.dart';
 import '../../../core/utils/logger.dart';
 import '../domain/entity/home_stats_entity.dart';
+import 'immersive_style.dart';
 
 class VocabularyItem {
   final String word;
@@ -61,8 +62,6 @@ class ImmersiveScreen extends StatefulWidget {
 
 class _ImmersiveScreenState extends State<ImmersiveScreen> {
   VocabularyItem? selectedItem;
-  bool isSceneSummaryCollapsed = false;
-  final Set<VocabularyItem> _favoriteItems = <VocabularyItem>{};
   late final List<VocabularyItem> vocabularyList;
   late final String backgroundImageUrl;
   late final String sceneDescription;
@@ -358,85 +357,12 @@ class _ImmersiveScreenState extends State<ImmersiveScreen> {
     return merged;
   }
 
-  void _toggleSceneSummary() {
-    setState(() {
-      isSceneSummaryCollapsed = !isSceneSummaryCollapsed;
-    });
-  }
-
-  Future<void> _toggleFavorite(VocabularyItem item) async {
-    final isNowFavorite = !_favoriteItems.contains(item);
-
-    setState(() {
-      if (isNowFavorite) {
-        _favoriteItems.add(item);
-      } else {
-        _favoriteItems.remove(item);
-      }
-    });
-
-    await _sendFavoriteToApi(item, isNowFavorite);
-  }
-
-  Future<void> _sendFavoriteToApi(VocabularyItem item, bool isFavorite) async {}
-
-  Widget _buildSceneSummaryBody() {
-    return Padding(
-      padding: const EdgeInsets.only(top: 10),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            sceneDescription,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 16,
-              height: 1.4,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          if (needsReview) ...[
-            const SizedBox(height: 10),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              decoration: BoxDecoration(
-                color: Colors.amber.withOpacity(0.16),
-                borderRadius: BorderRadius.circular(999),
-                border: Border.all(color: Colors.amber.withOpacity(0.4)),
-              ),
-              child: const Text(
-                'AI may make mistakes. Please review the results.',
-                style: TextStyle(
-                  color: Colors.amberAccent,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ],
-          if (sceneTags.isNotEmpty) ...[
-            const SizedBox(height: 10),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: sceneTags
-                  .take(4)
-                  .map((tag) => _buildTag(tag, Colors.white10, Colors.white70))
-                  .toList(),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
 
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: ImmersiveStyle.black,
       body: Stack(
         children: [
           Positioned.fill(
@@ -447,14 +373,12 @@ class _ImmersiveScreenState extends State<ImmersiveScreen> {
                 width: screenSize.width,
                 height: screenSize.height,
                 alignment: Alignment.center,
-                errorWidget: (_, __, ___) =>
-                    const ColoredBox(color: Colors.black),
+                errorWidget: (context, error, stackTrace) =>
+                    const ColoredBox(color: ImmersiveStyle.black),
               ),
             ),
           ),
-          Positioned.fill(
-            child: Container(color: Colors.black.withOpacity(0.15)),
-          ),
+          Positioned.fill(child: Container(color: ImmersiveStyle.scrim)),
           Positioned.fill(
             child: _SceneDetectionOverlay(
               imageUrl: backgroundImageUrl,
@@ -462,68 +386,6 @@ class _ImmersiveScreenState extends State<ImmersiveScreen> {
               onItemTap: (item) => setState(() => selectedItem = item),
             ),
           ),
-          if (false)
-            Positioned(
-              top: MediaQuery.of(context).padding.top + 76,
-              left: 24,
-              right: 24,
-              child: GlassContainer(
-                borderRadius: BorderRadius.circular(24),
-                blur: 18,
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: GestureDetector(
-                              behavior: HitTestBehavior.opaque,
-                              onTap: _toggleSceneSummary,
-                              child: const Padding(
-                                padding: EdgeInsets.symmetric(vertical: 2),
-                                child: Text(
-                                  'Scene Summary',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w700,
-                                    letterSpacing: 0.2,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          IconButton(
-                            onPressed: _toggleSceneSummary,
-                            splashRadius: 18,
-                            icon: Icon(
-                              isSceneSummaryCollapsed
-                                  ? Icons.keyboard_arrow_down
-                                  : Icons.keyboard_arrow_up,
-                              color: Colors.white70,
-                              size: 20,
-                            ),
-                          ),
-                        ],
-                      ),
-                      AnimatedCrossFade(
-                        firstChild: const SizedBox.shrink(),
-                        secondChild: _buildSceneSummaryBody(),
-                        crossFadeState: isSceneSummaryCollapsed
-                            ? CrossFadeState.showFirst
-                            : CrossFadeState.showSecond,
-                        duration: const Duration(milliseconds: 220),
-                        sizeCurve: Curves.easeInOut,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-
           Positioned(
             top: MediaQuery.of(context).padding.top + 16,
             left: 24,
@@ -558,10 +420,7 @@ class _ImmersiveScreenState extends State<ImmersiveScreen> {
                     opacity: selectedItem != null ? 1.0 : 0.0,
                     duration: const Duration(milliseconds: 300),
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24.0,
-                        vertical: 16.0,
-                      ),
+                      padding: ImmersiveStyle.detailSlidePadding,
                       child: selectedItem != null
                           ? _buildDetailPanel(selectedItem!)
                           : const SizedBox(height: 180),
@@ -569,13 +428,11 @@ class _ImmersiveScreenState extends State<ImmersiveScreen> {
                   ),
                 ),
                 GlassContainer(
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(24),
-                  ),
+                  borderRadius: ImmersiveStyle.bottomSheetRadius,
                   blur: 30,
                   child: Container(
                     height: 160,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    padding: ImmersiveStyle.bottomSheetPadding,
                     // 底部小卡缩略图横条：这里按横向列表渲染每张 vocabulary 缩略卡。
                     child: ScrollConfiguration(
                       behavior: ScrollConfiguration.of(context).copyWith(
@@ -586,7 +443,7 @@ class _ImmersiveScreenState extends State<ImmersiveScreen> {
                         },
                       ),
                       child: ListView.separated(
-                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        padding: ImmersiveStyle.bottomListPadding,
                         scrollDirection: Axis.horizontal,
                         physics: const BouncingScrollPhysics(),
                         primary: false,
@@ -619,18 +476,10 @@ class _ImmersiveScreenState extends State<ImmersiveScreen> {
 
   Widget _buildGlassPill(String text) {
     return GlassContainer(
-      borderRadius: BorderRadius.circular(30),
+      borderRadius: ImmersiveStyle.glassPillRadius,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: Text(
-          text,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 10,
-            letterSpacing: 1.5,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        padding: ImmersiveStyle.pillPadding,
+        child: Text(text, style: ImmersiveStyle.modePillTextStyle),
       ),
     );
   }
@@ -646,7 +495,7 @@ class _ImmersiveScreenState extends State<ImmersiveScreen> {
         .toDouble();
 
     return GlassContainer(
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: ImmersiveStyle.detailPanelRadius,
       borderOpacity: 0.3,
       blur: 20,
       // 详情面板：这里展示完整词条信息。
@@ -654,7 +503,7 @@ class _ImmersiveScreenState extends State<ImmersiveScreen> {
       child: ConstrainedBox(
         constraints: BoxConstraints(maxHeight: maxPanelHeight),
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20.0),
+          padding: ImmersiveStyle.detailPanelPadding,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
@@ -671,32 +520,20 @@ class _ImmersiveScreenState extends State<ImmersiveScreen> {
                           item.article.isNotEmpty
                               ? '${item.article} ${item.word}'
                               : item.word,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 24,
-                            fontWeight: FontWeight.w600,
-                          ),
+                          style: ImmersiveStyle.detailWordTextStyle,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
                         if (item.ipa.isNotEmpty)
                           Text(
                             '[${item.ipa}]',
-                            style: TextStyle(
-                              color: Colors.white.withOpacity(0.75),
-                              fontSize: 14,
-                              fontStyle: FontStyle.italic,
-                            ),
+                            style: ImmersiveStyle.detailIpaTextStyle,
                           ),
                         Text(
                           item.translationL1.isNotEmpty
                               ? item.translationL1
                               : item.en,
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.7),
-                            fontSize: 16,
-                            fontStyle: FontStyle.italic,
-                          ),
+                          style: ImmersiveStyle.detailTranslationTextStyle,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -711,7 +548,10 @@ class _ImmersiveScreenState extends State<ImmersiveScreen> {
                   //   onPressed: () => _toggleFavorite(item),
                   // ),
                   IconButton(
-                    icon: const Icon(Icons.close, color: Colors.white70),
+                    icon: const Icon(
+                      Icons.close,
+                      color: ImmersiveStyle.white70,
+                    ),
                     onPressed: () => setState(() => selectedItem = null),
                   ),
                 ],
@@ -719,12 +559,16 @@ class _ImmersiveScreenState extends State<ImmersiveScreen> {
               const SizedBox(height: 12),
               Row(
                 children: [
-                  _buildTag(item.level, Colors.white24, Colors.white),
+                  _buildTag(
+                    item.level,
+                    ImmersiveStyle.white24,
+                    ImmersiveStyle.white,
+                  ),
                   const SizedBox(width: 8),
                   _buildTag(
                     item.article, //change
-                    Colors.blue.withOpacity(0.3),
-                    Colors.blue.shade200,
+                    ImmersiveStyle.articleTagBackground,
+                    ImmersiveStyle.articleTagText,
                   ),
                   const SizedBox(width: 8),
                   // _buildTag(item.type, Colors.white10, Colors.white70),
@@ -739,14 +583,14 @@ class _ImmersiveScreenState extends State<ImmersiveScreen> {
                     if (item.plural.isNotEmpty)
                       _buildTag(
                         'Plural: ${item.plural}',
-                        Colors.white10,
-                        Colors.white70,
+                        ImmersiveStyle.white10,
+                        ImmersiveStyle.white70,
                       ),
                     if (item.objectId > 0)
                       _buildTag(
                         'ID: ${item.objectId}',
-                        Colors.white10,
-                        Colors.white70,
+                        ImmersiveStyle.white10,
+                        ImmersiveStyle.white70,
                       ),
                   ],
                 ),
@@ -755,22 +599,14 @@ class _ImmersiveScreenState extends State<ImmersiveScreen> {
                 const SizedBox(height: 12),
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.05),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.white.withOpacity(0.1)),
-                  ),
+                  padding: ImmersiveStyle.sectionPanelPadding,
+                  decoration: ImmersiveStyle.infoPanelDecoration,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
                         'Grammar Notes',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                        ),
+                        style: ImmersiveStyle.sectionTitleTextStyle,
                       ),
                       const SizedBox(height: 8),
                       ...item.grammarNotes.map(
@@ -778,11 +614,7 @@ class _ImmersiveScreenState extends State<ImmersiveScreen> {
                           padding: const EdgeInsets.only(bottom: 6),
                           child: Text(
                             '• $note',
-                            style: TextStyle(
-                              color: Colors.white.withOpacity(0.78),
-                              fontSize: 13,
-                              height: 1.4,
-                            ),
+                            style: ImmersiveStyle.sectionBodyTextStyle,
                           ),
                         ),
                       ),
@@ -794,22 +626,14 @@ class _ImmersiveScreenState extends State<ImmersiveScreen> {
                 const SizedBox(height: 12),
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.red.withOpacity(0.08),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.red.withOpacity(0.2)),
-                  ),
+                  padding: ImmersiveStyle.sectionPanelPadding,
+                  decoration: ImmersiveStyle.errorPanelDecoration,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
                         'Common Errors',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                        ),
+                        style: ImmersiveStyle.sectionTitleTextStyle,
                       ),
                       const SizedBox(height: 8),
                       ...item.commonErrors.map(
@@ -817,11 +641,7 @@ class _ImmersiveScreenState extends State<ImmersiveScreen> {
                           padding: const EdgeInsets.only(bottom: 6),
                           child: Text(
                             '• $errorText',
-                            style: TextStyle(
-                              color: Colors.white.withOpacity(0.78),
-                              fontSize: 13,
-                              height: 1.4,
-                            ),
+                            style: ImmersiveStyle.sectionBodyTextStyle,
                           ),
                         ),
                       ),
@@ -832,30 +652,19 @@ class _ImmersiveScreenState extends State<ImmersiveScreen> {
               const SizedBox(height: 16),
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.05),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.white.withOpacity(0.1)),
-                ),
+                padding: ImmersiveStyle.sectionPanelPadding,
+                decoration: ImmersiveStyle.infoPanelDecoration,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       item.sentenceDe,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        height: 1.5,
-                      ),
+                      style: ImmersiveStyle.sentenceDeTextStyle,
                     ),
                     const SizedBox(height: 4),
                     Text(
                       item.sentenceEn,
-                      style: TextStyle(
-                        color: Colors.white.withOpacity(0.5),
-                        fontSize: 14,
-                      ),
+                      style: ImmersiveStyle.sentenceEnTextStyle,
                     ),
                   ],
                 ),
@@ -869,8 +678,8 @@ class _ImmersiveScreenState extends State<ImmersiveScreen> {
                       .map(
                         (relatedWord) => _buildTag(
                           relatedWord,
-                          Colors.white10,
-                          Colors.white70,
+                          ImmersiveStyle.white10,
+                          ImmersiveStyle.white70,
                         ),
                       )
                       .toList(),
@@ -885,19 +694,14 @@ class _ImmersiveScreenState extends State<ImmersiveScreen> {
 
   Widget _buildTag(String text, Color bgColor, Color textColor) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      padding: ImmersiveStyle.tagPadding,
       decoration: BoxDecoration(
         color: bgColor,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: ImmersiveStyle.tagRadius,
       ),
       child: Text(
         text.toUpperCase(),
-        style: TextStyle(
-          color: textColor,
-          fontSize: 10,
-          fontWeight: FontWeight.bold,
-          letterSpacing: 0.5,
-        ),
+        style: ImmersiveStyle.tagTextStyle.copyWith(color: textColor),
       ),
     );
   }
@@ -910,11 +714,11 @@ class _ImmersiveScreenState extends State<ImmersiveScreen> {
         width: 140,
         transform: Matrix4.translationValues(0, isActive ? -4 : 0, 0),
         child: GlassContainer(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: ImmersiveStyle.cardRadius,
           borderOpacity: isActive ? 0.8 : 0.1,
           bgColor: isActive
-              ? Colors.white.withOpacity(0.25)
-              : Colors.white.withOpacity(0.1),
+              ? ImmersiveStyle.activeCardBackground
+              : ImmersiveStyle.inactiveCardBackground,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -924,9 +728,7 @@ class _ImmersiveScreenState extends State<ImmersiveScreen> {
                   fit: StackFit.expand,
                   children: [
                     ClipRRect(
-                      borderRadius: const BorderRadius.vertical(
-                        top: Radius.circular(16),
-                      ),
+                      borderRadius: ImmersiveStyle.cardImageRadius,
                       child: _DetectionCropPreview(
                         item.imageUrl,
                         detection: item.detection,
@@ -937,19 +739,12 @@ class _ImmersiveScreenState extends State<ImmersiveScreen> {
                         top: 4,
                         left: 4,
                         child: GlassContainer(
-                          borderRadius: BorderRadius.circular(4),
+                          borderRadius: ImmersiveStyle.miniBadgeRadius,
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 4,
-                              vertical: 2,
-                            ),
+                            padding: ImmersiveStyle.miniBadgePadding,
                             child: Text(
                               item.article,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 8,
-                                fontWeight: FontWeight.bold,
-                              ),
+                              style: ImmersiveStyle.miniBadgeTextStyle,
                             ),
                           ),
                         ),
@@ -960,19 +755,12 @@ class _ImmersiveScreenState extends State<ImmersiveScreen> {
                       top: 4,
                       right: 4,
                       child: GlassContainer(
-                        borderRadius: BorderRadius.circular(4),
+                        borderRadius: ImmersiveStyle.miniBadgeRadius,
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 4,
-                            vertical: 2,
-                          ),
+                          padding: ImmersiveStyle.miniBadgePadding,
                           child: Text(
                             item.level,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 8,
-                              fontWeight: FontWeight.bold,
-                            ),
+                            style: ImmersiveStyle.miniBadgeTextStyle,
                           ),
                         ),
                       ),
@@ -982,19 +770,12 @@ class _ImmersiveScreenState extends State<ImmersiveScreen> {
                         bottom: 4,
                         left: 4,
                         child: GlassContainer(
-                          borderRadius: BorderRadius.circular(4),
+                          borderRadius: ImmersiveStyle.miniBadgeRadius,
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 4,
-                              vertical: 2,
-                            ),
+                            padding: ImmersiveStyle.miniBadgePadding,
                             child: Text(
                               '[${item.ipa}]',
-                              style: TextStyle(
-                                color: Colors.white.withOpacity(0.9),
-                                fontSize: 8,
-                                fontWeight: FontWeight.bold,
-                              ),
+                              style: ImmersiveStyle.miniBadgeSoftTextStyle,
                             ),
                           ),
                         ),
@@ -1005,7 +786,7 @@ class _ImmersiveScreenState extends State<ImmersiveScreen> {
               Expanded(
                 flex: 2,
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(8, 6, 8, 6),
+                  padding: ImmersiveStyle.cardTextPadding,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -1014,11 +795,7 @@ class _ImmersiveScreenState extends State<ImmersiveScreen> {
                         item.article.isNotEmpty
                             ? '${item.article} ${item.word}'
                             : item.word,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                        ),
+                        style: ImmersiveStyle.cardTitleTextStyle,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -1026,10 +803,7 @@ class _ImmersiveScreenState extends State<ImmersiveScreen> {
                         item.translationL1.isNotEmpty
                             ? item.translationL1
                             : item.en,
-                        style: TextStyle(
-                          color: Colors.white.withOpacity(0.5),
-                          fontSize: 9,
-                        ),
+                        style: ImmersiveStyle.cardSubtitleTextStyle,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -1100,7 +874,7 @@ class _SceneDetectionOverlayState extends State<_SceneDetectionOverlay> {
       setState(() {
         _imageInfo = info;
       });
-    }, onError: (_, __) {});
+    }, onError: (error, stackTrace) {});
     stream.addListener(_imageStreamListener!);
     _imageStream = stream;
   }
@@ -1255,33 +1029,6 @@ Offset _fallbackChipPosition({
   return Offset(x, y);
 }
 
-Widget _buildDiscoveryChip(String text, Color dotColor) {
-  return GlassContainer(
-    borderRadius: BorderRadius.circular(30),
-    child: Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 8,
-            height: 8,
-            decoration: BoxDecoration(color: dotColor, shape: BoxShape.circle),
-          ),
-          const SizedBox(width: 8),
-          Text(
-            text,
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
-      ),
-    ),
-  );
-}
-
 class _PressableGlassButton extends StatefulWidget {
   final IconData icon;
   final String? label;
@@ -1326,7 +1073,7 @@ class _PressableGlassButtonState extends State<_PressableGlassButton> {
             duration: const Duration(milliseconds: 90),
             opacity: _pressed ? 0.84 : 1,
             child: GlassContainer(
-              borderRadius: BorderRadius.circular(30),
+              borderRadius: ImmersiveStyle.glassPillRadius,
               bgColor: isActive
                   ? const Color(0x26FFFFFF)
                   : const Color(0x1AFFFFFF),
@@ -1339,15 +1086,12 @@ class _PressableGlassButtonState extends State<_PressableGlassButton> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(widget.icon, color: Colors.white, size: 20),
+                    Icon(widget.icon, color: ImmersiveStyle.white, size: 20),
                     if (widget.label != null) ...[
                       const SizedBox(width: 8),
                       Text(
                         widget.label!,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w500,
-                        ),
+                        style: ImmersiveStyle.glassButtonTextStyle,
                       ),
                     ],
                   ],
@@ -1399,7 +1143,7 @@ class _PressableDiscoveryChipState extends State<_PressableDiscoveryChip> {
             duration: const Duration(milliseconds: 90),
             opacity: _pressed ? 0.86 : 1,
             child: GlassContainer(
-              borderRadius: BorderRadius.circular(30),
+              borderRadius: ImmersiveStyle.glassPillRadius,
               bgColor: isActive
                   ? const Color(0x26FFFFFF)
                   : const Color(0x1AFFFFFF),
@@ -1422,10 +1166,7 @@ class _PressableDiscoveryChipState extends State<_PressableDiscoveryChip> {
                     const SizedBox(width: 8),
                     Text(
                       widget.text,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
-                      ),
+                      style: ImmersiveStyle.discoveryChipTextStyle,
                     ),
                   ],
                 ),
@@ -1461,44 +1202,6 @@ Offset _detectionCenterToViewport(
 
 double mathMin(double a, double b) => a < b ? a : b;
 double mathMax(double a, double b) => a > b ? a : b;
-
-class GlassContainer extends StatelessWidget {
-  final Widget child;
-  final double blur;
-  final double borderOpacity;
-  final Color bgColor;
-  final BorderRadius borderRadius;
-
-  const GlassContainer({
-    super.key,
-    required this.child,
-    this.blur = 12.0,
-    this.borderOpacity = 0.2,
-    this.bgColor = const Color(0x1AFFFFFF),
-    required this.borderRadius,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: borderRadius,
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
-        child: Container(
-          decoration: BoxDecoration(
-            color: bgColor,
-            borderRadius: borderRadius,
-            border: Border.all(
-              color: Colors.white.withOpacity(borderOpacity),
-              width: 1,
-            ),
-          ),
-          child: child,
-        ),
-      ),
-    );
-  }
-}
 
 class _DetectionCropPreview extends StatefulWidget {
   final String imageUrl;
@@ -1545,7 +1248,7 @@ class _DetectionCropPreviewState extends State<_DetectionCropPreview> {
       setState(() {
         _imageInfo = info;
       });
-    }, onError: (_, __) {});
+    }, onError: (error, stackTrace) {});
     stream.addListener(_imageStreamListener!);
     _imageStream = stream;
   }
@@ -1573,7 +1276,8 @@ class _DetectionCropPreviewState extends State<_DetectionCropPreview> {
         imageUrl: widget.imageUrl,
         fit: BoxFit.cover,
         alignment: Alignment.center,
-        errorWidget: (_, __, ___) => const ColoredBox(color: Colors.black12),
+        errorWidget: (context, error, stackTrace) =>
+            const ColoredBox(color: ImmersiveStyle.black12),
       );
     }
 
@@ -1583,7 +1287,8 @@ class _DetectionCropPreviewState extends State<_DetectionCropPreview> {
         imageUrl: widget.imageUrl,
         fit: BoxFit.cover,
         alignment: Alignment.center,
-        errorWidget: (_, __, ___) => const ColoredBox(color: Colors.black12),
+        errorWidget: (context, error, stackTrace) =>
+            const ColoredBox(color: ImmersiveStyle.black12),
       );
     }
 
@@ -1600,7 +1305,7 @@ class _DetectionCropPreviewState extends State<_DetectionCropPreview> {
         : detection.height.clamp(1.0, imageHeight - top);
 
     return ColoredBox(
-      color: Colors.black12,
+      color: ImmersiveStyle.black12,
       child: ClipRect(
         child: FittedBox(
           fit: BoxFit.cover,
@@ -1621,8 +1326,8 @@ class _DetectionCropPreviewState extends State<_DetectionCropPreview> {
                       imageUrl: widget.imageUrl,
                       fit: BoxFit.fill,
                       filterQuality: FilterQuality.medium,
-                      errorWidget: (_, __, ___) =>
-                          const ColoredBox(color: Colors.black12),
+                      errorWidget: (context, error, stackTrace) =>
+                          const ColoredBox(color: ImmersiveStyle.black12),
                     ),
                   ),
                 ),

@@ -5,27 +5,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:germany/core/utils/error_utils.dart';
 import 'auth_provider.dart';
+import 'login_style.dart';
 import 'register_screen.dart';
 
 const String _rememberPasswordKey = 'auth_remember_password_v1';
 const String _rememberedEmailKey = 'auth_remembered_email_v1';
 const String _rememberedPasswordKey = 'auth_remembered_password_v1';
 const FlutterSecureStorage _secureStorage = FlutterSecureStorage();
-
-///颜色体系
-class _AppColors {
-  static const Color background = Color(0xFFFAF8FF);
-  static const Color primary = Color(0xFF004AC6);
-  static const Color onPrimary = Color(0xFFFFFFFF);
-  static const Color secondary = Color(0xFF712AE2);
-  static const Color tertiaryContainer = Color(0xFFBC4800);
-
-  static const Color onSurface = Color(0xFF131B2E);
-  static const Color onSurfaceVariant = Color(0xFF434655);
-  static const Color outline = Color(0xFF737686);
-  static const Color outlineVariant = Color(0xFFC3C6D7);
-  static const Color surfaceContainerLow = Color(0xFFF2F3FF);
-}
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -93,7 +79,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(message),
-            backgroundColor: Colors.red.shade800,
+            backgroundColor: LoginStyle.error,
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -166,10 +152,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      backgroundColor: _AppColors.background,
+      backgroundColor: LoginStyle.background,
       body: Stack(
         children: [
-          // 背景光晕 (Atmospheric Background Elements)
+          // 背景光晕
           AnimatedBuilder(
             animation: _bgAnimationController,
             builder: (context, child) {
@@ -181,8 +167,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                     left: -screenWidth * 0.1 - offset,
                     width: screenWidth * 0.8,
                     height: screenWidth * 0.8,
-                    child: _buildBlurBlob(
-                      _AppColors.primary.withValues(alpha: 0.08),
+                    child: LoginBlurBlob(
+                      color: LoginStyle.primary.withValues(alpha: 0.08),
                     ),
                   ),
                   Positioned(
@@ -190,8 +176,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                     right: -screenWidth * 0.2 + offset,
                     width: screenWidth * 0.7,
                     height: screenWidth * 0.7,
-                    child: _buildBlurBlob(
-                      _AppColors.secondary.withValues(alpha: 0.08),
+                    child: LoginBlurBlob(
+                      color: LoginStyle.secondary.withValues(alpha: 0.08),
                     ),
                   ),
                   Positioned(
@@ -199,8 +185,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                     left: screenWidth * 0.2 - offset,
                     width: screenWidth * 0.6,
                     height: screenWidth * 0.6,
-                    child: _buildBlurBlob(
-                      _AppColors.tertiaryContainer.withValues(alpha: 0.06),
+                    child: LoginBlurBlob(
+                      color: LoginStyle.tertiaryContainer.withValues(
+                        alpha: 0.06,
+                      ),
                     ),
                   ),
                 ],
@@ -208,94 +196,52 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             },
           ),
 
-          // 2. 主体滚动视图 (防止键盘遮挡)
+          // 主体滚动视图，防止键盘遮挡
           SafeArea(
             child: Center(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 40,
-                ),
+                padding: LoginStyle.scrollPadding,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Logo 与 标题
+                    // Logo 和标题
                     Container(
                       width: 64,
                       height: 64,
-                      decoration: BoxDecoration(
-                        color: _AppColors.primary,
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: _AppColors.primary.withValues(alpha: 0.3),
-                            blurRadius: 16,
-                            offset: const Offset(0, 8),
-                          ),
-                        ],
-                      ),
+                      decoration: LoginStyle.logoDecoration,
                       child: const Icon(
                         Icons.language,
-                        color: _AppColors.onPrimary,
+                        color: LoginStyle.onPrimary,
                         size: 36,
                       ),
                     ),
                     const SizedBox(height: 16),
-                    Text(
-                      'app.name'.tr(),
-                      style: const TextStyle(
-                        fontFamily: 'Space Grotesk',
-                        fontSize: 24,
-                        fontWeight: FontWeight.w700,
-                        color: _AppColors.primary,
-                        letterSpacing: -0.5,
-                      ),
-                    ),
+                    Text('app.name'.tr(), style: LoginStyle.appNameTextStyle),
                     const SizedBox(height: 40),
 
-                    // 毛玻璃登录卡片 (Glassmorphic Panel)
+                    // 毛玻璃登录卡片
                     Container(
-                      constraints: const BoxConstraints(maxWidth: 400),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(24),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.05),
-                            blurRadius: 20,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
+                      constraints: LoginStyle.panelConstraints,
+                      decoration: LoginStyle.panelShadowDecoration,
                       child: ClipRRect(
-                        borderRadius: BorderRadius.circular(24),
+                        borderRadius: LoginStyle.panelRadius,
                         child: BackdropFilter(
                           filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
                           child: Container(
-                            padding: const EdgeInsets.all(32),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.7),
-                              border: Border.all(
-                                color: Colors.white.withValues(alpha: 0.4),
-                              ),
-                              borderRadius: BorderRadius.circular(24),
-                            ),
+                            padding: LoginStyle.panelPadding,
+                            decoration: LoginStyle.panelDecoration,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
                                   'auth.login_page.title'.tr(),
-                                  style: TextStyle(
-                                    fontFamily: 'Space Grotesk',
-                                    fontSize: 28,
-                                    fontWeight: FontWeight.w600,
-                                    color: _AppColors.onSurface,
-                                  ),
+                                  style: LoginStyle.titleTextStyle,
                                 ),
                                 const SizedBox(height: 32),
 
                                 // 邮箱输入框
-                                _buildInputLabel(
-                                  'auth.login_page.email_label'.tr(),
+                                LoginInputLabel(
+                                  text: 'auth.login_page.email_label'.tr(),
                                 ),
                                 const SizedBox(height: 8),
                                 _buildTextField(
@@ -307,8 +253,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                 const SizedBox(height: 24),
 
                                 // 密码输入框
-                                _buildInputLabel(
-                                  'auth.login_page.password_label'.tr(),
+                                LoginInputLabel(
+                                  text: 'auth.login_page.password_label'.tr(),
                                 ),
                                 const SizedBox(height: 8),
                                 _buildTextField(
@@ -321,7 +267,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                 ),
                                 const SizedBox(height: 24),
 
-                                // 记住我 & 忘记密码
+                                // 记住我和忘记密码
                                 Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
@@ -341,13 +287,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                                 onChanged: (val) => setState(
                                                   () => _rememberMe = val!,
                                                 ),
-                                                activeColor: _AppColors.primary,
+                                                activeColor: LoginStyle.primary,
                                                 side: const BorderSide(
-                                                  color: _AppColors.outline,
+                                                  color: LoginStyle.outline,
                                                 ),
                                                 shape: RoundedRectangleBorder(
                                                   borderRadius:
-                                                      BorderRadius.circular(4),
+                                                      LoginStyle.checkboxRadius,
                                                 ),
                                               ),
                                             ),
@@ -358,12 +304,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                                     .tr(),
                                                 maxLines: 1,
                                                 overflow: TextOverflow.ellipsis,
-                                                style: TextStyle(
-                                                  fontFamily: 'Inter',
-                                                  fontSize: 14,
-                                                  color: _AppColors
-                                                      .onSurfaceVariant,
-                                                ),
+                                                style: LoginStyle
+                                                    .rememberTextStyle,
                                               ),
                                             ),
                                           ],
@@ -374,23 +316,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                     Flexible(
                                       child: TextButton(
                                         onPressed: _showForgotPasswordDialog,
-                                        style: TextButton.styleFrom(
-                                          padding: EdgeInsets.zero,
-                                          minimumSize: Size.zero,
-                                          tapTargetSize:
-                                              MaterialTapTargetSize.shrinkWrap,
-                                        ),
+                                        style: LoginStyle
+                                            .forgotPasswordButtonStyle,
                                         child: Text(
                                           'auth.login_page.forgot_password'
                                               .tr(),
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
-                                          style: TextStyle(
-                                            fontFamily: 'Inter',
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w500,
-                                            color: _AppColors.primary,
-                                          ),
+                                          style: LoginStyle
+                                              .forgotPasswordTextStyle,
                                         ),
                                       ),
                                     ),
@@ -406,24 +340,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                     onPressed: authState.isLoading
                                         ? null
                                         : _handleLogin,
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: _AppColors.primary,
-                                      foregroundColor: _AppColors.onPrimary,
-                                      elevation: 8,
-                                      shadowColor: _AppColors.primary
-                                          .withValues(alpha: 0.5),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(
-                                          999,
-                                        ),
-                                      ),
-                                    ),
+                                    style: LoginStyle.loginButtonStyle,
                                     child: authState.isLoading
                                         ? const SizedBox(
                                             width: 24,
                                             height: 24,
                                             child: CircularProgressIndicator(
-                                              color: _AppColors.onPrimary,
+                                              color: LoginStyle.onPrimary,
                                               strokeWidth: 2,
                                             ),
                                           )
@@ -433,11 +356,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                             children: [
                                               Text(
                                                 'auth.login_page.button'.tr(),
-                                                style: TextStyle(
-                                                  fontFamily: 'Inter',
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.w600,
-                                                ),
+                                                style: LoginStyle
+                                                    .loginButtonTextStyle,
                                               ),
                                               SizedBox(width: 8),
                                               Icon(
@@ -462,15 +382,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                       children: [
                         Text(
                           'auth.login_page.dont_have_account'.tr(),
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                            fontSize: 16,
-                            color: _AppColors.onSurfaceVariant,
-                          ),
+                          style: LoginStyle.registerPromptTextStyle,
                         ),
                         GestureDetector(
                           onTap: () {
-                            // 跳往注册页
+                            // 跳转到注册页
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -480,12 +396,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                           },
                           child: Text(
                             'auth.login_page.sign_up_now'.tr(),
-                            style: TextStyle(
-                              fontFamily: 'Inter',
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                              color: _AppColors.primary,
-                            ),
+                            style: LoginStyle.registerLinkTextStyle,
                           ),
                         ),
                       ],
@@ -496,22 +407,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  // 辅助构建：输入框上方的 Label
-  Widget _buildInputLabel(String text) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 4),
-      child: Text(
-        text,
-        style: const TextStyle(
-          fontFamily: 'Inter',
-          fontSize: 14,
-          fontWeight: FontWeight.w500,
-          color: _AppColors.onSurfaceVariant,
-        ),
       ),
     );
   }
@@ -529,62 +424,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       controller: controller,
       obscureText: obscureText,
       keyboardType: keyboardType,
-      style: const TextStyle(
-        fontFamily: 'Inter',
-        fontSize: 16,
-        color: _AppColors.onSurface,
-      ),
-      decoration: InputDecoration(
+      style: LoginStyle.inputTextStyle,
+      decoration: LoginStyle.inputDecoration(
+        icon: icon,
         hintText: hintText,
-        hintStyle: TextStyle(
-          color: _AppColors.outlineVariant.withValues(alpha: 0.8),
-        ),
-        filled: true,
-        fillColor: _AppColors.surfaceContainerLow,
-        contentPadding: const EdgeInsets.symmetric(vertical: 16),
-        prefixIcon: Icon(icon, color: _AppColors.outline),
         suffixIcon: isPassword
             ? IconButton(
                 icon: Icon(
                   _obscurePassword ? Icons.visibility : Icons.visibility_off,
-                  color: _AppColors.outline,
+                  color: LoginStyle.outline,
                 ),
                 onPressed: () =>
                     setState(() => _obscurePassword = !_obscurePassword),
               )
             : null,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(
-            color: _AppColors.outlineVariant.withValues(alpha: 0.5),
-          ),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(
-            color: _AppColors.outlineVariant.withValues(alpha: 0.5),
-          ),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: _AppColors.primary, width: 2),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBlurBlob(Color color) {
-    return Container(
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: color,
-        boxShadow: [
-          BoxShadow(
-            color: color,
-            blurRadius: 100, // 对应 CSS blur-[100px]
-            spreadRadius: 20,
-          ),
-        ],
       ),
     );
   }
