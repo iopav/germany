@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_palette.dart';
@@ -35,8 +37,31 @@ class LoginStyle {
     vertical: 16,
   );
   static const EdgeInsets inputLabelPadding = EdgeInsets.only(left: 4);
+  static const EdgeInsets logoPadding = EdgeInsets.all(8);
 
   static const BoxConstraints panelConstraints = BoxConstraints(maxWidth: 400);
+
+  // Minimum and maximum tile size after responsive scaling.
+  static const double mosaicTileMinSize = 12;
+  static const double mosaicTileMaxSize = 32;
+
+  // Distance between tile origins. Larger values make the grid looser.
+  static const double mosaicTileGapRatio = 1.7;
+
+  // Overall background opacity applied to the whole mosaic layer.
+  static const double mosaicOpacity = 0.7;
+
+  // Horizontal and vertical travel distance for floating tiles.
+  static const double mosaicFloatDistanceRatio = 0.7;
+
+  // Maximum scale delta for tiles assigned to the scale animation.
+  static const double mosaicScaleAmount = 0.16;
+
+  // Maximum blur strength for tiles assigned to the blur animation.
+  static const double mosaicMaxBlurSigma = 1.15;
+
+  // Color interpolation amount for tiles assigned to the color animation.
+  static const double mosaicColorShiftAmount = 0.22;
 
   static const TextStyle appNameTextStyle = TextStyle(
     fontFamily: 'Space Grotesk',
@@ -148,18 +173,46 @@ class LoginStyle {
       registerLinkTextStyle.copyWith(color: colors(context).primary);
 
   static BoxDecoration logoDecorationFor(BuildContext context) {
-    final palette = colors(context);
     return BoxDecoration(
-      color: palette.primary,
+      color: logoBackgroundColor(context),
       borderRadius: logoRadius,
       boxShadow: [
         BoxShadow(
-          color: palette.primary.withValues(alpha: 0.28),
+          color: logoShadowColor(context),
           blurRadius: 16,
           offset: const Offset(0, 8),
         ),
       ],
     );
+  }
+
+  static Color logoBackgroundColor(BuildContext context) {
+    final palette = colors(context);
+    return palette.iconContainer;
+  }
+
+  static Color logoShadowColor(BuildContext context) {
+    final palette = colors(context);
+    return palette.primary.withValues(alpha: 0.18);
+  }
+
+  static List<Color> mosaicColorsFor(BuildContext context) {
+    final palette = colors(context);
+    return [
+      // The mosaic palette follows the active AppPalette, so switching between
+      // cool and warm themes changes these colors without changing the painter.
+      palette.primary,
+      palette.secondary,
+      palette.tertiary,
+      palette.accentGold,
+      palette.accentTerracotta,
+      palette.accentForest,
+      palette.accentSlate,
+      palette.outline,
+      // palette.iconContainer,
+      // palette.primaryContainer,
+      // palette.secondaryContainer,
+    ];
   }
 
   static BoxDecoration panelDecorationFor(BuildContext context) {
@@ -300,5 +353,134 @@ class LoginBlurBlob extends StatelessWidget {
         boxShadow: [BoxShadow(color: color, blurRadius: 100, spreadRadius: 20)],
       ),
     );
+  }
+}
+
+class LoginMosaicPatch extends StatelessWidget {
+  final double opacity;
+  final Animation<double>? animation;
+
+  const LoginMosaicPatch({
+    super.key,
+    this.opacity = LoginStyle.mosaicOpacity,
+    this.animation,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return RepaintBoundary(
+      child: Opacity(
+        opacity: opacity,
+        child: CustomPaint(
+          painter: _LoginMosaicPainter(
+            colors: LoginStyle.mosaicColorsFor(context),
+            animation: animation ?? const AlwaysStoppedAnimation<double>(0),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _LoginMosaicPainter extends CustomPainter {
+  final List<Color> colors;
+  final Animation<double> animation;
+
+  _LoginMosaicPainter({required this.colors, required this.animation})
+    : super(repaint: animation);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (colors.isEmpty || size.isEmpty) {
+      return;
+    }
+
+    final shortest = size.shortestSide;
+    final tileSize = (shortest * 0.06).clamp(
+      LoginStyle.mosaicTileMinSize,
+      LoginStyle.mosaicTileMaxSize,
+    );
+    final step = tileSize * LoginStyle.mosaicTileGapRatio;
+    final radius = Radius.circular(tileSize * 0.28);
+    final paint = Paint();
+
+    final columns = (size.width / step).ceil() + 1;
+    final rows = (size.height / step).ceil() + 1;
+    for (var row = 0; row < rows; row++) {
+      for (var column = 0; column < columns; column++) {
+        if ((row + column) % 11 == 0) {
+          continue;
+        }
+
+        final hash = _tileHash(row, column);
+        final mode = hash % 3;
+        final phase = ((hash % 360) / 180) * math.pi;
+        final wave = math.sin(animation.value * math.pi * 2 + phase);
+        final colorIndex = hash % colors.length;
+        final baseColor = colors[colorIndex];
+        final nextColor = colors[(colorIndex + 1 + (hash % 3)) % colors.length];
+
+        var dx = column * step + ((row % 2) * step * 0.08);
+        var dy = row * step;
+        var scale = 1.0;
+        var color = baseColor;
+        var blurSigma = 0.0;
+
+        switch (mode) {
+          case 0:
+            dx += wave * tileSize * LoginStyle.mosaicFloatDistanceRatio;
+            dy +=
+                math.cos(animation.value * math.pi * 2 + phase) *
+                tileSize *
+                LoginStyle.mosaicFloatDistanceRatio *
+                0.7;
+          case 1:
+            dx += wave * tileSize * LoginStyle.mosaicFloatDistanceRatio;
+            dy +=
+                math.cos(animation.value * math.pi * 2 + phase) *
+                tileSize *
+                LoginStyle.mosaicFloatDistanceRatio *
+                0.3;
+          case 2:
+            dx += wave * tileSize * LoginStyle.mosaicFloatDistanceRatio;
+            dy +=
+                math.cos(animation.value * math.pi * 2 + phase) *
+                tileSize *
+                LoginStyle.mosaicFloatDistanceRatio *
+                0.1;
+            // color = Color.lerp(
+            //   baseColor,
+            //   nextColor,
+            //   (wave + 1) * LoginStyle.mosaicColorShiftAmount,
+            // )!;
+          // case 2:
+         
+          //   blurSigma = (wave + 1) * 0.5 * LoginStyle.mosaicMaxBlurSigma;
+          //   scale += wave * LoginStyle.mosaicScaleAmount * 0.45;
+        }
+
+        paint
+          ..color = color
+          ..maskFilter = blurSigma > 0.05
+              ? MaskFilter.blur(BlurStyle.normal, blurSigma)
+              : null;
+        final side = tileSize * scale.clamp(0.84, 1.18);
+        final rect = Rect.fromCenter(
+          center: Offset(dx + tileSize / 2, dy + tileSize / 2),
+          width: side,
+          height: side,
+        );
+        canvas.drawRRect(RRect.fromRectAndRadius(rect, radius), paint);
+      }
+    }
+  }
+
+  int _tileHash(int row, int column) {
+    return ((row + 17) * 73856093 ^ (column + 31) * 19349663).abs();
+  }
+
+  @override
+  bool shouldRepaint(covariant _LoginMosaicPainter oldDelegate) {
+    return oldDelegate.colors != colors || oldDelegate.animation != animation;
   }
 }

@@ -163,6 +163,7 @@ class AppShellStyle {
         ? selectedItemColorFor(context)
         : unselectedItemColorFor(context);
     final suffix = isActive ? '-filled' : '';
+    final preserveOriginalColors = isActive && name == 'mosaic-tile';
 
     return SizedBox(
       width: 28,
@@ -173,7 +174,9 @@ class AppShellStyle {
           width: 24,
           height: 24,
           fit: BoxFit.contain,
-          colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
+          colorFilter: preserveOriginalColors
+              ? null
+              : ColorFilter.mode(color, BlendMode.srcIn),
         ),
       ),
     );
@@ -193,8 +196,8 @@ class AppShellStyle {
       label: 'Reviews',
     ),
     BottomNavigationBarItem(
-      icon: _navIcon(context, 'chat', isActive: false),
-      activeIcon: _navIcon(context, 'chat', isActive: true),
+      icon: _navIcon(context, 'mosaic-tile', isActive: false),
+      activeIcon: _navIcon(context, 'mosaic-tile', isActive: true),
       label: 'Chat',
     ),
     BottomNavigationBarItem(

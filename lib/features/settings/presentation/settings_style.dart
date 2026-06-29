@@ -108,7 +108,7 @@ class SettingsStyle {
   );
 
   static const TextStyle signOutTextStyle = TextStyle(
-    fontSize: 24,
+    fontSize: 16,
     fontWeight: FontWeight.w600,
   );
 
@@ -256,7 +256,7 @@ class SettingsStyle {
   static ButtonStyle signOutButtonStyle = OutlinedButton.styleFrom(
     foregroundColor: error,
     side: const BorderSide(color: error, width: 2),
-    minimumSize: const Size(double.infinity, 56),
+    minimumSize: const Size(double.infinity, 48),
     shape: RoundedRectangleBorder(borderRadius: signOutRadius),
   );
 
@@ -265,7 +265,7 @@ class SettingsStyle {
     return OutlinedButton.styleFrom(
       foregroundColor: palette.error,
       side: BorderSide(color: palette.error, width: 2),
-      minimumSize: const Size(double.infinity, 56),
+      minimumSize: const Size(double.infinity, 48),
       shape: RoundedRectangleBorder(borderRadius: signOutRadius),
     );
   }

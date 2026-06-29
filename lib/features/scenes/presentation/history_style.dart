@@ -26,9 +26,15 @@ class HistoryStyle {
   static final BorderRadius cardRadius = AppRadii.md;
   static final BorderRadius pillRadius = AppRadii.pill;
   static final BorderRadius sheetRadius = BorderRadius.circular(24);
+  static final BorderRadius createButtonRadius = BorderRadius.circular(18);
   static const BorderRadius bottomNavRadius = BorderRadius.vertical(
     top: Radius.circular(16),
   );
+
+  static const double createButtonSize = 56;
+  static const double createButtonRight = 24;
+  static const double createButtonBottom = 104;
+  static const double createMenuBottom = 176;
 
   static const EdgeInsets pagePadding = EdgeInsets.only(
     top: 12,
@@ -288,6 +294,18 @@ class HistoryStyle {
     return BoxDecoration(
       color: palette.primary.withValues(alpha: 0.1),
       shape: BoxShape.circle,
+    );
+  }
+
+  static BoxDecoration createButtonDecorationFor(
+    BuildContext context, {
+    required bool isActive,
+  }) {
+    final palette = colors(context);
+    return BoxDecoration(
+      color: isActive ? palette.primaryPressed : palette.primary,
+      borderRadius: createButtonRadius,
+      border: Border.all(color: palette.onPrimary.withValues(alpha: 0.18)),
     );
   }
 }

@@ -286,8 +286,8 @@ class _SceneHistoryScreenState extends ConsumerState<HistoryScreen> {
             ),
           if (_isCreateMenuOpen)
             Positioned(
-              right: 24,
-              bottom: 96,
+              right: HistoryStyle.createButtonRight,
+              bottom: HistoryStyle.createMenuBottom,
               child: Material(
                 color: Colors.transparent,
                 child: Container(
@@ -327,20 +327,38 @@ class _SceneHistoryScreenState extends ConsumerState<HistoryScreen> {
               ),
             ),
           Positioned(
-            right: 24,
-            bottom: 24,
-            child: FloatingActionButton(
-              onPressed: _isQuickGenerating ? null : _toggleCreateMenu,
-              child: _isQuickGenerating
-                  ? const SizedBox(
-                      width: 22,
-                      height: 22,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2.4,
-                        color: Colors.white,
-                      ),
-                    )
-                  : const Icon(Icons.add),
+            right: HistoryStyle.createButtonRight,
+            bottom: HistoryStyle.createButtonBottom,
+            child: AppPressable(
+              onTap: _isQuickGenerating ? () {} : _toggleCreateMenu,
+              pressedScale: 0.96,
+              builder: (context, isHovered, isPressed) {
+                final isActive = _isCreateMenuOpen || isHovered || isPressed;
+                return AnimatedContainer(
+                  duration: AppMotion.hoverDuration,
+                  curve: AppMotion.pressCurve,
+                  width: HistoryStyle.createButtonSize,
+                  height: HistoryStyle.createButtonSize,
+                  alignment: Alignment.center,
+                  decoration: HistoryStyle.createButtonDecorationFor(
+                    context,
+                    isActive: isActive,
+                  ),
+                  child: _isQuickGenerating
+                      ? SizedBox(
+                          width: 22,
+                          height: 22,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2.4,
+                            color: HistoryStyle.colors(context).onPrimary,
+                          ),
+                        )
+                      : Icon(
+                          Icons.add,
+                          color: HistoryStyle.colors(context).onPrimary,
+                        ),
+                );
+              },
             ),
           ),
         ],

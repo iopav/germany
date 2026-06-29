@@ -25,20 +25,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     with SingleTickerProviderStateMixin {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  late final AnimationController _mosaicAnimationController;
 
   bool _obscurePassword = true;
   bool _rememberMe = false;
 
   // 用于背景动态呼吸效果
-  late final AnimationController _bgAnimationController;
-
   @override
   void initState() {
     super.initState();
-    _bgAnimationController = AnimationController(
+    _mosaicAnimationController = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 10),
-    )..repeat(reverse: true);
+      duration: const Duration(seconds: 18),
+    )..repeat();
     _restoreRememberedCredentials();
   }
 
@@ -46,7 +45,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
-    _bgAnimationController.dispose();
+    _mosaicAnimationController.dispose();
     super.dispose();
   }
 
@@ -150,56 +149,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     // 监听状态，用于控制按钮的 Loading 以及弹出报错
     final authState = ref.watch(authProvider);
 
-    final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
-
     return Scaffold(
       backgroundColor: LoginStyle.backgroundColor(context),
       body: Stack(
         children: [
           // 背景光晕
-          AnimatedBuilder(
-            animation: _bgAnimationController,
-            builder: (context, child) {
-              final offset = _bgAnimationController.value * 20;
-              return Stack(
-                children: [
-                  Positioned(
-                    top: -screenHeight * 0.1 + offset,
-                    left: -screenWidth * 0.1 - offset,
-                    width: screenWidth * 0.8,
-                    height: screenWidth * 0.8,
-                    child: LoginBlurBlob(
-                      color: LoginStyle.colors(
-                        context,
-                      ).primary.withValues(alpha: 0.08),
-                    ),
-                  ),
-                  Positioned(
-                    top: screenHeight * 0.4 - offset,
-                    right: -screenWidth * 0.2 + offset,
-                    width: screenWidth * 0.7,
-                    height: screenWidth * 0.7,
-                    child: LoginBlurBlob(
-                      color: LoginStyle.colors(
-                        context,
-                      ).secondary.withValues(alpha: 0.08),
-                    ),
-                  ),
-                  Positioned(
-                    bottom: -screenHeight * 0.05 + offset,
-                    left: screenWidth * 0.2 - offset,
-                    width: screenWidth * 0.6,
-                    height: screenWidth * 0.6,
-                    child: LoginBlurBlob(
-                      color: LoginStyle.colors(
-                        context,
-                      ).tertiaryContainer.withValues(alpha: 0.06),
-                    ),
-                  ),
-                ],
-              );
-            },
+          Positioned.fill(
+            child: LoginMosaicPatch(
+              opacity: 0.4,
+              animation: _mosaicAnimationController,
+            ),
           ),
 
           // 主体滚动视图，防止键盘遮挡
@@ -214,13 +173,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                     Container(
                       width: 64,
                       height: 64,
+                      alignment: Alignment.center,
+                      padding: EdgeInsets.only(left: 4),
                       decoration: LoginStyle.logoDecorationFor(context),
                       child: Image.asset(
-                        'assets/logo.png',
-                        width: 36,
-                        height: 36,
+                        'assets/images/logo.png',
+                        width: 64,
+                        height: 64,
                         fit: BoxFit.contain,
-                        color: LoginStyle.colors(context).onPrimary,
+                        // color: LoginStyle.colors(context).onPrimary,
                       ),
                     ),
                     const SizedBox(height: 16),

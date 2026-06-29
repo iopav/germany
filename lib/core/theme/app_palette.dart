@@ -38,9 +38,17 @@ class AppPalette extends ThemeExtension<AppPalette> {
   final Color outline;
   final Color outlineVariant;
   final Color cardBorder;
+  final Color iconContainer;
   final Color error;
   final Color success;
   final Color warning;
+  final Color accentGold;
+  final Color accentBurntOrange;
+  final Color accentTerracotta;
+  final Color accentEspresso;
+  final Color accentCocoa;
+  final Color accentForest;
+  final Color accentSlate;
 
   const AppPalette({
     required this.key,
@@ -66,9 +74,17 @@ class AppPalette extends ThemeExtension<AppPalette> {
     required this.outline,
     required this.outlineVariant,
     required this.cardBorder,
+    required this.iconContainer,
     required this.error,
     required this.success,
     required this.warning,
+    required this.accentGold,
+    required this.accentBurntOrange,
+    required this.accentTerracotta,
+    required this.accentEspresso,
+    required this.accentCocoa,
+    required this.accentForest,
+    required this.accentSlate,
   });
 
   @override
@@ -96,9 +112,17 @@ class AppPalette extends ThemeExtension<AppPalette> {
     Color? outline,
     Color? outlineVariant,
     Color? cardBorder,
+    Color? iconContainer,
     Color? error,
     Color? success,
     Color? warning,
+    Color? accentGold,
+    Color? accentBurntOrange,
+    Color? accentTerracotta,
+    Color? accentEspresso,
+    Color? accentCocoa,
+    Color? accentForest,
+    Color? accentSlate,
   }) {
     return AppPalette(
       key: key ?? this.key,
@@ -126,9 +150,17 @@ class AppPalette extends ThemeExtension<AppPalette> {
       outline: outline ?? this.outline,
       outlineVariant: outlineVariant ?? this.outlineVariant,
       cardBorder: cardBorder ?? this.cardBorder,
+      iconContainer: iconContainer ?? this.iconContainer,
       error: error ?? this.error,
       success: success ?? this.success,
       warning: warning ?? this.warning,
+      accentGold: accentGold ?? this.accentGold,
+      accentBurntOrange: accentBurntOrange ?? this.accentBurntOrange,
+      accentTerracotta: accentTerracotta ?? this.accentTerracotta,
+      accentEspresso: accentEspresso ?? this.accentEspresso,
+      accentCocoa: accentCocoa ?? this.accentCocoa,
+      accentForest: accentForest ?? this.accentForest,
+      accentSlate: accentSlate ?? this.accentSlate,
     );
   }
 
@@ -198,9 +230,25 @@ class AppPalette extends ThemeExtension<AppPalette> {
       outline: Color.lerp(outline, other.outline, t)!,
       outlineVariant: Color.lerp(outlineVariant, other.outlineVariant, t)!,
       cardBorder: Color.lerp(cardBorder, other.cardBorder, t)!,
+      iconContainer: Color.lerp(iconContainer, other.iconContainer, t)!,
       error: Color.lerp(error, other.error, t)!,
       success: Color.lerp(success, other.success, t)!,
       warning: Color.lerp(warning, other.warning, t)!,
+      accentGold: Color.lerp(accentGold, other.accentGold, t)!,
+      accentBurntOrange: Color.lerp(
+        accentBurntOrange,
+        other.accentBurntOrange,
+        t,
+      )!,
+      accentTerracotta: Color.lerp(
+        accentTerracotta,
+        other.accentTerracotta,
+        t,
+      )!,
+      accentEspresso: Color.lerp(accentEspresso, other.accentEspresso, t)!,
+      accentCocoa: Color.lerp(accentCocoa, other.accentCocoa, t)!,
+      accentForest: Color.lerp(accentForest, other.accentForest, t)!,
+      accentSlate: Color.lerp(accentSlate, other.accentSlate, t)!,
     );
   }
 }
@@ -232,9 +280,17 @@ class AppPalettes {
     outline: AppColors.outline,
     outlineVariant: AppColors.outlineVariant,
     cardBorder: AppColors.cardBorder,
+    iconContainer: AppColors.iconContainer,
     error: AppColors.error,
     success: Color(0xFF2E7D32),
     warning: Color(0xFFF57C00),
+    accentGold: AppColors.accentGold,
+    accentBurntOrange: AppColors.accentBurntOrange,
+    accentTerracotta: AppColors.accentTerracotta,
+    accentEspresso: AppColors.accentEspresso,
+    accentCocoa: AppColors.accentCocoa,
+    accentForest: AppColors.accentForest,
+    accentSlate: AppColors.accentSlate,
   );
 
   static const AppPalette warm = AppPalette(
@@ -261,9 +317,17 @@ class AppPalettes {
     outline: AppColorsWarm.outline,
     outlineVariant: AppColorsWarm.outlineVariant,
     cardBorder: AppColorsWarm.cardBorder,
+    iconContainer: AppColorsWarm.iconContainer,
     error: AppColorsWarm.error,
     success: AppColorsWarm.success,
     warning: AppColorsWarm.warning,
+    accentGold: AppColorsWarm.accentGold,
+    accentBurntOrange: AppColorsWarm.accentBurntOrange,
+    accentTerracotta: AppColorsWarm.accentTerracotta,
+    accentEspresso: AppColorsWarm.accentEspresso,
+    accentCocoa: AppColorsWarm.accentCocoa,
+    accentForest: AppColorsWarm.accentForest,
+    accentSlate: AppColorsWarm.accentSlate,
   );
 
   static AppPalette byKey(AppPaletteKey key) {
