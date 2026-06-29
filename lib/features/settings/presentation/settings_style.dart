@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_palette.dart';
 import '../../../core/theme/app_radii.dart';
 
 class SettingsStyle {
@@ -117,6 +118,52 @@ class SettingsStyle {
     fontWeight: FontWeight.w600,
   );
 
+  static AppPalette colors(BuildContext context) => AppPalettes.of(context);
+
+  static Color backgroundColor(BuildContext context) => colors(context).surface;
+
+  static TextStyle proBadgeTextStyleFor(BuildContext context) =>
+      proBadgeTextStyle.copyWith(color: colors(context).onPrimary);
+
+  static TextStyle emailTextStyleFor(BuildContext context) =>
+      emailTextStyle.copyWith(color: colors(context).onSurface);
+
+  static TextStyle memberSinceTextStyleFor(BuildContext context) =>
+      memberSinceTextStyle.copyWith(color: colors(context).onSurfaceVariant);
+
+  static TextStyle cardTitleTextStyleFor(BuildContext context) =>
+      cardTitleTextStyle.copyWith(color: colors(context).onSurface);
+
+  static TextStyle fieldLabelTextStyleFor(BuildContext context) =>
+      fieldLabelTextStyle.copyWith(color: colors(context).onSurfaceVariant);
+
+  static TextStyle primaryLevelTextStyleFor(BuildContext context) =>
+      primaryLevelTextStyle.copyWith(color: colors(context).primary);
+
+  static TextStyle secondaryLevelTextStyleFor(BuildContext context) =>
+      secondaryLevelTextStyle.copyWith(color: colors(context).secondary);
+
+  static TextStyle levelTickTextStyleFor(BuildContext context) =>
+      levelTickTextStyle.copyWith(color: colors(context).outline);
+
+  static TextStyle tileTitleTextStyleFor(BuildContext context) =>
+      tileTitleTextStyle.copyWith(color: colors(context).onSurface);
+
+  static TextStyle tileSubtitleTextStyleFor(BuildContext context) =>
+      tileSubtitleTextStyle.copyWith(color: colors(context).onSurfaceVariant);
+
+  static TextStyle sectionLabelTextStyleFor(BuildContext context) =>
+      sectionLabelTextStyle.copyWith(color: colors(context).outline);
+
+  static TextStyle signOutTextStyleFor(BuildContext context) =>
+      signOutTextStyle.copyWith(color: colors(context).error);
+
+  static TextStyle versionTextStyleFor(BuildContext context) => TextStyle(
+    fontSize: 12,
+    color: colors(context).outline.withValues(alpha: 0.6),
+    fontWeight: FontWeight.w600,
+  );
+
   static BoxDecoration avatarDecoration = BoxDecoration(
     color: surfaceContainer,
     shape: BoxShape.circle,
@@ -143,22 +190,65 @@ class SettingsStyle {
     shape: BoxShape.circle,
   );
 
+  static BoxDecoration avatarDecorationFor(BuildContext context) {
+    final palette = colors(context);
+    return BoxDecoration(
+      color: palette.surfaceContainer,
+      shape: BoxShape.circle,
+      border: Border.all(
+        color: palette.primary.withValues(alpha: 0.2),
+        width: 4,
+      ),
+    );
+  }
+
+  static BoxDecoration proBadgeDecorationFor(BuildContext context) {
+    final palette = colors(context);
+    return BoxDecoration(
+      color: palette.primary,
+      borderRadius: badgeRadius,
+      border: Border.all(color: palette.surface, width: 2),
+      boxShadow: const [
+        BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2)),
+      ],
+    );
+  }
+
+  static BoxDecoration cardDecorationFor(BuildContext context) {
+    final palette = colors(context);
+    return BoxDecoration(
+      color: palette.surfaceContainerLow.withValues(alpha: 0.78),
+      borderRadius: cardRadius,
+      border: Border.all(color: palette.cardBorder.withValues(alpha: 0.86)),
+    );
+  }
+
+  static BoxDecoration iconCircleDecorationFor(BuildContext context) {
+    final palette = colors(context);
+    return BoxDecoration(
+      color: palette.primary.withValues(alpha: 0.1),
+      shape: BoxShape.circle,
+    );
+  }
+
   static SliderThemeData currentSliderTheme(BuildContext context) {
+    final palette = colors(context);
     return SliderTheme.of(context).copyWith(
-      activeTrackColor: surfaceContainer,
-      inactiveTrackColor: surfaceContainer,
-      thumbColor: primary,
-      overlayColor: primary.withValues(alpha: 0.2),
+      activeTrackColor: palette.surfaceContainer,
+      inactiveTrackColor: palette.surfaceContainer,
+      thumbColor: palette.primary,
+      overlayColor: palette.primary.withValues(alpha: 0.2),
       trackHeight: 8,
     );
   }
 
   static SliderThemeData targetSliderTheme(BuildContext context) {
+    final palette = colors(context);
     return SliderTheme.of(context).copyWith(
-      activeTrackColor: targetTrack,
-      inactiveTrackColor: targetTrack,
-      thumbColor: secondary,
-      overlayColor: secondary.withValues(alpha: 0.2),
+      activeTrackColor: palette.secondaryContainer,
+      inactiveTrackColor: palette.secondaryContainer,
+      thumbColor: palette.secondary,
+      overlayColor: palette.secondary.withValues(alpha: 0.2),
       trackHeight: 8,
     );
   }
@@ -169,4 +259,14 @@ class SettingsStyle {
     minimumSize: const Size(double.infinity, 56),
     shape: RoundedRectangleBorder(borderRadius: signOutRadius),
   );
+
+  static ButtonStyle signOutButtonStyleFor(BuildContext context) {
+    final palette = colors(context);
+    return OutlinedButton.styleFrom(
+      foregroundColor: palette.error,
+      side: BorderSide(color: palette.error, width: 2),
+      minimumSize: const Size(double.infinity, 56),
+      shape: RoundedRectangleBorder(borderRadius: signOutRadius),
+    );
+  }
 }

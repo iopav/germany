@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:germany/core/utils/error_utils.dart';
+import 'package:go_router/go_router.dart';
 import 'auth_provider.dart';
 import 'login_style.dart';
 import 'register_screen.dart';
@@ -67,6 +68,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       data: (user) {
         if (user != null) {
           _saveRememberedCredentials(email, password);
+          context.go('/home');
         }
       },
       error: (error, stack) {
@@ -79,7 +81,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(message),
-            backgroundColor: LoginStyle.error,
+            backgroundColor: LoginStyle.errorColor(context),
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -152,7 +154,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      backgroundColor: LoginStyle.background,
+      backgroundColor: LoginStyle.backgroundColor(context),
       body: Stack(
         children: [
           // 背景光晕
@@ -168,7 +170,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                     width: screenWidth * 0.8,
                     height: screenWidth * 0.8,
                     child: LoginBlurBlob(
-                      color: LoginStyle.primary.withValues(alpha: 0.08),
+                      color: LoginStyle.colors(
+                        context,
+                      ).primary.withValues(alpha: 0.08),
                     ),
                   ),
                   Positioned(
@@ -177,7 +181,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                     width: screenWidth * 0.7,
                     height: screenWidth * 0.7,
                     child: LoginBlurBlob(
-                      color: LoginStyle.secondary.withValues(alpha: 0.08),
+                      color: LoginStyle.colors(
+                        context,
+                      ).secondary.withValues(alpha: 0.08),
                     ),
                   ),
                   Positioned(
@@ -186,9 +192,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                     width: screenWidth * 0.6,
                     height: screenWidth * 0.6,
                     child: LoginBlurBlob(
-                      color: LoginStyle.tertiaryContainer.withValues(
-                        alpha: 0.06,
-                      ),
+                      color: LoginStyle.colors(
+                        context,
+                      ).tertiaryContainer.withValues(alpha: 0.06),
                     ),
                   ),
                 ],
@@ -208,15 +214,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                     Container(
                       width: 64,
                       height: 64,
-                      decoration: LoginStyle.logoDecoration,
-                      child: const Icon(
+                      decoration: LoginStyle.logoDecorationFor(context),
+                      child: Icon(
                         Icons.language,
-                        color: LoginStyle.onPrimary,
+                        color: LoginStyle.colors(context).onPrimary,
                         size: 36,
                       ),
                     ),
                     const SizedBox(height: 16),
-                    Text('app.name'.tr(), style: LoginStyle.appNameTextStyle),
+                    Text(
+                      'app.name'.tr(),
+                      style: LoginStyle.appNameTextStyleFor(context),
+                    ),
                     const SizedBox(height: 40),
 
                     // 毛玻璃登录卡片
@@ -229,13 +238,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                           filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
                           child: Container(
                             padding: LoginStyle.panelPadding,
-                            decoration: LoginStyle.panelDecoration,
+                            decoration: LoginStyle.panelDecorationFor(context),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
                                   'auth.login_page.title'.tr(),
-                                  style: LoginStyle.titleTextStyle,
+                                  style: LoginStyle.titleTextStyleFor(context),
                                 ),
                                 const SizedBox(height: 32),
 
@@ -287,9 +296,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                                 onChanged: (val) => setState(
                                                   () => _rememberMe = val!,
                                                 ),
-                                                activeColor: LoginStyle.primary,
-                                                side: const BorderSide(
-                                                  color: LoginStyle.outline,
+                                                activeColor: LoginStyle.colors(
+                                                  context,
+                                                ).primary,
+                                                side: BorderSide(
+                                                  color: LoginStyle.colors(
+                                                    context,
+                                                  ).outline,
                                                 ),
                                                 shape: RoundedRectangleBorder(
                                                   borderRadius:
@@ -304,8 +317,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                                     .tr(),
                                                 maxLines: 1,
                                                 overflow: TextOverflow.ellipsis,
-                                                style: LoginStyle
-                                                    .rememberTextStyle,
+                                                style:
+                                                    LoginStyle.rememberTextStyleFor(
+                                                      context,
+                                                    ),
                                               ),
                                             ),
                                           ],
@@ -323,8 +338,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                               .tr(),
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
-                                          style: LoginStyle
-                                              .forgotPasswordTextStyle,
+                                          style:
+                                              LoginStyle.forgotPasswordTextStyleFor(
+                                                context,
+                                              ),
                                         ),
                                       ),
                                     ),
@@ -340,7 +357,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                     onPressed: authState.isLoading
                                         ? null
                                         : _handleLogin,
-                                    style: LoginStyle.loginButtonStyle,
+                                    style: LoginStyle.loginButtonStyleFor(
+                                      context,
+                                    ),
                                     child: authState.isLoading
                                         ? const SizedBox(
                                             width: 24,
@@ -359,8 +378,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                                 style: LoginStyle
                                                     .loginButtonTextStyle,
                                               ),
-                                              SizedBox(width: 8),
-                                              Icon(
+                                              const SizedBox(width: 8),
+                                              const Icon(
                                                 Icons.arrow_forward,
                                                 size: 20,
                                               ),
@@ -382,7 +401,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                       children: [
                         Text(
                           'auth.login_page.dont_have_account'.tr(),
-                          style: LoginStyle.registerPromptTextStyle,
+                          style: LoginStyle.registerPromptTextStyleFor(context),
                         ),
                         GestureDetector(
                           onTap: () {
@@ -396,7 +415,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                           },
                           child: Text(
                             'auth.login_page.sign_up_now'.tr(),
-                            style: LoginStyle.registerLinkTextStyle,
+                            style: LoginStyle.registerLinkTextStyleFor(context),
                           ),
                         ),
                       ],
@@ -424,15 +443,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       controller: controller,
       obscureText: obscureText,
       keyboardType: keyboardType,
-      style: LoginStyle.inputTextStyle,
-      decoration: LoginStyle.inputDecoration(
+      style: LoginStyle.inputTextStyleFor(context),
+      decoration: LoginStyle.inputDecorationFor(
+        context,
         icon: icon,
         hintText: hintText,
         suffixIcon: isPassword
             ? IconButton(
                 icon: Icon(
                   _obscurePassword ? Icons.visibility : Icons.visibility_off,
-                  color: LoginStyle.outline,
+                  color: LoginStyle.colors(context).outline,
                 ),
                 onPressed: () =>
                     setState(() => _obscurePassword = !_obscurePassword),

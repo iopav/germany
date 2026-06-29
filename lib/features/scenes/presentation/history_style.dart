@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_motion.dart';
+import '../../../core/theme/app_palette.dart';
 import '../../../core/theme/app_radii.dart';
 import '../../../core/widgets/app_pressable.dart';
 
@@ -88,6 +89,26 @@ class HistoryStyle {
     fontWeight: FontWeight.w600,
   );
 
+  static AppPalette colors(BuildContext context) => AppPalettes.of(context);
+
+  static TextStyle searchHintTextStyleFor(BuildContext context) =>
+      searchHintTextStyle.copyWith(color: colors(context).onSurfaceVariant);
+
+  static TextStyle cardTitleTextStyleFor(BuildContext context) =>
+      cardTitleTextStyle.copyWith(color: colors(context).onSurface);
+
+  static TextStyle cardDateTextStyleFor(BuildContext context) =>
+      cardDateTextStyle.copyWith(color: colors(context).outline);
+
+  static TextStyle stateMessageTextStyleFor(BuildContext context) =>
+      stateMessageTextStyle.copyWith(color: colors(context).onSurfaceVariant);
+
+  static TextStyle emptyTitleTextStyleFor(BuildContext context) =>
+      emptyTitleTextStyle.copyWith(color: colors(context).onSurface);
+
+  static TextStyle emptyBodyTextStyleFor(BuildContext context) =>
+      emptyBodyTextStyle.copyWith(color: colors(context).outline);
+
   static BoxDecoration searchDecoration = BoxDecoration(
     color: surfaceContainer,
     borderRadius: cardRadius,
@@ -133,6 +154,58 @@ class HistoryStyle {
     color: activeNav,
     borderRadius: pillRadius,
   );
+
+  static BoxDecoration searchDecorationFor(BuildContext context) {
+    final palette = colors(context);
+    return BoxDecoration(
+      color: palette.surfaceContainer,
+      borderRadius: cardRadius,
+    );
+  }
+
+  static BoxDecoration refreshDecorationFor(
+    BuildContext context, {
+    required bool isActive,
+  }) {
+    final palette = colors(context);
+    return BoxDecoration(
+      color: isActive
+          ? palette.surfaceContainerHover
+          : palette.surfaceContainer,
+      borderRadius: cardRadius,
+    );
+  }
+
+  static BoxDecoration sceneCardDecorationFor(
+    BuildContext context, {
+    required bool isActive,
+  }) {
+    final palette = colors(context);
+    return BoxDecoration(
+      color: palette.surfaceContainerLow.withValues(alpha: 0.86),
+      borderRadius: cardRadius,
+      border: Border.all(color: palette.outlineVariant.withValues(alpha: 0.28)),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withValues(alpha: isActive ? 0.09 : 0.05),
+          blurRadius: isActive ? 24 : 20,
+          offset: const Offset(0, 4),
+        ),
+      ],
+    );
+  }
+
+  static ButtonStyle scannerButtonStyleFor(BuildContext context) {
+    final palette = colors(context);
+    return ElevatedButton.styleFrom(
+      backgroundColor: palette.primary,
+      foregroundColor: palette.onPrimary,
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+      shape: RoundedRectangleBorder(borderRadius: pillRadius),
+      elevation: 4,
+      shadowColor: palette.primary.withValues(alpha: 0.2),
+    );
+  }
 }
 
 class HistoryDeleteButton extends StatelessWidget {
@@ -159,10 +232,10 @@ class HistoryDeleteButton extends StatelessWidget {
                 color: Colors.white.withValues(
                   alpha: isHovered || isPressed ? 0.9 : 0.7,
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.delete_outline,
                   size: 18,
-                  color: HistoryStyle.error,
+                  color: HistoryStyle.colors(context).error,
                 ),
               );
             },

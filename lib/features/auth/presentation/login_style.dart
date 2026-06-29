@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/theme/app_palette.dart';
+
 class LoginStyle {
   static const Color background = Color(0xFFFAF8FF);
   static const Color primary = Color(0xFF004AC6);
@@ -112,6 +114,63 @@ class LoginStyle {
     ],
   );
 
+  static AppPalette colors(BuildContext context) => AppPalettes.of(context);
+
+  static Color backgroundColor(BuildContext context) => colors(context).surface;
+
+  static Color errorColor(BuildContext context) => colors(context).error;
+
+  static TextStyle appNameTextStyleFor(BuildContext context) =>
+      appNameTextStyle.copyWith(color: colors(context).primary);
+
+  static TextStyle titleTextStyleFor(BuildContext context) =>
+      titleTextStyle.copyWith(color: colors(context).onSurface);
+
+  static TextStyle inputLabelTextStyleFor(BuildContext context) =>
+      inputLabelTextStyle.copyWith(color: colors(context).onSurfaceVariant);
+
+  static TextStyle inputTextStyleFor(BuildContext context) =>
+      inputTextStyle.copyWith(color: colors(context).onSurface);
+
+  static TextStyle inputHintTextStyleFor(BuildContext context) =>
+      TextStyle(color: colors(context).outlineVariant.withValues(alpha: 0.82));
+
+  static TextStyle rememberTextStyleFor(BuildContext context) =>
+      rememberTextStyle.copyWith(color: colors(context).onSurfaceVariant);
+
+  static TextStyle forgotPasswordTextStyleFor(BuildContext context) =>
+      forgotPasswordTextStyle.copyWith(color: colors(context).primary);
+
+  static TextStyle registerPromptTextStyleFor(BuildContext context) =>
+      registerPromptTextStyle.copyWith(color: colors(context).onSurfaceVariant);
+
+  static TextStyle registerLinkTextStyleFor(BuildContext context) =>
+      registerLinkTextStyle.copyWith(color: colors(context).primary);
+
+  static BoxDecoration logoDecorationFor(BuildContext context) {
+    final palette = colors(context);
+    return BoxDecoration(
+      color: palette.primary,
+      borderRadius: logoRadius,
+      boxShadow: [
+        BoxShadow(
+          color: palette.primary.withValues(alpha: 0.28),
+          blurRadius: 16,
+          offset: const Offset(0, 8),
+        ),
+      ],
+    );
+  }
+
+  static BoxDecoration panelDecorationFor(BuildContext context) {
+    final palette = colors(context);
+    return BoxDecoration(
+      color: palette.surfaceContainerLow.withValues(alpha: 0.76),
+      border: Border.all(color: palette.outlineVariant.withValues(alpha: 0.38)),
+      borderRadius: panelRadius,
+    );
+  }
+
   static BoxDecoration panelShadowDecoration = BoxDecoration(
     borderRadius: panelRadius,
     boxShadow: [
@@ -143,6 +202,17 @@ class LoginStyle {
     shape: RoundedRectangleBorder(borderRadius: pillRadius),
   );
 
+  static ButtonStyle loginButtonStyleFor(BuildContext context) {
+    final palette = colors(context);
+    return ElevatedButton.styleFrom(
+      backgroundColor: palette.primary,
+      foregroundColor: palette.onPrimary,
+      elevation: 8,
+      shadowColor: palette.primary.withValues(alpha: 0.42),
+      shape: RoundedRectangleBorder(borderRadius: pillRadius),
+    );
+  }
+
   static InputDecoration inputDecoration({
     required IconData icon,
     required String hintText,
@@ -169,6 +239,37 @@ class LoginStyle {
       ),
     );
   }
+
+  static InputDecoration inputDecorationFor(
+    BuildContext context, {
+    required IconData icon,
+    required String hintText,
+    required Widget? suffixIcon,
+  }) {
+    final palette = colors(context);
+    final border = OutlineInputBorder(
+      borderRadius: inputRadius,
+      borderSide: BorderSide(
+        color: palette.outlineVariant.withValues(alpha: 0.55),
+      ),
+    );
+
+    return InputDecoration(
+      hintText: hintText,
+      hintStyle: inputHintTextStyleFor(context),
+      filled: true,
+      fillColor: palette.surfaceContainerLow,
+      contentPadding: inputContentPadding,
+      prefixIcon: Icon(icon, color: palette.outline),
+      suffixIcon: suffixIcon,
+      border: border,
+      enabledBorder: border,
+      focusedBorder: OutlineInputBorder(
+        borderRadius: inputRadius,
+        borderSide: BorderSide(color: palette.primary, width: 2),
+      ),
+    );
+  }
 }
 
 class LoginInputLabel extends StatelessWidget {
@@ -180,7 +281,7 @@ class LoginInputLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: LoginStyle.inputLabelPadding,
-      child: Text(text, style: LoginStyle.inputLabelTextStyle),
+      child: Text(text, style: LoginStyle.inputLabelTextStyleFor(context)),
     );
   }
 }

@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../widgets/app_shell_scaffold.dart';
 import '../../features/auth/presentation/auth_provider.dart';
 import '../../features/auth/presentation/login_screen.dart';
-import '../../features/home/presentation/home_screen.dart';
+import '../../features/scenes/presentation/history_screen.dart';
 import 'splash_screen.dart';
 
 class RootWrapper extends ConsumerWidget {
@@ -20,10 +20,8 @@ class RootWrapper extends ConsumerWidget {
     return authState.when(
       // 情况 A：正在读取 Token 或正在调用 /auth/me（加载中）
       loading: () => const SplashScreen(), // 展示闪屏页，盖住后面的白屏
-      
       // 情况 B：网络请求失败或发生致命错误
-      error: (err, stack) => const LoginScreen(),  //ref listen
-      
+      error: (err, stack) => const LoginScreen(), //ref listen
       // 情况 C：数据明确返回（成功拿到结果）
       data: (user) {
         // 如果用户实体为空，说明本地没 Token 或者 401 被清空了
@@ -35,16 +33,16 @@ class RootWrapper extends ConsumerWidget {
         if (user.role == 'reviewer') {
           return const AppShellScaffold(
             currentIndex: 0,
-            title: 'Scenes',//style?
-            
-            child: HomeScreen(showChrome: false),
+            title: 'Home', //style?
+
+            child: HistoryScreen(),
           ); // 审核员工作台
           // return const ReviewerDashboard(); // 审核员工作台
         } else {
           return const AppShellScaffold(
             currentIndex: 0,
-            title: 'Scenes',
-            child: HomeScreen(showChrome: false),
+            title: 'Home',
+            child: HistoryScreen(),
           ); // 普通用户首页
         }
       },

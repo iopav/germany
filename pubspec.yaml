@@ -35,6 +35,7 @@ flutter:
   assets:
     - assets/translations/
     - assets/images/
+    - assets/images/icons/
   fonts:
     - family: Space Grotesk
       fonts:

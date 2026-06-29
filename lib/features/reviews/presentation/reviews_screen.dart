@@ -219,7 +219,7 @@ class _ReviewCardScreenState extends ConsumerState<ReviewCardScreen>
       barrierDismissible: false,
       builder: (dialogContext) {
         return AlertDialog(
-          backgroundColor: ReviewStyle.surfaceText,
+          backgroundColor: ReviewStyle.colors(context).onSurface,
           shape: RoundedRectangleBorder(borderRadius: ReviewStyle.dialogRadius),
           title: const Text(
             'Leave review?',
@@ -242,9 +242,9 @@ class _ReviewCardScreenState extends ConsumerState<ReviewCardScreen>
             ),
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(true),
-              child: const Text(
+              child: Text(
                 'Leave',
-                style: TextStyle(color: ReviewStyle.reviewBlueLight),
+                style: TextStyle(color: ReviewStyle.colors(context).primary),
               ),
             ),
           ],
@@ -468,8 +468,8 @@ class _ReviewCardScreenState extends ConsumerState<ReviewCardScreen>
                       value: state.progress,
                       minHeight: 6,
                       backgroundColor: Colors.white24,
-                      valueColor: const AlwaysStoppedAnimation<Color>(
-                        Color(0xFF004ac6),
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        ReviewStyle.colors(context).primary,
                       ),
                     ),
                   ),
@@ -621,7 +621,7 @@ class _ReviewCardScreenState extends ConsumerState<ReviewCardScreen>
                   ),
                   decoration: const InputDecoration(border: InputBorder.none),
                   cursorColor: feedbackText == null
-                      ? ReviewStyle.primary
+                      ? ReviewStyle.colors(context).primary
                       : ReviewStyle.transparent,
                   onSubmitted: (value) => _handleSubmit(value, answer),
                 ),
@@ -652,15 +652,17 @@ class _ReviewCardScreenState extends ConsumerState<ReviewCardScreen>
                   height: 44,
                   decoration: BoxDecoration(
                     color: isPressed
-                        ? ReviewStyle.primaryPressed
+                        ? ReviewStyle.colors(context).primaryPressed
                         : isHovered
-                        ? ReviewStyle.primaryHover
-                        : ReviewStyle.primary,
+                        ? ReviewStyle.colors(context).primaryHover
+                        : ReviewStyle.colors(context).primary,
                     borderRadius: ReviewStyle.reviewSendButtonRadius,
                     boxShadow: isHovered || isPressed
                         ? [
                             BoxShadow(
-                              color: ReviewStyle.primary.withValues(alpha: 0.3),
+                              color: ReviewStyle.colors(
+                                context,
+                              ).primary.withValues(alpha: 0.3),
                               blurRadius: 14,
                               spreadRadius: 1,
                             ),

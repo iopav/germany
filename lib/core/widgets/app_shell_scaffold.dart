@@ -24,7 +24,7 @@ class AppShellScaffold extends StatelessWidget {
         context.go('/reviews');
         break;
       case 2:
-        context.go('/chat');
+        context.go('/history');
         break;
       case 3:
         context.go('/settings');
@@ -43,9 +43,12 @@ class AppShellScaffold extends StatelessWidget {
           child: BackdropFilter(
             filter: AppShellStyle.appBarBlurFilter,
             child: Container(
-              decoration: AppShellStyle.appBarDecoration,
+              decoration: AppShellStyle.appBarDecorationFor(context),
               child: AppBar(
-                title: Text(title, style: AppShellStyle.titleTextStyle),
+                title: Text(
+                  title,
+                  style: AppShellStyle.titleTextStyleFor(context),
+                ),
                 centerTitle: false,
                 backgroundColor: Colors.transparent,
                 surfaceTintColor: Colors.transparent,
@@ -63,16 +66,21 @@ class AppShellScaffold extends StatelessWidget {
         child: BackdropFilter(
           filter: AppShellStyle.bottomBarBlurFilter,
           child: Container(
-            decoration: AppShellStyle.bottomBarDecoration,
+            decoration: AppShellStyle.bottomBarDecorationFor(context),
             child: BottomNavigationBar(
               currentIndex: currentIndex,
               onTap: (index) => _goTo(context, index),
               type: BottomNavigationBarType.fixed,
               backgroundColor: Colors.transparent,
               elevation: 0,
-              selectedItemColor: AppShellStyle.selectedItemColor,
-              unselectedItemColor: AppShellStyle.unselectedItemColor,
-              items: AppShellStyle.bottomNavigationItems,
+              selectedItemColor: AppShellStyle.selectedItemColorFor(context),
+              unselectedItemColor: AppShellStyle.unselectedItemColorFor(
+                context,
+              ),
+              selectedFontSize: 11,
+              unselectedFontSize: 11,
+              iconSize: 28,
+              items: AppShellStyle.bottomNavigationItemsFor(context),
             ),
           ),
         ),

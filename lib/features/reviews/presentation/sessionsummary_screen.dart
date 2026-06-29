@@ -121,7 +121,9 @@ class _SessionSummaryScreenState extends ConsumerState<SessionSummaryScreen>
             ),
           ),
           Positioned.fill(
-            child: Container(decoration: ReviewStyle.summaryOverlayDecoration),
+            child: Container(
+              decoration: ReviewStyle.summaryOverlayDecorationFor(context),
+            ),
           ),
 
           // 2. 顶层动态五彩纸屑
@@ -281,7 +283,9 @@ class _SessionSummaryScreenState extends ConsumerState<SessionSummaryScreen>
                 width: 120,
                 height: 120,
                 decoration: BoxDecoration(
-                  color: ReviewStyle.primary.withValues(alpha: 0.15),
+                  color: ReviewStyle.colors(
+                    context,
+                  ).primary.withValues(alpha: 0.15),
                   shape: BoxShape.circle,
                 ),
                 child: BackdropFilter(
@@ -303,21 +307,24 @@ class _SessionSummaryScreenState extends ConsumerState<SessionSummaryScreen>
                     ),
                   ],
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.emoji_events,
                   size: 54,
-                  color: ReviewStyle.primary,
+                  color: ReviewStyle.colors(context).primary,
                 ),
               ),
             ],
           ),
         ),
         const SizedBox(height: 16),
-        const Text('Excellent Work!', style: ReviewStyle.summaryTitleTextStyle),
+        Text(
+          'Excellent Work!',
+          style: ReviewStyle.summaryTitleTextStyleFor(context),
+        ),
         const SizedBox(height: 4),
-        const Text(
+        Text(
           'Daily Goal Reached!',
-          style: ReviewStyle.summarySubtitleTextStyle,
+          style: ReviewStyle.summarySubtitleTextStyleFor(context),
         ),
       ],
     );
@@ -327,22 +334,25 @@ class _SessionSummaryScreenState extends ConsumerState<SessionSummaryScreen>
     return ReviewSummaryGlassCard(
       child: Column(
         children: [
-          Text('${summary.mastered}', style: ReviewStyle.summaryScoreTextStyle),
-          const Text(
+          Text(
+            '${summary.mastered}',
+            style: ReviewStyle.summaryScoreTextStyleFor(context),
+          ),
+          Text(
             'WORDS MASTERED TODAY',
-            style: ReviewStyle.summaryMetricTitleTextStyle,
+            style: ReviewStyle.summaryMetricTitleTextStyleFor(context),
           ),
           const SizedBox(height: 24),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
+              Text(
                 'Daily Goal',
-                style: ReviewStyle.summarySmallMutedTextStyle,
+                style: ReviewStyle.summarySmallMutedTextStyleFor(context),
               ),
               Text(
                 '${(summary.progress * 100).round()}% Complete',
-                style: ReviewStyle.summarySmallPrimaryTextStyle,
+                style: ReviewStyle.summarySmallPrimaryTextStyleFor(context),
               ),
             ],
           ),
@@ -353,7 +363,9 @@ class _SessionSummaryScreenState extends ConsumerState<SessionSummaryScreen>
             child: Container(
               height: 8,
               width: double.infinity,
-              color: ReviewStyle.outlineVariant.withValues(alpha: 0.3),
+              color: ReviewStyle.colors(
+                context,
+              ).outlineVariant.withValues(alpha: 0.3),
               child: TweenAnimationBuilder<double>(
                 tween: Tween<double>(begin: 0.0, end: summary.progress),
                 duration: const Duration(milliseconds: 1500),
@@ -364,7 +376,9 @@ class _SessionSummaryScreenState extends ConsumerState<SessionSummaryScreen>
                     widthFactor: value,
                     child: Container(
                       decoration: BoxDecoration(
-                        gradient: ReviewStyle.summaryProgressGradient,
+                        gradient: ReviewStyle.summaryProgressGradientFor(
+                          context,
+                        ),
                       ),
                     ),
                   );
@@ -385,15 +399,18 @@ class _SessionSummaryScreenState extends ConsumerState<SessionSummaryScreen>
             padding: ReviewStyle.summaryGridCardPadding,
             child: Column(
               children: [
-                const Icon(Icons.gps_fixed, color: ReviewStyle.secondary),
+                Icon(
+                  Icons.gps_fixed,
+                  color: ReviewStyle.colors(context).secondary,
+                ),
                 const SizedBox(height: 8),
                 Text(
                   '${(summary.accuracy * 100).round()}%',
-                  style: ReviewStyle.summaryStatValueTextStyle,
+                  style: ReviewStyle.summaryStatValueTextStyleFor(context),
                 ),
-                const Text(
+                Text(
                   'Accuracy',
-                  style: ReviewStyle.summarySmallMutedTextStyle,
+                  style: ReviewStyle.summarySmallMutedTextStyleFor(context),
                 ),
               ],
             ),
@@ -405,15 +422,18 @@ class _SessionSummaryScreenState extends ConsumerState<SessionSummaryScreen>
             padding: ReviewStyle.summaryGridCardPadding,
             child: Column(
               children: [
-                const Icon(Icons.timer_outlined, color: ReviewStyle.tertiary),
+                Icon(
+                  Icons.timer_outlined,
+                  color: ReviewStyle.colors(context).tertiary,
+                ),
                 const SizedBox(height: 8),
                 Text(
                   '${summary.reviewed}/${summary.total}',
-                  style: ReviewStyle.summaryStatValueTextStyle,
+                  style: ReviewStyle.summaryStatValueTextStyleFor(context),
                 ),
-                const Text(
+                Text(
                   'Reviewed',
-                  style: ReviewStyle.summarySmallMutedTextStyle,
+                  style: ReviewStyle.summarySmallMutedTextStyleFor(context),
                 ),
               ],
             ),
@@ -425,14 +445,18 @@ class _SessionSummaryScreenState extends ConsumerState<SessionSummaryScreen>
 
   Widget _buildStreakCard(_SessionSummaryData summary) {
     return Container(
-      decoration: ReviewStyle.summaryStreakDecoration,
+      decoration: ReviewStyle.summaryStreakDecorationFor(context),
       child: ClipRRect(
         borderRadius: ReviewStyle.cardRadius,
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
           child: Row(
             children: [
-              Container(width: 4, height: 82, color: ReviewStyle.tertiary),
+              Container(
+                width: 4,
+                height: 82,
+                color: ReviewStyle.colors(context).tertiary,
+              ),
               Expanded(
                 child: Padding(
                   padding: ReviewStyle.statCardPadding,
@@ -445,9 +469,9 @@ class _SessionSummaryScreenState extends ConsumerState<SessionSummaryScreen>
                           color: Color(0xFFFFDBCD),
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.local_fire_department,
-                          color: ReviewStyle.tertiary,
+                          color: ReviewStyle.colors(context).tertiary,
                         ),
                       ),
                       const SizedBox(width: 16),
@@ -457,14 +481,21 @@ class _SessionSummaryScreenState extends ConsumerState<SessionSummaryScreen>
                           children: [
                             Text(
                               '${summary.reviewed} Cards Reviewed',
-                              style: ReviewStyle.summaryStreakTitleTextStyle,
+                              style: ReviewStyle.summaryStreakTitleTextStyleFor(
+                                context,
+                              ),
                             ),
                             const SizedBox(height: 2),
                             Text(
                               'You\'re on fire! Keep it up.',
-                              style: ReviewStyle.heroSubtitleTextStyle.copyWith(
-                                color: ReviewStyle.mutedText,
-                              ),
+                              style:
+                                  ReviewStyle.heroSubtitleTextStyleFor(
+                                    context,
+                                  ).copyWith(
+                                    color: ReviewStyle.colors(
+                                      context,
+                                    ).onSurfaceVariant,
+                                  ),
                             ),
                           ],
                         ),
@@ -499,14 +530,16 @@ class _SessionSummaryScreenState extends ConsumerState<SessionSummaryScreen>
                   return IgnorePointer(
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: ReviewStyle.primary,
-                        foregroundColor: ReviewStyle.white,
+                        backgroundColor: ReviewStyle.colors(context).primary,
+                        foregroundColor: ReviewStyle.colors(context).onPrimary,
                         minimumSize: const Size(double.infinity, 54),
                         shape: RoundedRectangleBorder(
                           borderRadius: ReviewStyle.fullPillRadius,
                         ),
                         elevation: isHovered || isPressed ? 6 : 4,
-                        shadowColor: ReviewStyle.primary.withValues(alpha: 0.3),
+                        shadowColor: ReviewStyle.colors(
+                          context,
+                        ).primary.withValues(alpha: 0.3),
                       ),
                       onPressed: _handleContinueHomePressed,
                       child: const Text(
@@ -528,10 +561,10 @@ class _SessionSummaryScreenState extends ConsumerState<SessionSummaryScreen>
                   return IgnorePointer(
                     child: OutlinedButton(
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: ReviewStyle.primary,
+                        foregroundColor: ReviewStyle.colors(context).primary,
                         minimumSize: const Size(double.infinity, 54),
-                        side: const BorderSide(
-                          color: ReviewStyle.primary,
+                        side: BorderSide(
+                          color: ReviewStyle.colors(context).primary,
                           width: 2,
                         ),
                         shape: RoundedRectangleBorder(
@@ -539,7 +572,7 @@ class _SessionSummaryScreenState extends ConsumerState<SessionSummaryScreen>
                         ),
                       ),
                       onPressed: _handleReviewHistoryPressed,
-                      child: const Text(
+                      child: Text(
                         'Review History',
                         style: TextStyle(
                           fontSize: 16,

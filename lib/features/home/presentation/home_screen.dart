@@ -154,7 +154,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     final bodyPaddingBottom = widget.showChrome ? 120.0 : 24.0;
     //TODO ref listen
     return Scaffold(
-      backgroundColor: HomeStyle.background,
+      backgroundColor: HomeStyle.backgroundColor(context),
       extendBodyBehindAppBar: true,
       extendBody: true,
 
@@ -224,11 +224,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
             ),
             children: [
               // Header Texts
-              const Text('Create Scene', style: HomeStyle.titleTextStyle),
+              Text('Create Scene', style: HomeStyle.titleTextStyleFor(context)),
               const SizedBox(height: 8),
-              const Text(
+              Text(
                 'Capture the world or describe a moment to start your immersion journey.',
-                style: HomeStyle.subtitleTextStyle,
+                style: HomeStyle.subtitleTextStyleFor(context),
               ),
               const SizedBox(height: 32),
 
@@ -250,7 +250,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                         fit: StackFit.expand,
                         children: [
                           DecoratedBox(
-                            decoration: HomeStyle.uploadBackgroundDecoration,
+                            decoration: HomeStyle.uploadBackgroundDecorationFor(
+                              context,
+                            ),
                           ),
                           AnimatedBuilder(
                             animation: _shimmerController,
@@ -259,8 +261,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                                 painter: _UploadParticlePainter(
                                   progress: _shimmerController.value,
                                   touchPoint: _particleTouchPoint,
-                                  primary: HomeStyle.primary,
-                                  accent: HomeStyle.uploadAccent,
+                                  primary: HomeStyle.primaryColor(context),
+                                  accent: HomeStyle.uploadAccentColor(context),
                                 ),
                               );
                             },
@@ -269,9 +271,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                             child: CustomPaint(
                               painter: _DashedRRectPainter(
                                 radius: 32,
-                                color: HomeStyle.primary.withValues(
-                                  alpha: 0.34,
-                                ),
+                                color: HomeStyle.primaryColor(
+                                  context,
+                                ).withValues(alpha: 0.34),
                               ),
                             ),
                           ),
@@ -288,19 +290,23 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                                   child: HomeGlassContainer(
                                     radius: 24,
                                     padding: HomeStyle.uploadButtonPadding,
-                                    child: const Column(
+                                    child: Column(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
                                         Icon(
                                           Icons.add_a_photo,
                                           size: 36,
-                                          color: HomeStyle.primary,
+                                          color: HomeStyle.primaryColor(
+                                            context,
+                                          ),
                                         ),
-                                        SizedBox(height: 12),
+                                        const SizedBox(height: 12),
                                         Text(
                                           'Add Scene Image',
                                           style:
-                                              HomeStyle.uploadButtonTextStyle,
+                                              HomeStyle.uploadButtonTextStyleFor(
+                                                context,
+                                              ),
                                         ),
                                       ],
                                     ),
@@ -330,9 +336,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                                                 ),
                                                 Divider(
                                                   height: 1,
-                                                  color: HomeStyle
-                                                      .outlineVariant
-                                                      .withValues(alpha: 0.3),
+                                                  color:
+                                                      HomeStyle.colors(context)
+                                                          .outlineVariant
+                                                          .withValues(
+                                                            alpha: 0.3,
+                                                          ),
                                                 ),
                                                 HomeMenuOption(
                                                   icon: Icons.image,
@@ -358,18 +367,21 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                               child: HomeGlassContainer(
                                 radius: 999,
                                 padding: HomeStyle.selectedBadgePadding,
-                                child: const Row(
+                                child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Icon(
                                       Icons.check_circle,
                                       size: 16,
-                                      color: HomeStyle.primary,
+                                      color: HomeStyle.primaryColor(context),
                                     ),
-                                    SizedBox(width: 6),
+                                    const SizedBox(width: 6),
                                     Text(
                                       'Image selected',
-                                      style: HomeStyle.selectedBadgeTextStyle,
+                                      style:
+                                          HomeStyle.selectedBadgeTextStyleFor(
+                                            context,
+                                          ),
                                     ),
                                   ],
                                 ),
@@ -397,14 +409,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                         Expanded(
                           child: Container(
                             height: 48,
-                            decoration: HomeStyle.promptInputDecoration,
+                            decoration: HomeStyle.promptInputDecorationFor(
+                              context,
+                            ),
                             child: TextField(
                               controller: _promptController,
                               onSubmitted: homeState.isGenerating
                                   ? null
                                   : (_) => _generateFromText(),
-                              style: HomeStyle.promptInputTextStyle,
-                              decoration: HomeStyle.promptInputDecorationData,
+                              style: HomeStyle.promptInputTextStyleFor(context),
+                              decoration:
+                                  HomeStyle.promptInputDecorationDataFor(
+                                    context,
+                                  ),
                             ),
                           ),
                         ),
@@ -474,7 +491,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                           child: Container(
                             height: 48,
                             width: 48,
-                            decoration: HomeStyle.submitButtonDecoration,
+                            decoration: HomeStyle.submitButtonDecorationFor(
+                              context,
+                            ),
                             child: homeState.isGenerating
                                 ? const Padding(
                                     padding: EdgeInsets.all(12),
@@ -540,15 +559,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                                     decoration: BoxDecoration(
                                       gradient: LinearGradient(
                                         colors: [
-                                          HomeStyle.primary.withValues(
-                                            alpha: 0,
-                                          ),
-                                          HomeStyle.primary.withValues(
-                                            alpha: 0.5,
-                                          ),
-                                          HomeStyle.primary.withValues(
-                                            alpha: 0,
-                                          ),
+                                          HomeStyle.primaryColor(
+                                            context,
+                                          ).withValues(alpha: 0),
+                                          HomeStyle.primaryColor(
+                                            context,
+                                          ).withValues(alpha: 0.5),
+                                          HomeStyle.primaryColor(
+                                            context,
+                                          ).withValues(alpha: 0),
                                         ],
                                       ),
                                     ),
@@ -560,11 +579,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                         ),
                       ),
                     if (homeState.isGenerating)
-                      const Padding(
-                        padding: EdgeInsets.only(top: 8),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8),
                         child: Text(
                           'AI is generating...',
-                          style: HomeStyle.generatingTextStyle,
+                          style: HomeStyle.generatingTextStyleFor(context),
                         ),
                       ),
                   ],

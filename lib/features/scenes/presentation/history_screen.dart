@@ -49,9 +49,9 @@ class _SceneHistoryScreenState extends ConsumerState<HistoryScreen> {
             ),
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(true),
-              child: const Text(
+              child: Text(
                 'Delete',
-                style: TextStyle(color: HistoryStyle.error),
+                style: TextStyle(color: HistoryStyle.colors(context).error),
               ),
             ),
           ],
@@ -140,7 +140,7 @@ class _SceneHistoryScreenState extends ConsumerState<HistoryScreen> {
 
   void _goToTextScene() {
     setState(() => _isCreateMenuOpen = false);
-    context.go('/chat');
+    context.go('/history');
   }
 
   @override
@@ -181,9 +181,11 @@ class _SceneHistoryScreenState extends ConsumerState<HistoryScreen> {
                 child: Container(
                   width: 156,
                   decoration: BoxDecoration(
-                    color: HistoryStyle.surface,
+                    color: HistoryStyle.colors(context).surface,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: HistoryStyle.outlineVariant),
+                    border: Border.all(
+                      color: HistoryStyle.colors(context).outlineVariant,
+                    ),
                     boxShadow: const [
                       BoxShadow(
                         color: Color(0x33000000),
@@ -257,20 +259,20 @@ class _SceneHistoryScreenState extends ConsumerState<HistoryScreen> {
         Expanded(
           child: Container(
             height: 48,
-            decoration: HistoryStyle.searchDecoration,
+            decoration: HistoryStyle.searchDecorationFor(context),
             child: TextField(
               controller: _searchController,
               onChanged: (value) => setState(() => _query = value),
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 hintText: 'Search your history...',
-                hintStyle: HistoryStyle.searchHintTextStyle,
+                hintStyle: HistoryStyle.searchHintTextStyleFor(context),
                 prefixIcon: Icon(
                   Icons.search,
-                  color: HistoryStyle.outline,
+                  color: HistoryStyle.colors(context).outline,
                   size: 20,
                 ),
                 border: InputBorder.none,
-                contentPadding: EdgeInsets.symmetric(vertical: 12),
+                contentPadding: const EdgeInsets.symmetric(vertical: 12),
               ),
             ),
           ),
@@ -284,12 +286,13 @@ class _SceneHistoryScreenState extends ConsumerState<HistoryScreen> {
               curve: AppMotion.pressCurve,
               width: 48,
               height: 48,
-              decoration: HistoryStyle.refreshDecoration(
+              decoration: HistoryStyle.refreshDecorationFor(
+                context,
                 isActive: isHovered || isPressed,
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.refresh,
-                color: HistoryStyle.onSurfaceVariant,
+                color: HistoryStyle.colors(context).onSurfaceVariant,
               ),
             );
           },
@@ -326,7 +329,8 @@ class _SceneHistoryScreenState extends ConsumerState<HistoryScreen> {
         return AnimatedContainer(
           duration: AppMotion.hoverDuration,
           curve: AppMotion.pressCurve,
-          decoration: HistoryStyle.sceneCardDecoration(
+          decoration: HistoryStyle.sceneCardDecorationFor(
+            context,
             isActive: isHovered || isPressed,
           ),
           child: ClipRRect(
@@ -339,15 +343,19 @@ class _SceneHistoryScreenState extends ConsumerState<HistoryScreen> {
                     children: [
                       Positioned.fill(
                         child: imageUrl.isEmpty
-                            ? const ColoredBox(
-                                color: HistoryStyle.surfaceContainerHigh,
+                            ? ColoredBox(
+                                color: HistoryStyle.colors(
+                                  context,
+                                ).surfaceContainerHigh,
                               )
                             : CachedNetworkImage(
                                 imageUrl: imageUrl,
                                 fit: BoxFit.cover,
                                 errorWidget: (context, url, error) =>
-                                    const ColoredBox(
-                                      color: HistoryStyle.surfaceContainerHigh,
+                                    ColoredBox(
+                                      color: HistoryStyle.colors(
+                                        context,
+                                      ).surfaceContainerHigh,
                                     ),
                               ),
                       ),
@@ -370,12 +378,12 @@ class _SceneHistoryScreenState extends ConsumerState<HistoryScreen> {
                         _sceneTitle(scene),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: HistoryStyle.cardTitleTextStyle,
+                        style: HistoryStyle.cardTitleTextStyleFor(context),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         _formatSceneDate(scene.createdAt),
-                        style: HistoryStyle.cardDateTextStyle,
+                        style: HistoryStyle.cardDateTextStyleFor(context),
                       ),
                     ],
                   ),
@@ -389,8 +397,10 @@ class _SceneHistoryScreenState extends ConsumerState<HistoryScreen> {
   }
 
   Widget _buildLoadingState() {
-    return const Center(
-      child: CircularProgressIndicator(color: HistoryStyle.primary),
+    return Center(
+      child: CircularProgressIndicator(
+        color: HistoryStyle.colors(context).primary,
+      ),
     );
   }
 
@@ -401,16 +411,16 @@ class _SceneHistoryScreenState extends ConsumerState<HistoryScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
+            Icon(
               Icons.error_outline,
               size: 56,
-              color: HistoryStyle.error,
+              color: HistoryStyle.colors(context).error,
             ),
             const SizedBox(height: 16),
             Text(
               message,
               textAlign: TextAlign.center,
-              style: HistoryStyle.stateMessageTextStyle,
+              style: HistoryStyle.stateMessageTextStyleFor(context),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
@@ -431,26 +441,26 @@ class _SceneHistoryScreenState extends ConsumerState<HistoryScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
+            Icon(
               Icons.history_toggle_off,
               size: 64,
-              color: HistoryStyle.outline,
+              color: HistoryStyle.colors(context).outline,
             ),
             const SizedBox(height: 16),
-            const Text(
+            Text(
               'No Scenes Yet',
-              style: HistoryStyle.emptyTitleTextStyle,
+              style: HistoryStyle.emptyTitleTextStyleFor(context),
             ),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'Start scanning objects around you to build your linguistic mosaic.',
               textAlign: TextAlign.center,
-              style: HistoryStyle.emptyBodyTextStyle,
+              style: HistoryStyle.emptyBodyTextStyleFor(context),
             ),
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () => Navigator.of(context).maybePop(),
-              style: HistoryStyle.scannerButtonStyle,
+              style: HistoryStyle.scannerButtonStyleFor(context),
               child: const Text(
                 'Go to Scanner',
                 style: TextStyle(fontWeight: FontWeight.w600),

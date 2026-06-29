@@ -30,7 +30,7 @@ final GoRouter appRouter = GoRouter(
       ),
     ),
     GoRoute(
-      path: '/chat',
+      path: '/history',
       builder: (context, state) => const AppShellScaffold(
         currentIndex: 2,
         title: 'Chat',
@@ -55,7 +55,6 @@ final GoRouter appRouter = GoRouter(
       builder: (context, state) => const SessionSummaryScreen(),
     ),
 
-    
     GoRoute(
       path: '/settings',
       builder: (context, state) => const AppShellScaffold(

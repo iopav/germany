@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/theme/app_palette.dart';
+
 class RegisterStyle {
   static const Color background = Color(0xFFFAF8FF);
   static const Color surface = Color(0xFFFAF8FF);
@@ -89,11 +91,54 @@ class RegisterStyle {
 
   static Color appBarBackgroundColor = surface.withValues(alpha: 0.8);
 
+  static AppPalette colors(BuildContext context) => AppPalettes.of(context);
+
+  static Color backgroundColor(BuildContext context) => colors(context).surface;
+
+  static Color appBarBackgroundColorFor(BuildContext context) =>
+      colors(context).surface.withValues(alpha: 0.86);
+
+  static TextStyle appBarTitleTextStyleFor(BuildContext context) =>
+      appBarTitleTextStyle.copyWith(color: colors(context).primary);
+
+  static TextStyle loginActionTextStyleFor(BuildContext context) =>
+      loginActionTextStyle.copyWith(color: colors(context).primary);
+
+  static TextStyle heroTitleTextStyleFor(BuildContext context) =>
+      heroTitleTextStyle.copyWith(color: colors(context).onSurface);
+
+  static TextStyle heroSubtitleTextStyleFor(BuildContext context) =>
+      heroSubtitleTextStyle.copyWith(color: colors(context).onSurfaceVariant);
+
+  static TextStyle labelTextStyleFor(BuildContext context) =>
+      labelTextStyle.copyWith(color: colors(context).onSurface);
+
+  static TextStyle sectionTitleTextStyleFor(BuildContext context) =>
+      sectionTitleTextStyle.copyWith(color: colors(context).onSurfaceVariant);
+
+  static TextStyle copyrightTextStyleFor(BuildContext context) =>
+      copyrightTextStyle.copyWith(color: colors(context).onSurfaceVariant);
+
+  static TextStyle footerLinkTextStyleFor(BuildContext context) =>
+      footerLinkTextStyle.copyWith(color: colors(context).onSurfaceVariant);
+
+  static TextStyle levelTextStyleFor(BuildContext context) =>
+      levelTextStyle.copyWith(color: colors(context).primary);
+
   static BoxDecoration glassPanelDecoration = BoxDecoration(
     color: Colors.white.withValues(alpha: 0.7),
     borderRadius: glassPanelRadius,
     border: Border.all(color: glassBorder.withValues(alpha: 0.6)),
   );
+
+  static BoxDecoration glassPanelDecorationFor(BuildContext context) {
+    final palette = colors(context);
+    return BoxDecoration(
+      color: palette.surfaceContainerLow.withValues(alpha: 0.76),
+      borderRadius: glassPanelRadius,
+      border: Border.all(color: palette.cardBorder.withValues(alpha: 0.62)),
+    );
+  }
 
   static ButtonStyle primaryButtonStyle = ElevatedButton.styleFrom(
     backgroundColor: primary,
@@ -103,6 +148,18 @@ class RegisterStyle {
     elevation: 8,
     shadowColor: primary.withValues(alpha: 0.4),
   );
+
+  static ButtonStyle primaryButtonStyleFor(BuildContext context) {
+    final palette = colors(context);
+    return ElevatedButton.styleFrom(
+      backgroundColor: palette.primary,
+      foregroundColor: palette.onPrimary,
+      minimumSize: const Size(double.infinity, 56),
+      shape: RoundedRectangleBorder(borderRadius: buttonRadius),
+      elevation: 8,
+      shadowColor: palette.primary.withValues(alpha: 0.36),
+    );
+  }
 
   static InputDecoration inputDecoration(String hint, {Widget? suffixIcon}) {
     return InputDecoration(
@@ -119,6 +176,30 @@ class RegisterStyle {
       focusedBorder: OutlineInputBorder(
         borderRadius: inputRadius,
         borderSide: const BorderSide(color: primary, width: 2),
+      ),
+    );
+  }
+
+  static InputDecoration inputDecorationFor(
+    BuildContext context,
+    String hint, {
+    Widget? suffixIcon,
+  }) {
+    final palette = colors(context);
+    return InputDecoration(
+      hintText: hint,
+      hintStyle: TextStyle(color: palette.outline),
+      filled: true,
+      fillColor: palette.surfaceContainerLow,
+      contentPadding: inputContentPadding,
+      suffixIcon: suffixIcon,
+      enabledBorder: OutlineInputBorder(
+        borderRadius: inputRadius,
+        borderSide: BorderSide(color: palette.outlineVariant),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: inputRadius,
+        borderSide: BorderSide(color: palette.primary, width: 2),
       ),
     );
   }
@@ -169,11 +250,93 @@ class RegisterStyle {
     );
   }
 
+  static BoxDecoration levelGlowDecorationFor(BuildContext context) {
+    final palette = colors(context);
+    return BoxDecoration(
+      shape: BoxShape.circle,
+      color: palette.primary.withValues(alpha: 0.1),
+      boxShadow: [
+        BoxShadow(
+          color: palette.primary.withValues(alpha: 0.28),
+          blurRadius: 30,
+        ),
+      ],
+    );
+  }
+
+  static BoxDecoration levelIndicatorDecorationFor(BuildContext context) {
+    final palette = colors(context);
+    return BoxDecoration(
+      color: palette.primary,
+      borderRadius: indicatorRadius,
+      boxShadow: [
+        BoxShadow(
+          color: palette.primary.withValues(alpha: 0.42),
+          blurRadius: 10,
+        ),
+      ],
+    );
+  }
+
+  static BoxDecoration levelWheelDecorationFor(BuildContext context) {
+    final palette = colors(context);
+    return BoxDecoration(
+      shape: BoxShape.circle,
+      border: Border.all(
+        color: palette.outlineVariant.withValues(alpha: 0.55),
+        width: 2,
+      ),
+    );
+  }
+
+  static BoxDecoration levelItemDecorationFor(
+    BuildContext context, {
+    required bool isActive,
+  }) {
+    final palette = colors(context);
+    return BoxDecoration(
+      shape: BoxShape.circle,
+      color: isActive
+          ? palette.primary
+          : palette.surfaceContainerLow.withValues(alpha: 0.92),
+      border: Border.all(
+        color: isActive ? palette.primaryContainer : palette.outlineVariant,
+        width: 1,
+      ),
+      boxShadow: [
+        if (isActive)
+          BoxShadow(
+            color: palette.primary.withValues(alpha: 0.28),
+            blurRadius: 24,
+            offset: const Offset(0, 8),
+          )
+        else
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+      ],
+    );
+  }
+
   static TextStyle levelItemTextStyle({required bool isActive}) {
     return TextStyle(
       fontWeight: FontWeight.bold,
       fontSize: 16,
       color: isActive ? onPrimary : onSurfaceVariant,
+    );
+  }
+
+  static TextStyle levelItemTextStyleFor(
+    BuildContext context, {
+    required bool isActive,
+  }) {
+    final palette = colors(context);
+    return TextStyle(
+      fontWeight: FontWeight.bold,
+      fontSize: 16,
+      color: isActive ? palette.onPrimary : palette.onSurfaceVariant,
     );
   }
 }
@@ -187,7 +350,7 @@ class RegisterLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: RegisterStyle.labelPadding,
-      child: Text(text, style: RegisterStyle.labelTextStyle),
+      child: Text(text, style: RegisterStyle.labelTextStyleFor(context)),
     );
   }
 }
@@ -201,7 +364,7 @@ class RegisterGlassPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: RegisterStyle.glassPanelPadding,
-      decoration: RegisterStyle.glassPanelDecoration,
+      decoration: RegisterStyle.glassPanelDecorationFor(context),
       child: child,
     );
   }
@@ -216,7 +379,7 @@ class RegisterFooterLink extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {},
-      child: Text(text, style: RegisterStyle.footerLinkTextStyle),
+      child: Text(text, style: RegisterStyle.footerLinkTextStyleFor(context)),
     );
   }
 }

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_motion.dart';
+import '../../../core/theme/app_palette.dart';
 import '../../../core/theme/app_radii.dart';
 import '../../../core/widgets/app_pressable.dart';
 
@@ -220,6 +221,58 @@ class ReviewStyle {
     fontWeight: FontWeight.bold,
   );
 
+  static AppPalette colors(BuildContext context) => AppPalettes.of(context);
+
+  static TextStyle heroTitleTextStyleFor(BuildContext context) =>
+      heroTitleTextStyle.copyWith(color: colors(context).onPrimary);
+
+  static TextStyle heroSubtitleTextStyleFor(BuildContext context) =>
+      heroSubtitleTextStyle.copyWith(color: colors(context).primaryContainer);
+
+  static TextStyle listTitleTextStyleFor(BuildContext context) =>
+      listTitleTextStyle.copyWith(color: colors(context).onSurface);
+
+  static TextStyle cardWordTextStyleFor(BuildContext context) =>
+      cardWordTextStyle.copyWith(color: colors(context).onSurface);
+
+  static TextStyle cardTranslationTextStyleFor(BuildContext context) =>
+      cardTranslationTextStyle.copyWith(
+        color: colors(context).onSurfaceVariant.withValues(alpha: 0.72),
+      );
+
+  static TextStyle exampleTextStyleFor(BuildContext context) =>
+      exampleTextStyle.copyWith(color: colors(context).onSurfaceVariant);
+
+  static TextStyle summaryTitleTextStyleFor(BuildContext context) =>
+      summaryTitleTextStyle.copyWith(color: colors(context).primary);
+
+  static TextStyle summarySubtitleTextStyleFor(BuildContext context) =>
+      summarySubtitleTextStyle.copyWith(
+        color: colors(context).onSurfaceVariant,
+      );
+
+  static TextStyle summaryScoreTextStyleFor(BuildContext context) =>
+      summaryScoreTextStyle.copyWith(color: colors(context).primary);
+
+  static TextStyle summaryMetricTitleTextStyleFor(BuildContext context) =>
+      summaryMetricTitleTextStyle.copyWith(
+        color: colors(context).onSurfaceVariant,
+      );
+
+  static TextStyle summarySmallMutedTextStyleFor(BuildContext context) =>
+      summarySmallMutedTextStyle.copyWith(
+        color: colors(context).onSurfaceVariant,
+      );
+
+  static TextStyle summarySmallPrimaryTextStyleFor(BuildContext context) =>
+      summarySmallPrimaryTextStyle.copyWith(color: colors(context).primary);
+
+  static TextStyle summaryStatValueTextStyleFor(BuildContext context) =>
+      summaryStatValueTextStyle.copyWith(color: colors(context).onSurface);
+
+  static TextStyle summaryStreakTitleTextStyleFor(BuildContext context) =>
+      summaryStreakTitleTextStyle.copyWith(color: colors(context).onSurface);
+
   static BoxDecoration heroDecoration = BoxDecoration(
     color: primary,
     borderRadius: cardRadius,
@@ -344,6 +397,148 @@ class ReviewStyle {
     side: const BorderSide(color: primary, width: 2),
     shape: RoundedRectangleBorder(borderRadius: fullPillRadius),
   );
+
+  static BoxDecoration heroDecorationFor(BuildContext context) {
+    final palette = colors(context);
+    return BoxDecoration(
+      color: palette.primary,
+      borderRadius: cardRadius,
+      boxShadow: [
+        BoxShadow(
+          color: palette.primary.withValues(alpha: 0.3),
+          blurRadius: 12,
+          offset: const Offset(0, 4),
+        ),
+      ],
+    );
+  }
+
+  static BoxDecoration favoriteCardDecorationFor(BuildContext context) {
+    final palette = colors(context);
+    return BoxDecoration(
+      color: palette.surfaceContainerLow.withValues(alpha: 0.78),
+      borderRadius: cardRadius,
+      border: Border.all(color: palette.cardBorder.withValues(alpha: 0.62)),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withValues(alpha: 0.03),
+          blurRadius: 10,
+          offset: const Offset(0, 4),
+        ),
+      ],
+    );
+  }
+
+  static BoxDecoration summaryGlassCardDecorationFor(BuildContext context) {
+    final palette = colors(context);
+    return BoxDecoration(
+      color: palette.surfaceContainerLow.withValues(alpha: 0.78),
+      borderRadius: cardRadius,
+      border: Border.all(color: palette.outlineVariant.withValues(alpha: 0.3)),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withValues(alpha: 0.05),
+          blurRadius: 10,
+          offset: const Offset(0, 4),
+        ),
+      ],
+    );
+  }
+
+  static BoxDecoration summaryStreakDecorationFor(BuildContext context) {
+    final palette = colors(context);
+    return BoxDecoration(
+      color: palette.surfaceContainerLow.withValues(alpha: 0.78),
+      borderRadius: cardRadius,
+      border: Border.all(color: palette.outlineVariant.withValues(alpha: 0.3)),
+    );
+  }
+
+  static BoxDecoration summaryOverlayDecorationFor(BuildContext context) {
+    final palette = colors(context);
+    return BoxDecoration(
+      gradient: LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [
+          palette.surfaceContainerLow.withValues(alpha: 0.18),
+          palette.surface.withValues(alpha: 0.42),
+          palette.surface,
+        ],
+        stops: const [0.0, 0.4, 0.9],
+      ),
+    );
+  }
+
+  static LinearGradient summaryProgressGradientFor(BuildContext context) {
+    final palette = colors(context);
+    return LinearGradient(colors: [palette.primary, palette.secondary]);
+  }
+
+  static Color levelColorFor(BuildContext context, String level) {
+    final palette = colors(context);
+    switch (level.toUpperCase()) {
+      case 'B2':
+        return palette.secondary;
+      case 'C1':
+      case 'C2':
+        return palette.tertiary;
+      default:
+        return palette.primary;
+    }
+  }
+
+  static Color levelBackgroundColorFor(BuildContext context, String level) {
+    final palette = colors(context);
+    switch (level.toUpperCase()) {
+      case 'B2':
+        return palette.secondaryContainer;
+      case 'C1':
+      case 'C2':
+        return palette.tertiaryContainer;
+      default:
+        return palette.surfaceContainerHigh;
+    }
+  }
+
+  static ButtonStyle startReviewButtonStyleFor(
+    BuildContext context, {
+    required bool isElevated,
+  }) {
+    final palette = colors(context);
+    return ElevatedButton.styleFrom(
+      backgroundColor: palette.surfaceContainerLow,
+      foregroundColor: palette.primary,
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+      shape: RoundedRectangleBorder(borderRadius: pillRadius),
+      elevation: isElevated ? 2 : 0,
+    );
+  }
+
+  static ButtonStyle summaryPrimaryButtonStyleFor(
+    BuildContext context, {
+    required bool isElevated,
+  }) {
+    final palette = colors(context);
+    return ElevatedButton.styleFrom(
+      backgroundColor: palette.primary,
+      foregroundColor: palette.onPrimary,
+      minimumSize: const Size(double.infinity, 54),
+      shape: RoundedRectangleBorder(borderRadius: fullPillRadius),
+      elevation: isElevated ? 6 : 4,
+      shadowColor: palette.primary.withValues(alpha: 0.3),
+    );
+  }
+
+  static ButtonStyle summarySecondaryButtonStyleFor(BuildContext context) {
+    final palette = colors(context);
+    return OutlinedButton.styleFrom(
+      foregroundColor: palette.primary,
+      minimumSize: const Size(double.infinity, 54),
+      side: BorderSide(color: palette.primary, width: 2),
+      shape: RoundedRectangleBorder(borderRadius: fullPillRadius),
+    );
+  }
 }
 
 class ReviewActionChip extends StatelessWidget {
@@ -454,7 +649,7 @@ class ReviewSummaryGlassCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: ReviewStyle.summaryGlassCardDecoration,
+      decoration: ReviewStyle.summaryGlassCardDecorationFor(context),
       child: ClipRRect(
         borderRadius: ReviewStyle.cardRadius,
         child: BackdropFilter(

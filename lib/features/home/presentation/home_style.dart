@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_palette.dart';
 import '../../../core/theme/app_radii.dart';
 
 class HomeStyle {
@@ -98,6 +99,42 @@ class HomeStyle {
     color: onSurfaceVariant,
   );
 
+  static AppPalette colors(BuildContext context) => AppPalettes.of(context);
+
+  static Color backgroundColor(BuildContext context) => colors(context).surface;
+
+  static Color primaryColor(BuildContext context) => colors(context).primary;
+
+  static Color uploadAccentColor(BuildContext context) =>
+      colors(context).secondary;
+
+  static Color submitButtonColor(BuildContext context) =>
+      colors(context).primary;
+
+  static TextStyle titleTextStyleFor(BuildContext context) =>
+      titleTextStyle.copyWith(color: colors(context).onSurface);
+
+  static TextStyle subtitleTextStyleFor(BuildContext context) =>
+      subtitleTextStyle.copyWith(color: colors(context).onSurfaceVariant);
+
+  static TextStyle uploadButtonTextStyleFor(BuildContext context) =>
+      uploadButtonTextStyle.copyWith(color: colors(context).primary);
+
+  static TextStyle selectedBadgeTextStyleFor(BuildContext context) =>
+      selectedBadgeTextStyle.copyWith(color: colors(context).primary);
+
+  static TextStyle promptInputTextStyleFor(BuildContext context) =>
+      promptInputTextStyle.copyWith(color: colors(context).onSurface);
+
+  static TextStyle generatingTextStyleFor(BuildContext context) =>
+      generatingTextStyle.copyWith(color: colors(context).onSurfaceVariant);
+
+  static TextStyle menuOptionTextStyleFor(BuildContext context) =>
+      menuOptionTextStyle.copyWith(color: colors(context).onSurface);
+
+  static TextStyle quickStarterTextStyleFor(BuildContext context) =>
+      quickStarterTextStyle.copyWith(color: colors(context).onSurfaceVariant);
+
   static BoxDecoration uploadBackgroundDecoration = BoxDecoration(
     color: surfaceContainerHigh.withValues(alpha: 0.35),
     borderRadius: uploadRadius,
@@ -136,6 +173,57 @@ class HomeStyle {
     border: InputBorder.none,
     contentPadding: promptInputContentPadding,
   );
+
+  static BoxDecoration uploadBackgroundDecorationFor(BuildContext context) {
+    final palette = colors(context);
+    return BoxDecoration(
+      color: palette.surfaceContainerHigh.withValues(alpha: 0.35),
+      borderRadius: uploadRadius,
+      gradient: LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          palette.surfaceContainerLow.withValues(alpha: 0.72),
+          palette.surfaceContainerHigh.withValues(alpha: 0.42),
+          palette.surfaceContainerHighest.withValues(alpha: 0.28),
+        ],
+      ),
+    );
+  }
+
+  static BoxDecoration promptInputDecorationFor(BuildContext context) {
+    final palette = colors(context);
+    return BoxDecoration(
+      color: palette.onSurface.withValues(alpha: 0.05),
+      borderRadius: promptInputRadius,
+    );
+  }
+
+  static BoxDecoration submitButtonDecorationFor(BuildContext context) {
+    final palette = colors(context);
+    return BoxDecoration(
+      color: palette.primary,
+      borderRadius: promptInputRadius,
+      boxShadow: [
+        BoxShadow(
+          color: palette.primary.withValues(alpha: 0.3),
+          blurRadius: 8,
+          offset: const Offset(0, 4),
+        ),
+      ],
+    );
+  }
+
+  static InputDecoration promptInputDecorationDataFor(BuildContext context) {
+    final palette = colors(context);
+    return InputDecoration(
+      hintText: 'Describe a scene...',
+      hintStyle: TextStyle(color: palette.onSurface.withValues(alpha: 0.38)),
+      prefixIcon: Icon(Icons.auto_awesome, color: palette.primary, size: 20),
+      border: InputBorder.none,
+      contentPadding: promptInputContentPadding,
+    );
+  }
 }
 
 class HomeGlassContainer extends StatelessWidget {
@@ -159,8 +247,14 @@ class HomeGlassContainer extends StatelessWidget {
         child: Container(
           padding: padding,
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.6),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.4)),
+            color: HomeStyle.colors(
+              context,
+            ).surfaceContainerLow.withValues(alpha: 0.62),
+            border: Border.all(
+              color: HomeStyle.colors(
+                context,
+              ).outlineVariant.withValues(alpha: 0.32),
+            ),
           ),
           child: child,
         ),
@@ -190,9 +284,9 @@ class HomeMenuOption extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, color: HomeStyle.primary, size: 20),
+            Icon(icon, color: HomeStyle.primaryColor(context), size: 20),
             const SizedBox(width: 16),
-            Text(title, style: HomeStyle.menuOptionTextStyle),
+            Text(title, style: HomeStyle.menuOptionTextStyleFor(context)),
           ],
         ),
       ),
@@ -219,7 +313,9 @@ class HomeQuickStarter extends StatelessWidget {
             color: Colors.white.withValues(alpha: 0.5),
             borderRadius: HomeStyle.quickStarterRadius,
             border: Border.all(
-              color: HomeStyle.outlineVariant.withValues(alpha: 0.3),
+              color: HomeStyle.colors(
+                context,
+              ).outlineVariant.withValues(alpha: 0.3),
             ),
           ),
           child: Row(
@@ -227,7 +323,7 @@ class HomeQuickStarter extends StatelessWidget {
             children: [
               const Text('✨', style: TextStyle(fontSize: 12)),
               const SizedBox(width: 4),
-              Text(label, style: HomeStyle.quickStarterTextStyle),
+              Text(label, style: HomeStyle.quickStarterTextStyleFor(context)),
             ],
           ),
         ),

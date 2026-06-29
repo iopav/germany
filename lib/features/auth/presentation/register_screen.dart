@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:germany/core/emus/app_enums.dart';
 import 'package:germany/core/utils/error_utils.dart';
-import 'package:germany/features/home/presentation/home_screen.dart';
+import 'package:go_router/go_router.dart';
 
 import 'auth_provider.dart';
 import 'register_style.dart';
@@ -65,10 +65,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         if (user == null) {
           return;
         }
-        Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (_) => const HomeScreen()),
-          (route) => false,
-        );
+        context.go('/home');
       },
     );
   }
@@ -93,23 +90,26 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       );
     });
     return Scaffold(
-      backgroundColor: RegisterStyle.background,
+      backgroundColor: RegisterStyle.backgroundColor(context),
       appBar: AppBar(
-        backgroundColor: RegisterStyle.appBarBackgroundColor,
+        backgroundColor: RegisterStyle.appBarBackgroundColorFor(context),
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.close, color: RegisterStyle.primary),
+          icon: Icon(Icons.close, color: RegisterStyle.colors(context).primary),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text('app.name'.tr(), style: RegisterStyle.appBarTitleTextStyle),
+        title: Text(
+          'app.name'.tr(),
+          style: RegisterStyle.appBarTitleTextStyleFor(context),
+        ),
         actions: [
           TextButton(
             onPressed: () {},
             child: Text(
               'auth.login'.tr(),
-              style: RegisterStyle.loginActionTextStyle,
+              style: RegisterStyle.loginActionTextStyleFor(context),
             ),
           ),
         ],
@@ -123,12 +123,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               // Hero Branding
               Text(
                 'auth.register.title'.tr(),
-                style: RegisterStyle.heroTitleTextStyle,
+                style: RegisterStyle.heroTitleTextStyleFor(context),
               ),
               const SizedBox(height: 8),
               Text(
                 'auth.register.subtitle'.tr(),
-                style: RegisterStyle.heroSubtitleTextStyle,
+                style: RegisterStyle.heroSubtitleTextStyleFor(context),
               ),
               const SizedBox(height: 40),
 
@@ -141,7 +141,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     const SizedBox(height: 6),
                     TextField(
                       controller: _emailController,
-                      decoration: RegisterStyle.inputDecoration(
+                      decoration: RegisterStyle.inputDecorationFor(
+                        context,
                         'auth.register.email_hint'.tr(),
                       ),
                       keyboardType: TextInputType.emailAddress,
@@ -152,14 +153,15 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     TextField(
                       controller: _passwordController,
                       obscureText: _obscurePassword,
-                      decoration: RegisterStyle.inputDecoration(
+                      decoration: RegisterStyle.inputDecorationFor(
+                        context,
                         'auth.register.password_hint'.tr(),
                         suffixIcon: IconButton(
                           icon: Icon(
                             _obscurePassword
                                 ? Icons.visibility
                                 : Icons.visibility_off,
-                            color: RegisterStyle.outlineVariant,
+                            color: RegisterStyle.colors(context).outlineVariant,
                           ),
                           onPressed: () {
                             setState(() {
@@ -182,15 +184,17 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.school,
                           size: 18,
-                          color: RegisterStyle.onSurfaceVariant,
+                          color: RegisterStyle.colors(context).onSurfaceVariant,
                         ),
                         const SizedBox(width: 8),
                         Text(
                           'auth.register.current_level'.tr(),
-                          style: RegisterStyle.sectionTitleTextStyle,
+                          style: RegisterStyle.sectionTitleTextStyleFor(
+                            context,
+                          ),
                         ),
                       ],
                     ),
@@ -206,15 +210,17 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.flag,
                           size: 18,
-                          color: RegisterStyle.onSurfaceVariant,
+                          color: RegisterStyle.colors(context).onSurfaceVariant,
                         ),
                         const SizedBox(width: 8),
                         Text(
                           'auth.register.goal_level'.tr(),
-                          style: RegisterStyle.sectionTitleTextStyle,
+                          style: RegisterStyle.sectionTitleTextStyleFor(
+                            context,
+                          ),
                         ),
                       ],
                     ),
@@ -232,7 +238,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               // Action Button
               ElevatedButton(
                 onPressed: _triggerSignUp,
-                style: RegisterStyle.primaryButtonStyle,
+                style: RegisterStyle.primaryButtonStyleFor(context),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -253,7 +259,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   children: [
                     Text(
                       'auth.register.copyright'.tr(),
-                      style: RegisterStyle.copyrightTextStyle,
+                      style: RegisterStyle.copyrightTextStyleFor(context),
                     ),
                     const SizedBox(height: 12),
                     Row(
@@ -330,7 +336,7 @@ class LevelDialPicker extends StatelessWidget {
                   child: Container(
                     width: 72,
                     height: 72,
-                    decoration: RegisterStyle.levelGlowDecoration,
+                    decoration: RegisterStyle.levelGlowDecorationFor(context),
                   ),
                 ),
                 // 顶部中心的指示线
@@ -339,7 +345,9 @@ class LevelDialPicker extends StatelessWidget {
                   child: Container(
                     width: 4,
                     height: 16,
-                    decoration: RegisterStyle.levelIndicatorDecoration,
+                    decoration: RegisterStyle.levelIndicatorDecorationFor(
+                      context,
+                    ),
                   ),
                 ),
                 // 旋转的大轮盘
@@ -352,7 +360,9 @@ class LevelDialPicker extends StatelessWidget {
                     child: Container(
                       width: 320,
                       height: 320,
-                      decoration: RegisterStyle.levelWheelDecoration,
+                      decoration: RegisterStyle.levelWheelDecorationFor(
+                        context,
+                      ),
                       // 绘制 5 个等级选项
                       child: Stack(
                         clipBehavior: Clip.none,
@@ -388,13 +398,15 @@ class LevelDialPicker extends StatelessWidget {
                                       child: Container(
                                         alignment: Alignment.center,
                                         decoration:
-                                            RegisterStyle.levelItemDecoration(
+                                            RegisterStyle.levelItemDecorationFor(
+                                              context,
                                               isActive: isActive,
                                             ),
                                         child: Text(
                                           levels[index],
                                           style:
-                                              RegisterStyle.levelItemTextStyle(
+                                              RegisterStyle.levelItemTextStyleFor(
+                                                context,
                                                 isActive: isActive,
                                               ),
                                         ),
@@ -421,7 +433,7 @@ class LevelDialPicker extends StatelessWidget {
           child: Text(
             '$currentLevel: $description',
             key: ValueKey(currentLevel),
-            style: RegisterStyle.levelTextStyle,
+            style: RegisterStyle.levelTextStyleFor(context),
           ),
         ),
       ],

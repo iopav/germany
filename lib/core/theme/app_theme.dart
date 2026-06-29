@@ -1,40 +1,43 @@
 import 'package:flutter/material.dart';
 
-import 'app_colors.dart';
+import 'app_palette.dart';
 
 class AppTheme {
-  static final lightTheme = ThemeData(
-    brightness: Brightness.light,
-    primaryColor: AppColors.primary,
-    colorScheme:
-        ColorScheme.fromSeed(
-          seedColor: AppColors.primary,
-          brightness: Brightness.light,
-        ).copyWith(
-          primary: AppColors.primary,
-          secondary: AppColors.secondary,
-          tertiary: AppColors.tertiary,
-          surface: AppColors.surface,
-          onPrimary: Colors.white,
-          onSecondary: Colors.white,
-          onSurface: AppColors.onSurface,
-          error: AppColors.error,
+  static ThemeData lightTheme(AppPalette palette) {
+    return ThemeData(
+      brightness: Brightness.light,
+      primaryColor: palette.primary,
+      extensions: [palette],
+      colorScheme:
+          ColorScheme.fromSeed(
+            seedColor: palette.primary,
+            brightness: Brightness.light,
+          ).copyWith(
+            primary: palette.primary,
+            secondary: palette.secondary,
+            tertiary: palette.tertiary,
+            surface: palette.surface,
+            onPrimary: palette.onPrimary,
+            onSecondary: palette.onPrimary,
+            onSurface: palette.onSurface,
+            error: palette.error,
+          ),
+      scaffoldBackgroundColor: palette.surface,
+      appBarTheme: AppBarTheme(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        titleTextStyle: TextStyle(
+          color: palette.onSurface,
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
         ),
-    scaffoldBackgroundColor: AppColors.surface,
-    appBarTheme: const AppBarTheme(
-      backgroundColor: Colors.transparent,
-      elevation: 0,
-      titleTextStyle: TextStyle(
-        color: AppColors.onSurface,
-        fontSize: 20,
-        fontWeight: FontWeight.bold,
       ),
-    ),
-    bottomNavigationBarTheme: BottomNavigationBarThemeData(
-      backgroundColor: Colors.transparent,
-      elevation: 0,
-      selectedItemColor: AppColors.primary,
-      unselectedItemColor: AppColors.onSurfaceVariant,
-    ),
-  );
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        selectedItemColor: palette.primary,
+        unselectedItemColor: palette.onSurfaceVariant,
+      ),
+    );
+  }
 }

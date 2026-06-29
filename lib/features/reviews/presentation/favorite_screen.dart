@@ -174,15 +174,18 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
     return Container(
       width: double.infinity,
       padding: ReviewStyle.heroPadding,
-      decoration: ReviewStyle.heroDecoration,
+      decoration: ReviewStyle.heroDecorationFor(context),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Flashcard Review', style: ReviewStyle.heroTitleTextStyle),
+          Text(
+            'Flashcard Review',
+            style: ReviewStyle.heroTitleTextStyleFor(context),
+          ),
           const SizedBox(height: 8),
           Text(
             'Strengthen your memory with $dueCount new favorites waiting for review.',
-            style: ReviewStyle.heroSubtitleTextStyle,
+            style: ReviewStyle.heroSubtitleTextStyleFor(context),
           ),
           const SizedBox(height: 20),
           AppPressable(
@@ -192,12 +195,16 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
               return IgnorePointer(
                 child: ElevatedButton.icon(
                   onPressed: () => _startReview(),
-                  icon: const Icon(Icons.bolt, color: ReviewStyle.primary),
+                  icon: Icon(
+                    Icons.bolt,
+                    color: ReviewStyle.colors(context).primary,
+                  ),
                   label: const Text(
                     'Start Review',
                     style: ReviewStyle.primaryButtonLabelTextStyle,
                   ),
-                  style: ReviewStyle.startReviewButtonStyle(
+                  style: ReviewStyle.startReviewButtonStyleFor(
+                    context,
                     isElevated: isHovered || isPressed,
                   ),
                 ),
@@ -229,10 +236,10 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
                   color: isSelected
-                      ? ReviewStyle.primary
+                      ? ReviewStyle.colors(context).primary
                       : isHovered || isPressed
-                      ? ReviewStyle.surfaceContainerHover
-                      : ReviewStyle.surfaceContainerHighest,
+                      ? ReviewStyle.colors(context).surfaceContainerHover
+                      : ReviewStyle.colors(context).surfaceContainer,
                   borderRadius: ReviewStyle.pillRadius,
                 ),
                 child: Text(
@@ -241,8 +248,8 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
                     fontSize: 14,
                     fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                     color: isSelected
-                        ? ReviewStyle.white
-                        : ReviewStyle.mutedText,
+                        ? ReviewStyle.colors(context).onPrimary
+                        : ReviewStyle.colors(context).onSurfaceVariant,
                   ),
                 ),
               );
@@ -258,7 +265,10 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Text('Your Favorites', style: ReviewStyle.listTitleTextStyle),
+        Text(
+          'Your Favorites',
+          style: ReviewStyle.listTitleTextStyleFor(context),
+        ),
         AppPressable(
           onTap: _handleSortPressed,
           pressedScale: 0.97,
@@ -269,7 +279,7 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
                 icon: const Icon(Icons.sort, size: 18),
                 label: const Text('Recent'),
                 style: TextButton.styleFrom(
-                  foregroundColor: ReviewStyle.primary,
+                  foregroundColor: ReviewStyle.colors(context).primary,
                   textStyle: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
@@ -377,11 +387,11 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
   }
 
   Color _levelColor(String level) {
-    return ReviewStyle.levelColor(level);
+    return ReviewStyle.levelColorFor(context, level);
   }
 
   Color _levelBgColor(String level) {
-    return ReviewStyle.levelBackgroundColor(level);
+    return ReviewStyle.levelBackgroundColorFor(context, level);
   }
 
   // ====== 自定义底部毛玻璃导航栏 ======
@@ -529,7 +539,7 @@ class _VocabCardState extends State<VocabCard>
   Widget build(BuildContext context) {
     return Container(
       padding: ReviewStyle.favoriteCardPadding,
-      decoration: ReviewStyle.favoriteCardDecoration,
+      decoration: ReviewStyle.favoriteCardDecorationFor(context),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -564,8 +574,10 @@ class _VocabCardState extends State<VocabCard>
                         child: Icon(
                           _isFavorite ? Icons.favorite : Icons.favorite_border,
                           color: _isFavorite
-                              ? ReviewStyle.favorite
-                              : ReviewStyle.mutedText.withValues(
+                              ? ReviewStyle.colors(context).error
+                              : ReviewStyle.colors(
+                                  context,
+                                ).onSurfaceVariant.withValues(
                                   alpha: isHovered || isPressed ? 0.7 : 0.5,
                                 ),
                           size: 26,
@@ -580,9 +592,10 @@ class _VocabCardState extends State<VocabCard>
                     builder: (context, isHovered, isPressed) {
                       return Icon(
                         Icons.delete_outline,
-                        color: ReviewStyle.mutedText.withValues(
-                          alpha: isHovered || isPressed ? 0.7 : 0.5,
-                        ),
+                        color: ReviewStyle.colors(context).onSurfaceVariant
+                            .withValues(
+                              alpha: isHovered || isPressed ? 0.7 : 0.5,
+                            ),
                         size: 26,
                       );
                     },
@@ -593,16 +606,19 @@ class _VocabCardState extends State<VocabCard>
           ),
           const SizedBox(height: 4),
           // 中间：单词及翻译
-          Text(widget.word, style: ReviewStyle.cardWordTextStyle),
+          Text(widget.word, style: ReviewStyle.cardWordTextStyleFor(context)),
           const SizedBox(height: 2),
-          Text(widget.translation, style: ReviewStyle.cardTranslationTextStyle),
+          Text(
+            widget.translation,
+            style: ReviewStyle.cardTranslationTextStyleFor(context),
+          ),
           const SizedBox(height: 1),
           const Divider(color: ReviewStyle.outlineSubtle),
           const SizedBox(height: 1),
           // 底部：例句 (使用 RichText 高亮目标词汇)
           RichText(
             text: TextSpan(
-              style: ReviewStyle.exampleTextStyle,
+              style: ReviewStyle.exampleTextStyleFor(context),
               children: [
                 TextSpan(text: widget.examplePre),
                 TextSpan(

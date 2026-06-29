@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:germany/core/emus/app_enums.dart';
+import 'package:germany/core/theme/app_palette.dart';
+import 'package:germany/core/theme/theme_controller.dart';
 import 'package:germany/features/auth/data/models/user_model.dart';
 import 'package:germany/features/auth/presentation/auth_provider.dart';
 import 'package:germany/features/settings/presentation/settings_provider.dart';
@@ -31,7 +33,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     }
 
     return ColoredBox(
-      color: SettingsStyle.background,
+      color: SettingsStyle.backgroundColor(context),
       child: SingleChildScrollView(
         padding: SettingsStyle.pagePadding,
         child: Column(
@@ -41,6 +43,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             _buildLearningGoalsCard(user),
             const SizedBox(height: 32),
             _buildNativeLanguageCard(settingsState),
+            const SizedBox(height: 32),
+            _buildThemeCard(),
             const SizedBox(height: 32),
             _buildAccountSettings(),
             const SizedBox(height: 24),
@@ -69,7 +73,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               width: 96,
               height: 96,
               padding: SettingsStyle.avatarPadding,
-              decoration: SettingsStyle.avatarDecoration,
+              decoration: SettingsStyle.avatarDecorationFor(context),
               child: CircleAvatar(backgroundImage: NetworkImage(avatarUrl)),
             ),
             Positioned(
@@ -77,23 +81,23 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               right: -4,
               child: Container(
                 padding: SettingsStyle.proBadgePadding,
-                decoration: SettingsStyle.proBadgeDecoration,
-                child: const Text(
+                decoration: SettingsStyle.proBadgeDecorationFor(context),
+                child: Text(
                   'PRO',
-                  style: SettingsStyle.proBadgeTextStyle,
+                  style: SettingsStyle.proBadgeTextStyleFor(context),
                 ),
               ),
             ),
           ],
         ),
         const SizedBox(height: 16),
-        Text(displayEmail, style: SettingsStyle.emailTextStyle),
+        Text(displayEmail, style: SettingsStyle.emailTextStyleFor(context)),
         const SizedBox(height: 4),
         Text(
           user == null
               ? ''
               : 'Member since ${_formatMonthYear(user.createdAt)}',
-          style: SettingsStyle.memberSinceTextStyle,
+          style: SettingsStyle.memberSinceTextStyleFor(context),
         ),
       ],
     );
@@ -102,17 +106,20 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   Widget _buildLearningGoalsCard(UserModel? user) {
     return Container(
       padding: SettingsStyle.largeCardPadding,
-      decoration: SettingsStyle.cardDecoration,
+      decoration: SettingsStyle.cardDecorationFor(context),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(Icons.emoji_events_outlined, color: SettingsStyle.primary),
+              Icon(
+                Icons.emoji_events_outlined,
+                color: SettingsStyle.colors(context).primary,
+              ),
               const SizedBox(width: 8),
-              const Text(
+              Text(
                 'Learning Goals',
-                style: SettingsStyle.cardTitleTextStyle,
+                style: SettingsStyle.cardTitleTextStyleFor(context),
               ),
             ],
           ),
@@ -121,10 +128,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text('Current Level', style: SettingsStyle.fieldLabelTextStyle),
+              Text(
+                'Current Level',
+                style: SettingsStyle.fieldLabelTextStyleFor(context),
+              ),
               Text(
                 levels[currentLevel.toInt()],
-                style: SettingsStyle.primaryLevelTextStyle,
+                style: SettingsStyle.primaryLevelTextStyleFor(context),
               ),
             ],
           ),
@@ -145,10 +155,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text('Target Level', style: SettingsStyle.fieldLabelTextStyle),
+              Text(
+                'Target Level',
+                style: SettingsStyle.fieldLabelTextStyleFor(context),
+              ),
               Text(
                 levels[targetLevel.toInt()],
-                style: SettingsStyle.secondaryLevelTextStyle,
+                style: SettingsStyle.secondaryLevelTextStyleFor(context),
               ),
             ],
           ),
@@ -183,7 +196,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: levels
-            .map((lvl) => Text(lvl, style: SettingsStyle.levelTickTextStyle))
+            .map(
+              (lvl) => Text(
+                lvl,
+                style: SettingsStyle.levelTickTextStyleFor(context),
+              ),
+            )
             .toList(),
       ),
     );
@@ -194,28 +212,31 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
     return Container(
       padding: SettingsStyle.cardPadding,
-      decoration: SettingsStyle.cardDecoration,
+      decoration: SettingsStyle.cardDecorationFor(context),
       child: Row(
         children: [
           Container(
             width: 40,
             height: 40,
-            decoration: SettingsStyle.iconCircleDecoration,
-            child: Icon(Icons.translate, color: SettingsStyle.primary),
+            decoration: SettingsStyle.iconCircleDecorationFor(context),
+            child: Icon(
+              Icons.translate,
+              color: SettingsStyle.colors(context).primary,
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'Native Language',
-                  style: SettingsStyle.tileTitleTextStyle,
+                  style: SettingsStyle.tileTitleTextStyleFor(context),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   user == null ? 'Loading...' : user.l1Language.label,
-                  style: SettingsStyle.tileSubtitleTextStyle,
+                  style: SettingsStyle.tileSubtitleTextStyleFor(context),
                 ),
               ],
             ),
@@ -307,7 +328,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           content: Text(
             latestState.error.toString().replaceAll('Exception: ', ''),
           ),
-          backgroundColor: SettingsStyle.error,
+          backgroundColor: SettingsStyle.colors(context).error,
         ),
       );
       return;
@@ -318,6 +339,95 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     ).showSnackBar(const SnackBar(content: Text('Native language updated.')));
   }
 
+  Widget _buildThemeCard() {
+    final paletteKey = ref
+        .watch(appPaletteControllerProvider)
+        .maybeWhen(data: (value) => value, orElse: () => AppPaletteKey.warm);
+    final palette = SettingsStyle.colors(context);
+
+    return Container(
+      padding: SettingsStyle.cardPadding,
+      decoration: SettingsStyle.cardDecorationFor(context),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: SettingsStyle.iconCircleDecorationFor(context),
+            child: Icon(Icons.palette_outlined, color: palette.primary),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Theme',
+                  style: SettingsStyle.tileTitleTextStyleFor(context),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  paletteKey == AppPaletteKey.warm
+                      ? 'Warm mosaic'
+                      : 'Cool glass',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: SettingsStyle.tileSubtitleTextStyleFor(context),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 12),
+          SizedBox(
+            width: 112,
+            child: SegmentedButton<AppPaletteKey>(
+              showSelectedIcon: false,
+              style: ButtonStyle(
+                backgroundColor: WidgetStateProperty.resolveWith<Color?>((
+                  states,
+                ) {
+                  if (states.contains(WidgetState.selected)) {
+                    return palette.primary;
+                  }
+                  return palette.surfaceContainerLow;
+                }),
+                foregroundColor: WidgetStateProperty.resolveWith<Color?>((
+                  states,
+                ) {
+                  if (states.contains(WidgetState.selected)) {
+                    return palette.onPrimary;
+                  }
+                  return palette.onSurfaceVariant;
+                }),
+                side: WidgetStateProperty.all(
+                  BorderSide(color: palette.outlineVariant),
+                ),
+              ),
+              segments: const [
+                ButtonSegment(
+                  value: AppPaletteKey.cool,
+                  icon: Icon(Icons.ac_unit),
+                ),
+                ButtonSegment(
+                  value: AppPaletteKey.warm,
+                  icon: Icon(Icons.local_fire_department_outlined),
+                ),
+              ],
+              selected: {paletteKey},
+              onSelectionChanged: (selection) {
+                ref
+                    .read(appPaletteControllerProvider.notifier)
+                    .setPalette(selection.first);
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildAccountSettings() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -326,7 +436,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           padding: SettingsStyle.sectionLabelPadding,
           child: Text(
             'ACCOUNT SETTINGS',
-            style: SettingsStyle.sectionLabelTextStyle,
+            style: SettingsStyle.sectionLabelTextStyleFor(context),
           ),
         ),
         _buildSettingTile(Icons.security_outlined, 'Privacy & Security'),
@@ -344,20 +454,26 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       onTap: () {},
       child: Container(
         padding: SettingsStyle.cardPadding,
-        decoration: SettingsStyle.cardDecoration,
+        decoration: SettingsStyle.cardDecorationFor(context),
         child: Row(
           children: [
             Container(
               width: 40,
               height: 40,
-              decoration: SettingsStyle.iconCircleDecoration,
-              child: Icon(icon, color: SettingsStyle.primary),
+              decoration: SettingsStyle.iconCircleDecorationFor(context),
+              child: Icon(icon, color: SettingsStyle.colors(context).primary),
             ),
             const SizedBox(width: 12),
             Expanded(
-              child: Text(title, style: SettingsStyle.tileTitleTextStyle),
+              child: Text(
+                title,
+                style: SettingsStyle.tileTitleTextStyleFor(context),
+              ),
             ),
-            Icon(Icons.chevron_right, color: SettingsStyle.outline),
+            Icon(
+              Icons.chevron_right,
+              color: SettingsStyle.colors(context).outline,
+            ),
           ],
         ),
       ),
@@ -369,20 +485,23 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       children: [
         OutlinedButton(
           onPressed: _handleSignOut,
-          style: SettingsStyle.signOutButtonStyle,
-          child: const Row(
+          style: SettingsStyle.signOutButtonStyleFor(context),
+          child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.logout),
-              SizedBox(width: 8),
-              Text('Sign Out', style: SettingsStyle.signOutTextStyle),
+              const Icon(Icons.logout),
+              const SizedBox(width: 8),
+              Text(
+                'Sign Out',
+                style: SettingsStyle.signOutTextStyleFor(context),
+              ),
             ],
           ),
         ),
         const SizedBox(height: 24),
         Text(
           'Version 2.4.0 (Build 892)',
-          style: SettingsStyle.versionTextStyle,
+          style: SettingsStyle.versionTextStyleFor(context),
         ),
       ],
     );
