@@ -123,8 +123,9 @@ class _AppShellScaffoldState extends ConsumerState<AppShellScaffold> {
         ),
       ),
       body: Stack(
+        fit: StackFit.expand,
         children: [
-          SafeArea(child: widget.child),
+          Positioned.fill(child: SafeArea(child: widget.child)),
           Positioned(
             top:
                 MediaQuery.paddingOf(context).top +

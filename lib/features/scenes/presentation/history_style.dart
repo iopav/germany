@@ -33,8 +33,20 @@ class HistoryStyle {
 
   static const double createButtonSize = 56;
   static const double createButtonRight = 24;
-  static const double createButtonBottom = 104;
-  static const double createMenuBottom = 176;
+  static const double createButtonBottomGap = -30;
+  static const double createMenuButtonGap = 16;
+
+  static double createButtonBottomFor(BuildContext context) {
+    return MediaQuery.viewPaddingOf(context).bottom +
+        kBottomNavigationBarHeight +
+        createButtonBottomGap;
+  }
+
+  static double createMenuBottomFor(BuildContext context) {
+    return createButtonBottomFor(context) +
+        createButtonSize +
+        createMenuButtonGap;
+  }
 
   static const EdgeInsets pagePadding = EdgeInsets.only(
     top: 12,

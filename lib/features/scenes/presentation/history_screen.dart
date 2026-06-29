@@ -264,6 +264,7 @@ class _SceneHistoryScreenState extends ConsumerState<HistoryScreen> {
       extendBody: true,
       // appBar: _buildAppBar(),
       body: Stack(
+        fit: StackFit.expand,
         children: [
           scenesAsync.when(
             loading: _buildLoadingState,
@@ -287,7 +288,7 @@ class _SceneHistoryScreenState extends ConsumerState<HistoryScreen> {
           if (_isCreateMenuOpen)
             Positioned(
               right: HistoryStyle.createButtonRight,
-              bottom: HistoryStyle.createMenuBottom,
+              bottom: HistoryStyle.createMenuBottomFor(context),
               child: Material(
                 color: Colors.transparent,
                 child: Container(
@@ -328,7 +329,7 @@ class _SceneHistoryScreenState extends ConsumerState<HistoryScreen> {
             ),
           Positioned(
             right: HistoryStyle.createButtonRight,
-            bottom: HistoryStyle.createButtonBottom,
+            bottom: HistoryStyle.createButtonBottomFor(context),
             child: AppPressable(
               onTap: _isQuickGenerating ? () {} : _toggleCreateMenu,
               pressedScale: 0.96,
