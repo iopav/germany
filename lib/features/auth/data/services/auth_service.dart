@@ -36,6 +36,13 @@ class AuthService {
     final response = await _dio.get(ApiConstants.authMe);
     return UserModel.fromJson(response.data);
   }
+
+  Future<void> sendVerificationEmail(String email) async {
+    await _dio.post(
+      ApiConstants.authSendVerification,
+      data: {},
+    );
+  }
 }
 
 final   authServiceProvider = Provider<AuthService>((ref) {

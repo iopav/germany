@@ -1,13 +1,18 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:germany/core/theme/app_motion.dart';
+import 'package:germany/core/widgets/app_pressable.dart';
 import 'package:germany/core/widgets/scene_image_cache.dart';
 import 'package:germany/features/home/domain/entity/home_stats_entity.dart';
 import 'package:germany/features/home/presentation/immersive_screen.dart';
-import 'package:germany/features/reviews/presentation/review_style.dart';
 
 import 'history_provider.dart';
 import 'history_style.dart';
+
+import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:germany/features/home/presentation/home_provider.dart';
 
 class HistoryScreen extends ConsumerStatefulWidget {
   const HistoryScreen({super.key});
@@ -19,6 +24,8 @@ class HistoryScreen extends ConsumerStatefulWidget {
 class _SceneHistoryScreenState extends ConsumerState<HistoryScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _query = '';
+  bool _isCreateMenuOpen = false;
+  bool _isQuickGenerating = false;
 
   @override
   void dispose() {
@@ -74,6 +81,68 @@ class _SceneHistoryScreenState extends ConsumerState<HistoryScreen> {
     ).push(MaterialPageRoute(builder: (_) => ImmersiveScreen(scene: scene)));
   }
 
+  void _toggleCreateMenu() {
+    if (_isQuickGenerating) {
+      return;
+    }
+
+    setState(() => _isCreateMenuOpen = !_isCreateMenuOpen);
+  }
+
+  Future<void> _createSceneFromImage() async {
+    setState(() {
+      _isCreateMenuOpen = false;
+      _isQuickGenerating = true;
+    });
+
+    try {
+      final notifier = ref.read(homeProvider.notifier);
+      final image = await notifier.pickImage(ImageSource.gallery);
+
+      if (image == null) {
+        return;
+      }
+
+      final scene = await notifier.generateScene();
+
+      if (!mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () {
+              ScaffoldMessenger.of(context).hideCurrentSnackBar();
+              _openScene(scene);
+            },
+            child: const Text('Generation Finish.'),
+          ),
+        ),
+      );
+
+      await ref.read(sceneHistoryProvider.notifier).refresh();
+    } catch (e) {
+      if (!mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString().replaceAll('Exception: ', ''))),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isQuickGenerating = false);
+      }
+    }
+  }
+
+  void _goToTextScene() {
+    setState(() => _isCreateMenuOpen = false);
+    context.go('/chat');
+  }
+
   @override
   Widget build(BuildContext context) {
     final scenesAsync = ref.watch(sceneHistoryProvider);
@@ -82,18 +151,86 @@ class _SceneHistoryScreenState extends ConsumerState<HistoryScreen> {
       extendBodyBehindAppBar: true,
       extendBody: true,
       // appBar: _buildAppBar(),
-      body: scenesAsync.when(
-        loading: _buildLoadingState,
-        error: (error, _) => _buildErrorState(error.toString()),
-        data: (scenes) {
-          final filteredScenes = _filterScenes(scenes);
-          if (filteredScenes.isEmpty) {
-            return _buildEmptyState();
-          }
-          return _buildMainContent(filteredScenes);
-        },
+      body: Stack(
+        children: [
+          scenesAsync.when(
+            loading: _buildLoadingState,
+            error: (error, _) => _buildErrorState(error.toString()),
+            data: (scenes) {
+              final filteredScenes = _filterScenes(scenes);
+              if (filteredScenes.isEmpty) {
+                return _buildEmptyState();
+              }
+              return _buildMainContent(filteredScenes);
+            },
+          ),
+          if (_isCreateMenuOpen)
+            Positioned.fill(
+              child: GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onTap: () => setState(() => _isCreateMenuOpen = false),
+                child: const SizedBox.expand(),
+              ),
+            ),
+          if (_isCreateMenuOpen)
+            Positioned(
+              right: 24,
+              bottom: 96,
+              child: Material(
+                color: Colors.transparent,
+                child: Container(
+                  width: 156,
+                  decoration: BoxDecoration(
+                    color: HistoryStyle.surface,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: HistoryStyle.outlineVariant),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Color(0x33000000),
+                        blurRadius: 18,
+                        offset: Offset(0, 8),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ListTile(
+                        dense: true,
+                        leading: const Icon(Icons.image_outlined),
+                        title: const Text('Image'),
+                        onTap: _createSceneFromImage,
+                      ),
+                      ListTile(
+                        dense: true,
+                        leading: const Icon(Icons.text_fields),
+                        title: const Text('Text'),
+                        onTap: _goToTextScene,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          Positioned(
+            right: 24,
+            bottom: 24,
+            child: FloatingActionButton(
+              onPressed: _isQuickGenerating ? null : _toggleCreateMenu,
+              child: _isQuickGenerating
+                  ? const SizedBox(
+                      width: 22,
+                      height: 22,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.4,
+                        color: Colors.white,
+                      ),
+                    )
+                  : const Icon(Icons.add),
+            ),
+          ),
+        ],
       ),
-      // bottomNavigationBar: _buildBottomNav(),
     );
   }
 
@@ -139,12 +276,12 @@ class _SceneHistoryScreenState extends ConsumerState<HistoryScreen> {
           ),
         ),
         const SizedBox(width: 12),
-        ReviewPressable(
+        AppPressable(
           onTap: () => ref.read(sceneHistoryProvider.notifier).refresh(),
           builder: (context, isHovered, isPressed) {
             return AnimatedContainer(
-              duration: ReviewStyle.hoverDuration,
-              curve: ReviewStyle.pressCurve,
+              duration: AppMotion.hoverDuration,
+              curve: AppMotion.pressCurve,
               width: 48,
               height: 48,
               decoration: HistoryStyle.refreshDecoration(
@@ -182,13 +319,13 @@ class _SceneHistoryScreenState extends ConsumerState<HistoryScreen> {
   Widget _buildSceneCard(SceneEntity scene) {
     final imageUrl = SceneImageCache.resolveSceneImageUrl(scene);
 
-    return ReviewPressable(
+    return AppPressable(
       onTap: () => _openScene(scene),
       pressedScale: 0.98,
       builder: (context, isHovered, isPressed) {
         return AnimatedContainer(
-          duration: ReviewStyle.hoverDuration,
-          curve: ReviewStyle.pressCurve,
+          duration: AppMotion.hoverDuration,
+          curve: AppMotion.pressCurve,
           decoration: HistoryStyle.sceneCardDecoration(
             isActive: isHovered || isPressed,
           ),

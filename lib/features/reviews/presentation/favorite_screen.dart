@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:germany/core/widgets/app_pressable.dart';
 import 'package:germany/core/widgets/scene_image_cache.dart';
 import 'package:go_router/go_router.dart';
 
@@ -184,7 +185,7 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
             style: ReviewStyle.heroSubtitleTextStyle,
           ),
           const SizedBox(height: 20),
-          ReviewPressable(
+          AppPressable(
             onTap: () => _startReview(),
             pressedScale: 0.97,
             builder: (context, isHovered, isPressed) {
@@ -218,7 +219,7 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
         separatorBuilder: (context, index) => const SizedBox(width: 8),
         itemBuilder: (context, index) {
           final isSelected = _selectedFilterIndex == index;
-          return ReviewPressable(
+          return AppPressable(
             onTap: () => _handleLevelFilterChanged(index),
             pressedScale: 0.96,
             builder: (context, isHovered, isPressed) {
@@ -258,7 +259,7 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         const Text('Your Favorites', style: ReviewStyle.listTitleTextStyle),
-        ReviewPressable(
+        AppPressable(
           onTap: _handleSortPressed,
           pressedScale: 0.97,
           builder: (context, isHovered, isPressed) {
@@ -554,7 +555,7 @@ class _VocabCardState extends State<VocabCard>
               ),
               Row(
                 children: [
-                  ReviewPressable(
+                  AppPressable(
                     onTap: _toggleFavorite,
                     pressedScale: 0.9,
                     builder: (context, isHovered, isPressed) {
@@ -573,7 +574,7 @@ class _VocabCardState extends State<VocabCard>
                     },
                   ),
                   const SizedBox(width: 12),
-                  ReviewPressable(
+                  AppPressable(
                     onTap: widget.onDelete,
                     pressedScale: 0.9,
                     builder: (context, isHovered, isPressed) {

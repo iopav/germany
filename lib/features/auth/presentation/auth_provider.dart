@@ -53,6 +53,7 @@ class AuthNotifier extends AsyncNotifier<UserEntity?> {
     try {
       final AuthInterface authInterface = ref.read(authInterfaceProvider);
       final authEntity = await authInterface.login(email, password);
+      
 
       // 持久化 Token
       final prefs = await SharedPreferences.getInstance();
@@ -88,6 +89,8 @@ class AuthNotifier extends AsyncNotifier<UserEntity?> {
         l1Language: l1Language,
         targetLevel: targetLevel,
       );
+      //发验证邮件
+      await authInterface.sendVerificationEmail(email);
 
       // 持久化 Token
       final prefs = await SharedPreferences.getInstance();

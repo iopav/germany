@@ -22,10 +22,18 @@ final GoRouter appRouter = GoRouter(
       builder: (context, state) => const RegisterScreen(),
     ),
     GoRoute(
-      path: '/app/home',
+      path: '/home',
       builder: (context, state) => const AppShellScaffold(
         currentIndex: 0,
-        title: 'Scenes',
+        title: 'Home',
+        child: HistoryScreen(),
+      ),
+    ),
+    GoRoute(
+      path: '/chat',
+      builder: (context, state) => const AppShellScaffold(
+        currentIndex: 2,
+        title: 'Chat',
         child: HomeScreen(showChrome: false),
       ),
     ),
@@ -47,14 +55,7 @@ final GoRouter appRouter = GoRouter(
       builder: (context, state) => const SessionSummaryScreen(),
     ),
 
-    GoRoute(
-      path: '/history',
-      builder: (context, state) => const AppShellScaffold(
-        currentIndex: 2,
-        title: 'History',
-        child: HistoryScreen(),
-      ),
-    ),
+    
     GoRoute(
       path: '/settings',
       builder: (context, state) => const AppShellScaffold(

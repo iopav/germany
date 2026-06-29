@@ -2,30 +2,32 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
-typedef ReviewPressableBuilder =
-    Widget Function(BuildContext context, bool isHovered, bool isPressed);
+import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_motion.dart';
+import '../../../core/theme/app_radii.dart';
+import '../../../core/widgets/app_pressable.dart';
 
 class ReviewStyle {
   ReviewStyle._();
 
-  static const Color primary = Color(0xFF004AC6);
-  static const Color primaryFixedDim = Color(0xFFB4C5FF);
-  static const Color primaryHover = Color(0xFF0B5BE8);
-  static const Color primaryPressed = Color(0xFF003A99);
-  static const Color secondary = Color(0xFF712AE2);
-  static const Color tertiary = Color(0xFF943700);
-  static const Color tertiaryContainer = Color(0xFFFFDBCE);
-  static const Color surface = Color(0xFFFAF8FF);
-  static const Color surfaceContainerLow = Color(0xFFF2F3FF);
-  static const Color surfaceContainerHigh = Color(0xFFE2E7FF);
-  static const Color surfaceContainerHighest = Color(0xFFEAEDFF);
-  static const Color surfaceContainerHover = Color(0xFFDDE4FF);
-  static const Color surfaceText = Color(0xFF131B2E);
-  static const Color mutedText = Color(0xFF434655);
-  static const Color outlineVariant = Color(0xFFC3C6D7);
+  static const Color primary = AppColors.primary;
+  static const Color primaryFixedDim = AppColors.primaryFixedDim;
+  static const Color primaryHover = AppColors.primaryHover;
+  static const Color primaryPressed = AppColors.primaryPressed;
+  static const Color secondary = AppColors.secondary;
+  static const Color tertiary = AppColors.tertiary;
+  static const Color tertiaryContainer = AppColors.tertiaryContainer;
+  static const Color surface = AppColors.surface;
+  static const Color surfaceContainerLow = AppColors.surfaceContainerLow;
+  static const Color surfaceContainerHigh = AppColors.surfaceContainerHigh;
+  static const Color surfaceContainerHighest = AppColors.surfaceContainer;
+  static const Color surfaceContainerHover = AppColors.surfaceContainerHover;
+  static const Color surfaceText = AppColors.onSurface;
+  static const Color mutedText = AppColors.onSurfaceVariant;
+  static const Color outlineVariant = AppColors.outlineVariant;
   static const Color outlineSubtle = Color(0x4DC3C6D7);
-  static const Color cardBorder = Color(0xFFE2E8F0);
-  static const Color favorite = Color(0xFFBA1A1A);
+  static const Color cardBorder = AppColors.cardBorder;
+  static const Color favorite = AppColors.error;
   static const Color reviewBlueLight = Color(0xFF8FB3FF);
   static const Color black = Colors.black;
   static const Color white = Colors.white;
@@ -37,14 +39,14 @@ class ReviewStyle {
   static const Color white10 = Colors.white10;
   static const Color transparent = Colors.transparent;
 
-  static const Duration pressDuration = Duration(milliseconds: 90);
-  static const Duration hoverDuration = Duration(milliseconds: 120);
-  static const Curve pressCurve = Curves.easeOut;
+  static const Duration pressDuration = AppMotion.pressDuration;
+  static const Duration hoverDuration = AppMotion.hoverDuration;
+  static const Curve pressCurve = AppMotion.pressCurve;
 
-  static final BorderRadius cardRadius = BorderRadius.circular(16);
-  static final BorderRadius smallCardRadius = BorderRadius.circular(12);
-  static final BorderRadius pillRadius = BorderRadius.circular(100);
-  static final BorderRadius fullPillRadius = BorderRadius.circular(999);
+  static final BorderRadius cardRadius = AppRadii.lg;
+  static final BorderRadius smallCardRadius = AppRadii.md;
+  static final BorderRadius pillRadius = AppRadii.pill;
+  static final BorderRadius fullPillRadius = AppRadii.pill;
   static final BorderRadius dialogRadius = BorderRadius.circular(24);
   static final BorderRadius reviewPanelRadius = BorderRadius.circular(40);
   static final BorderRadius reviewInputRadius = BorderRadius.circular(20);
@@ -344,52 +346,6 @@ class ReviewStyle {
   );
 }
 
-class ReviewPressable extends StatefulWidget {
-  final VoidCallback onTap;
-  final ReviewPressableBuilder builder;
-  final double pressedScale;
-
-  const ReviewPressable({
-    super.key,
-    required this.onTap,
-    required this.builder,
-    this.pressedScale = 0.94,
-  });
-
-  @override
-  State<ReviewPressable> createState() => _ReviewPressableState();
-}
-
-class _ReviewPressableState extends State<ReviewPressable> {
-  bool _isHovered = false;
-  bool _isPressed = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      onEnter: (_) => setState(() => _isHovered = true),
-      onExit: (_) => setState(() {
-        _isHovered = false;
-        _isPressed = false;
-      }),
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTapDown: (_) => setState(() => _isPressed = true),
-        onTapCancel: () => setState(() => _isPressed = false),
-        onTapUp: (_) => setState(() => _isPressed = false),
-        onTap: widget.onTap,
-        child: AnimatedScale(
-          scale: _isPressed ? widget.pressedScale : 1,
-          duration: ReviewStyle.pressDuration,
-          curve: ReviewStyle.pressCurve,
-          child: widget.builder(context, _isHovered, _isPressed),
-        ),
-      ),
-    );
-  }
-}
-
 class ReviewActionChip extends StatelessWidget {
   final String label;
   final bool isSolid;
@@ -404,7 +360,7 @@ class ReviewActionChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ReviewPressable(
+    return AppPressable(
       onTap: onTap,
       pressedScale: 0.97,
       builder: (context, isHovered, isPressed) {
@@ -466,7 +422,7 @@ class ReviewGlassIconButton extends StatelessWidget {
       borderRadius: BorderRadius.circular(20),
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        child: ReviewPressable(
+        child: AppPressable(
           onTap: onTap,
           builder: (context, isHovered, isPressed) {
             final opacity = isPressed ? 0.22 : (isHovered ? 0.16 : 0.1);

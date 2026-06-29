@@ -2,6 +2,7 @@ import 'dart:math';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:germany/core/widgets/app_pressable.dart';
 import 'package:go_router/go_router.dart';
 
 import 'review_style.dart';
@@ -71,7 +72,7 @@ class _SessionSummaryScreenState extends ConsumerState<SessionSummaryScreen>
   }
 
   void _handleContinueHomePressed() {
-    context.go('/app/home');
+    context.go('/home');
   }
 
   void _handleReviewHistoryPressed() {
@@ -491,7 +492,7 @@ class _SessionSummaryScreenState extends ConsumerState<SessionSummaryScreen>
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              ReviewPressable(
+              AppPressable(
                 onTap: _handleContinueHomePressed,
                 pressedScale: 0.98,
                 builder: (context, isHovered, isPressed) {
@@ -520,7 +521,7 @@ class _SessionSummaryScreenState extends ConsumerState<SessionSummaryScreen>
                 },
               ),
               const SizedBox(height: 12),
-              ReviewPressable(
+              AppPressable(
                 onTap: _handleReviewHistoryPressed,
                 pressedScale: 0.98,
                 builder: (context, isHovered, isPressed) {

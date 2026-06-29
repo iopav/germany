@@ -1,22 +1,25 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_radii.dart';
+
 class SettingsStyle {
   SettingsStyle._();
 
-  static const Color primary = Color(0xFF004AC6);
-  static const Color secondary = Color(0xFF712AE2);
-  static const Color background = Color(0xFFFAF8FF);
-  static const Color onSurface = Color(0xFF131B2E);
-  static const Color onSurfaceVariant = Color(0xFF434655);
-  static const Color outline = Color(0xFF737686);
-  static const Color surfaceContainer = Color(0xFFEAEDFF);
-  static const Color cardBorder = Color(0xFFE2E8F0);
+  static const Color primary = AppColors.primary;
+  static const Color secondary = AppColors.secondary;
+  static const Color background = AppColors.surface;
+  static const Color onSurface = AppColors.onSurface;
+  static const Color onSurfaceVariant = AppColors.onSurfaceVariant;
+  static const Color outline = AppColors.outline;
+  static const Color surfaceContainer = AppColors.surfaceContainer;
+  static const Color cardBorder = AppColors.cardBorder;
   static const Color targetTrack = Color(0xFFEADDFF);
-  static const Color error = Color(0xFFBA1A1A);
+  static const Color error = AppColors.error;
   static const Color streakContainer = Color(0xFFFFDBCD);
 
-  static final BorderRadius cardRadius = BorderRadius.circular(12);
-  static final BorderRadius badgeRadius = BorderRadius.circular(12);
+  static final BorderRadius cardRadius = AppRadii.md;
+  static final BorderRadius badgeRadius = AppRadii.md;
   static final BorderRadius signOutRadius = BorderRadius.circular(30);
 
   static const EdgeInsets pagePadding = EdgeInsets.only(

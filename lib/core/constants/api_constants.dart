@@ -29,6 +29,7 @@ class ApiConstants {
   static const String authVerifyEmail = '/auth/verify-email';
   static const String authForgotPassword = '/auth/forgot-password';
   static const String authResetPassword = '/auth/reset-password';
+  
 
 
   // --- 场景模块 (Scenes) ---
@@ -55,7 +56,6 @@ class ApiConstants {
   static const List<String> whiteList = [
     authLogin,
     authRegister,
-    authSendVerification,
     authVerifyEmail,
     authForgotPassword,
     authResetPassword,

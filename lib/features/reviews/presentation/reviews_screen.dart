@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:germany/core/widgets/app_pressable.dart';
 import 'package:germany/core/widgets/scene_image_cache.dart';
 import 'package:germany/core/utils/error_utils.dart';
 import 'package:go_router/go_router.dart';
@@ -641,7 +642,7 @@ class _ReviewCardScreenState extends ConsumerState<ReviewCardScreen>
           Padding(
             padding: const EdgeInsets.only(right: 8.0),
             // 箭头按钮：点击时使用当前输入框文本提交答案。
-            child: ReviewPressable(
+            child: AppPressable(
               onTap: () => _handleSubmit(_textController.text, answer),
               builder: (context, isHovered, isPressed) {
                 return AnimatedContainer(

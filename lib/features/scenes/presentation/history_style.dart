@@ -1,25 +1,29 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:germany/features/reviews/presentation/review_style.dart';
+
+import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_motion.dart';
+import '../../../core/theme/app_radii.dart';
+import '../../../core/widgets/app_pressable.dart';
 
 class HistoryStyle {
   HistoryStyle._();
 
-  static const Color primary = Color(0xFF004AC6);
-  static const Color surface = Color(0xFFFAF8FF);
-  static const Color surfaceContainer = Color(0xFFEAEDFF);
-  static const Color surfaceContainerHover = Color(0xFFDDE4FF);
-  static const Color surfaceContainerHigh = Color(0xFFE2E7FF);
-  static const Color onSurface = Color(0xFF131B2E);
-  static const Color onSurfaceVariant = Color(0xFF434655);
-  static const Color outline = Color(0xFF737686);
-  static const Color outlineVariant = Color(0xFFC3C6D7);
-  static const Color error = Color(0xFFBA1A1A);
+  static const Color primary = AppColors.primary;
+  static const Color surface = AppColors.surface;
+  static const Color surfaceContainer = AppColors.surfaceContainer;
+  static const Color surfaceContainerHover = AppColors.surfaceContainerHover;
+  static const Color surfaceContainerHigh = AppColors.surfaceContainerHigh;
+  static const Color onSurface = AppColors.onSurface;
+  static const Color onSurfaceVariant = AppColors.onSurfaceVariant;
+  static const Color outline = AppColors.outline;
+  static const Color outlineVariant = AppColors.outlineVariant;
+  static const Color error = AppColors.error;
   static const Color activeNav = Color(0xFF8A4CFC);
 
-  static final BorderRadius cardRadius = BorderRadius.circular(12);
-  static final BorderRadius pillRadius = BorderRadius.circular(100);
+  static final BorderRadius cardRadius = AppRadii.md;
+  static final BorderRadius pillRadius = AppRadii.pill;
   static const BorderRadius bottomNavRadius = BorderRadius.vertical(
     top: Radius.circular(16),
   );
@@ -144,12 +148,12 @@ class HistoryDeleteButton extends StatelessWidget {
         filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
         child: Material(
           color: Colors.transparent,
-          child: ReviewPressable(
+          child: AppPressable(
             onTap: onTap,
             pressedScale: 0.9,
             builder: (context, isHovered, isPressed) {
               return AnimatedContainer(
-                duration: ReviewStyle.hoverDuration,
+                duration: AppMotion.hoverDuration,
                 width: 32,
                 height: 32,
                 color: Colors.white.withValues(

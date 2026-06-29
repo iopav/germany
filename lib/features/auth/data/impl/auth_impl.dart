@@ -79,6 +79,16 @@ class AuthImplementation implements AuthInterface {
     }
   }
 
+  @override
+  Future<void> sendVerificationEmail(String email) async {
+    try {
+      await _authService.sendVerificationEmail(email);
+    } catch (e) {
+      AppLogger.e('发送验证邮件失败', e);
+      rethrow;
+    }
+  }
+
 
 }
 final authInterfaceProvider = Provider<AuthInterface>((ref) {

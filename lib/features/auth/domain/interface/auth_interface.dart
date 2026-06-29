@@ -14,4 +14,5 @@ abstract class AuthInterface {
   });
   Future<AuthEntity> login(String email, String password);
   Future<UserEntity> getCurrentUser();
+  Future<void> sendVerificationEmail(String email);
 }

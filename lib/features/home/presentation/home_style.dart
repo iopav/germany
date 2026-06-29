@@ -2,24 +2,28 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
+import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_radii.dart';
+
 class HomeStyle {
-  static const Color background = Color(0xFFFAF8FF);
-  static const Color primary = Color(0xFF004AC6);
-  static const Color onSurface = Color(0xFF131B2E);
-  static const Color onSurfaceVariant = Color(0xFF434655);
-  static const Color outlineVariant = Color(0xFFC3C6D7);
-  static const Color surfaceContainerHigh = Color(0xFFE2E7FF);
-  static const Color surfaceContainerHighest = Color(0xFFDAE2FD);
+  static const Color background = AppColors.surface;
+  static const Color primary = AppColors.primary;
+  static const Color onSurface = AppColors.onSurface;
+  static const Color onSurfaceVariant = AppColors.onSurfaceVariant;
+  static const Color outlineVariant = AppColors.outlineVariant;
+  static const Color surfaceContainerHigh = AppColors.surfaceContainerHigh;
+  static const Color surfaceContainerHighest =
+      AppColors.surfaceContainerHighest;
   static const Color uploadAccent = Color(0xFF7C8CF8);
   static const Color submitButton = Color(0xFF007AFF);
 
   static final BorderRadius uploadRadius = BorderRadius.circular(32);
   static final BorderRadius promptPanelRadius = BorderRadius.circular(28);
   static final BorderRadius uploadButtonRadius = BorderRadius.circular(24);
-  static final BorderRadius menuRadius = BorderRadius.circular(16);
-  static final BorderRadius promptInputRadius = BorderRadius.circular(16);
-  static final BorderRadius quickStarterRadius = BorderRadius.circular(8);
-  static final BorderRadius pillRadius = BorderRadius.circular(999);
+  static final BorderRadius menuRadius = AppRadii.lg;
+  static final BorderRadius promptInputRadius = AppRadii.lg;
+  static final BorderRadius quickStarterRadius = AppRadii.sm;
+  static final BorderRadius pillRadius = AppRadii.pill;
 
   static const EdgeInsets uploadButtonPadding = EdgeInsets.symmetric(
     horizontal: 24,
