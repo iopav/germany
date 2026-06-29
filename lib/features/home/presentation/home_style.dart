@@ -25,6 +25,9 @@ class HomeStyle {
   static final BorderRadius promptInputRadius = AppRadii.lg;
   static final BorderRadius quickStarterRadius = AppRadii.sm;
   static final BorderRadius pillRadius = AppRadii.pill;
+  static final BorderRadius messageRadius = AppRadii.lg;
+  static final BorderRadius sceneCardRadius = AppRadii.lg;
+  static final BorderRadius noticeRadius = AppRadii.lg;
 
   static const EdgeInsets uploadButtonPadding = EdgeInsets.symmetric(
     horizontal: 24,
@@ -45,6 +48,16 @@ class HomeStyle {
   );
   static const EdgeInsets promptInputContentPadding = EdgeInsets.symmetric(
     horizontal: 16,
+    vertical: 12,
+  );
+  static const EdgeInsets chatPagePadding = EdgeInsets.fromLTRB(16, 12, 16, 16);
+  static const EdgeInsets messagePadding = EdgeInsets.symmetric(
+    horizontal: 14,
+    vertical: 12,
+  );
+  static const EdgeInsets sceneCardPadding = EdgeInsets.all(12);
+  static const EdgeInsets noticePadding = EdgeInsets.symmetric(
+    horizontal: 14,
     vertical: 12,
   );
 
@@ -99,6 +112,33 @@ class HomeStyle {
     color: onSurfaceVariant,
   );
 
+  static const TextStyle messageTextStyle = TextStyle(
+    fontFamily: 'Inter',
+    fontSize: 14,
+    height: 1.35,
+    color: onSurface,
+  );
+
+  static const TextStyle sceneTitleTextStyle = TextStyle(
+    fontFamily: 'Space Grotesk',
+    fontSize: 17,
+    fontWeight: FontWeight.w700,
+    color: onSurface,
+  );
+
+  static const TextStyle sceneMetaTextStyle = TextStyle(
+    fontFamily: 'Inter',
+    fontSize: 12,
+    color: onSurfaceVariant,
+  );
+
+  static const TextStyle noticeTextStyle = TextStyle(
+    fontFamily: 'Inter',
+    fontSize: 13,
+    fontWeight: FontWeight.w600,
+    color: onSurface,
+  );
+
   static AppPalette colors(BuildContext context) => AppPalettes.of(context);
 
   static Color backgroundColor(BuildContext context) => colors(context).surface;
@@ -134,6 +174,21 @@ class HomeStyle {
 
   static TextStyle quickStarterTextStyleFor(BuildContext context) =>
       quickStarterTextStyle.copyWith(color: colors(context).onSurfaceVariant);
+
+  static TextStyle messageTextStyleFor(BuildContext context) =>
+      messageTextStyle.copyWith(color: colors(context).onSurface);
+
+  static TextStyle userMessageTextStyleFor(BuildContext context) =>
+      messageTextStyle.copyWith(color: colors(context).onPrimary);
+
+  static TextStyle sceneTitleTextStyleFor(BuildContext context) =>
+      sceneTitleTextStyle.copyWith(color: colors(context).onSurface);
+
+  static TextStyle sceneMetaTextStyleFor(BuildContext context) =>
+      sceneMetaTextStyle.copyWith(color: colors(context).onSurfaceVariant);
+
+  static TextStyle noticeTextStyleFor(BuildContext context) =>
+      noticeTextStyle.copyWith(color: colors(context).onSurface);
 
   static BoxDecoration uploadBackgroundDecoration = BoxDecoration(
     color: surfaceContainerHigh.withValues(alpha: 0.35),
@@ -217,11 +272,83 @@ class HomeStyle {
   static InputDecoration promptInputDecorationDataFor(BuildContext context) {
     final palette = colors(context);
     return InputDecoration(
-      hintText: 'Describe a scene...',
+      hintText: 'Describe the scene you want...',
       hintStyle: TextStyle(color: palette.onSurface.withValues(alpha: 0.38)),
       prefixIcon: Icon(Icons.auto_awesome, color: palette.primary, size: 20),
       border: InputBorder.none,
       contentPadding: promptInputContentPadding,
+    );
+  }
+
+  static BoxDecoration assistantMessageDecorationFor(BuildContext context) {
+    final palette = colors(context);
+    return BoxDecoration(
+      color: palette.surfaceContainerLow,
+      borderRadius: messageRadius,
+      border: Border.all(color: palette.outlineVariant.withValues(alpha: 0.34)),
+    );
+  }
+
+  static BoxDecoration userMessageDecorationFor(BuildContext context) {
+    final palette = colors(context);
+    return BoxDecoration(
+      color: palette.primary,
+      borderRadius: messageRadius,
+      boxShadow: [
+        BoxShadow(
+          color: palette.primary.withValues(alpha: 0.18),
+          blurRadius: 12,
+          offset: const Offset(0, 5),
+        ),
+      ],
+    );
+  }
+
+  static BoxDecoration sceneCardDecorationFor(BuildContext context) {
+    final palette = colors(context);
+    return BoxDecoration(
+      color: palette.surfaceContainerLow,
+      borderRadius: sceneCardRadius,
+      border: Border.all(color: palette.outlineVariant.withValues(alpha: 0.36)),
+      boxShadow: [
+        BoxShadow(
+          color: palette.onSurface.withValues(alpha: 0.08),
+          blurRadius: 16,
+          offset: const Offset(0, 8),
+        ),
+      ],
+    );
+  }
+
+  static BoxDecoration inputBarDecorationFor(BuildContext context) {
+    final palette = colors(context);
+    return BoxDecoration(
+      color: palette.surfaceContainerLow.withValues(alpha: 0.94),
+      borderRadius: promptPanelRadius,
+      border: Border.all(color: palette.outlineVariant.withValues(alpha: 0.36)),
+      boxShadow: [
+        BoxShadow(
+          color: palette.onSurface.withValues(alpha: 0.10),
+          blurRadius: 20,
+          offset: const Offset(0, 10),
+        ),
+      ],
+    );
+  }
+
+  static BoxDecoration noticeDecorationFor(BuildContext context) {
+    final palette = colors(context);
+    return BoxDecoration(
+      color: palette.surfaceContainerLow,
+      borderRadius: noticeRadius,
+      border: Border.all(color: palette.primary.withValues(alpha: 0.24)),
+      boxShadow: [
+        BoxShadow(
+          color: palette.onSurface.withValues(alpha: 0.14),
+          blurRadius: 18,
+          offset: const Offset(0, 8),
+        ),
+      ],
     );
   }
 }
@@ -321,7 +448,7 @@ class HomeQuickStarter extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text('✨', style: TextStyle(fontSize: 12)),
+              Icon(Icons.add, size: 12, color: HomeStyle.primaryColor(context)),
               const SizedBox(width: 4),
               Text(label, style: HomeStyle.quickStarterTextStyleFor(context)),
             ],

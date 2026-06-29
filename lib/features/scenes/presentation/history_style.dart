@@ -25,6 +25,7 @@ class HistoryStyle {
 
   static final BorderRadius cardRadius = AppRadii.md;
   static final BorderRadius pillRadius = AppRadii.pill;
+  static final BorderRadius sheetRadius = BorderRadius.circular(24);
   static const BorderRadius bottomNavRadius = BorderRadius.vertical(
     top: Radius.circular(16),
   );
@@ -40,6 +41,19 @@ class HistoryStyle {
   static const EdgeInsets activeNavPadding = EdgeInsets.symmetric(
     horizontal: 20,
     vertical: 6,
+  );
+  static const EdgeInsets sourceSheetPadding = EdgeInsets.fromLTRB(
+    16,
+    12,
+    16,
+    24,
+  );
+  static const EdgeInsets sourceSheetHandlePadding = EdgeInsets.only(
+    bottom: 12,
+  );
+  static const EdgeInsets sourceOptionPadding = EdgeInsets.symmetric(
+    horizontal: 16,
+    vertical: 14,
   );
 
   static const TextStyle searchHintTextStyle = TextStyle(
@@ -77,6 +91,23 @@ class HistoryStyle {
     height: 1.5,
   );
 
+  static const TextStyle sourceSheetTitleTextStyle = TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.w700,
+    color: onSurface,
+  );
+
+  static const TextStyle sourceOptionTitleTextStyle = TextStyle(
+    fontSize: 15,
+    fontWeight: FontWeight.w600,
+    color: onSurface,
+  );
+
+  static const TextStyle sourceOptionSubtitleTextStyle = TextStyle(
+    fontSize: 12,
+    color: onSurfaceVariant,
+  );
+
   static const TextStyle navTextStyle = TextStyle(
     fontSize: 12,
     fontWeight: FontWeight.w500,
@@ -108,6 +139,17 @@ class HistoryStyle {
 
   static TextStyle emptyBodyTextStyleFor(BuildContext context) =>
       emptyBodyTextStyle.copyWith(color: colors(context).outline);
+
+  static TextStyle sourceSheetTitleTextStyleFor(BuildContext context) =>
+      sourceSheetTitleTextStyle.copyWith(color: colors(context).onSurface);
+
+  static TextStyle sourceOptionTitleTextStyleFor(BuildContext context) =>
+      sourceOptionTitleTextStyle.copyWith(color: colors(context).onSurface);
+
+  static TextStyle sourceOptionSubtitleTextStyleFor(BuildContext context) =>
+      sourceOptionSubtitleTextStyle.copyWith(
+        color: colors(context).onSurfaceVariant,
+      );
 
   static BoxDecoration searchDecoration = BoxDecoration(
     color: surfaceContainer,
@@ -204,6 +246,48 @@ class HistoryStyle {
       shape: RoundedRectangleBorder(borderRadius: pillRadius),
       elevation: 4,
       shadowColor: palette.primary.withValues(alpha: 0.2),
+    );
+  }
+
+  static BoxDecoration sourceSheetDecorationFor(BuildContext context) {
+    final palette = colors(context);
+    return BoxDecoration(
+      color: palette.surface,
+      borderRadius: BorderRadius.vertical(top: sheetRadius.topLeft),
+      border: Border(
+        top: BorderSide(color: palette.outlineVariant.withValues(alpha: 0.45)),
+      ),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withValues(alpha: 0.12),
+          blurRadius: 28,
+          offset: const Offset(0, -10),
+        ),
+      ],
+    );
+  }
+
+  static BoxDecoration sourceSheetHandleDecorationFor(BuildContext context) {
+    return BoxDecoration(
+      color: colors(context).outlineVariant.withValues(alpha: 0.8),
+      borderRadius: BorderRadius.circular(999),
+    );
+  }
+
+  static BoxDecoration sourceOptionDecorationFor(BuildContext context) {
+    final palette = colors(context);
+    return BoxDecoration(
+      color: palette.surfaceContainerLow.withValues(alpha: 0.86),
+      borderRadius: cardRadius,
+      border: Border.all(color: palette.cardBorder.withValues(alpha: 0.72)),
+    );
+  }
+
+  static BoxDecoration sourceOptionIconDecorationFor(BuildContext context) {
+    final palette = colors(context);
+    return BoxDecoration(
+      color: palette.primary.withValues(alpha: 0.1),
+      shape: BoxShape.circle,
     );
   }
 }

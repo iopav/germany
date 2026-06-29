@@ -30,13 +30,14 @@ final GoRouter appRouter = GoRouter(
       ),
     ),
     GoRoute(
-      path: '/history',
+      path: '/chat',
       builder: (context, state) => const AppShellScaffold(
         currentIndex: 2,
         title: 'Chat',
         child: HomeScreen(showChrome: false),
       ),
     ),
+    GoRoute(path: '/history', redirect: (context, state) => '/chat'),
     GoRoute(
       path: '/reviews',
       builder: (context, state) => const AppShellScaffold(

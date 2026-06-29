@@ -5,10 +5,14 @@ import 'core/theme/app_theme.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 import 'core/navigation/app_router.dart';
+import 'core/notifications/app_notification_service.dart';
 import 'core/theme/theme_controller.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await AppNotificationService.initialize();
+  await AppNotificationService.requestPermissions();
 
   await EasyLocalization.ensureInitialized();
 

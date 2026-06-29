@@ -89,7 +89,119 @@ class _SceneHistoryScreenState extends ConsumerState<HistoryScreen> {
     setState(() => _isCreateMenuOpen = !_isCreateMenuOpen);
   }
 
-  Future<void> _createSceneFromImage() async {
+  Future<void> _showImageSourceSheet() async {
+    setState(() => _isCreateMenuOpen = false);
+
+    final source = await showModalBottomSheet<ImageSource>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      barrierColor: Colors.black.withValues(alpha: 0.24),
+      builder: (sheetContext) {
+        return SafeArea(
+          top: false,
+          child: Container(
+            padding: HistoryStyle.sourceSheetPadding,
+            decoration: HistoryStyle.sourceSheetDecorationFor(context),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Padding(
+                    padding: HistoryStyle.sourceSheetHandlePadding,
+                    child: Container(
+                      width: 42,
+                      height: 4,
+                      decoration: HistoryStyle.sourceSheetHandleDecorationFor(
+                        context,
+                      ),
+                    ),
+                  ),
+                ),
+                Text(
+                  'Choose image source',
+                  style: HistoryStyle.sourceSheetTitleTextStyleFor(context),
+                ),
+                const SizedBox(height: 12),
+                _buildImageSourceOption(
+                  icon: Icons.photo_camera_outlined,
+                  title: 'Camera',
+                  subtitle: 'Take a new scene photo',
+                  onTap: () =>
+                      Navigator.of(sheetContext).pop(ImageSource.camera),
+                ),
+                const SizedBox(height: 10),
+                _buildImageSourceOption(
+                  icon: Icons.image_outlined,
+                  title: 'Gallery',
+                  subtitle: 'Choose an existing image',
+                  onTap: () =>
+                      Navigator.of(sheetContext).pop(ImageSource.gallery),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
+    if (source == null) {
+      return;
+    }
+
+    await _createSceneFromImage(source);
+  }
+
+  Widget _buildImageSourceOption({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      borderRadius: HistoryStyle.cardRadius,
+      onTap: onTap,
+      child: Container(
+        padding: HistoryStyle.sourceOptionPadding,
+        decoration: HistoryStyle.sourceOptionDecorationFor(context),
+        child: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: HistoryStyle.sourceOptionIconDecorationFor(context),
+              child: Icon(icon, color: HistoryStyle.colors(context).primary),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: HistoryStyle.sourceOptionTitleTextStyleFor(context),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: HistoryStyle.sourceOptionSubtitleTextStyleFor(
+                      context,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              Icons.chevron_right,
+              color: HistoryStyle.colors(context).outline,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _createSceneFromImage(ImageSource source) async {
     setState(() {
       _isCreateMenuOpen = false;
       _isQuickGenerating = true;
@@ -97,7 +209,7 @@ class _SceneHistoryScreenState extends ConsumerState<HistoryScreen> {
 
     try {
       final notifier = ref.read(homeProvider.notifier);
-      final image = await notifier.pickImage(ImageSource.gallery);
+      final image = await notifier.pickImage(source);
 
       if (image == null) {
         return;
@@ -140,7 +252,7 @@ class _SceneHistoryScreenState extends ConsumerState<HistoryScreen> {
 
   void _goToTextScene() {
     setState(() => _isCreateMenuOpen = false);
-    context.go('/history');
+    context.go('/chat');
   }
 
   @override
@@ -201,7 +313,7 @@ class _SceneHistoryScreenState extends ConsumerState<HistoryScreen> {
                         dense: true,
                         leading: const Icon(Icons.image_outlined),
                         title: const Text('Image'),
-                        onTap: _createSceneFromImage,
+                        onTap: _showImageSourceSheet,
                       ),
                       ListTile(
                         dense: true,

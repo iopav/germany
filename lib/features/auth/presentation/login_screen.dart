@@ -215,10 +215,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                       width: 64,
                       height: 64,
                       decoration: LoginStyle.logoDecorationFor(context),
-                      child: Icon(
-                        Icons.language,
+                      child: Image.asset(
+                        'assets/logo.png',
+                        width: 36,
+                        height: 36,
+                        fit: BoxFit.contain,
                         color: LoginStyle.colors(context).onPrimary,
-                        size: 36,
                       ),
                     ),
                     const SizedBox(height: 16),

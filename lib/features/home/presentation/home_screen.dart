@@ -1,10 +1,12 @@
-import 'dart:math' as math;
+import 'dart:async';
+
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:germany/core/widgets/scene_image_cache.dart';
-import 'package:image_picker/image_picker.dart';
 
-import 'home_provider.dart';
+import '../../../core/widgets/scene_image_cache.dart';
+import '../domain/entity/home_stats_entity.dart';
+import 'chat_provider.dart';
 import 'home_style.dart';
 import 'immersive_screen.dart';
 
@@ -17,721 +19,552 @@ class HomeScreen extends ConsumerStatefulWidget {
   ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends ConsumerState<HomeScreen>
-    with SingleTickerProviderStateMixin {
+class _HomeScreenState extends ConsumerState<HomeScreen> {
   final TextEditingController _promptController = TextEditingController();
-
-  bool _isMenuOpen = false;
-  Offset? _particleTouchPoint;
-
-  late final AnimationController _shimmerController;
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
-    _shimmerController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 2),
-    )..repeat();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        unawaited(ref.read(chatProvider.notifier).cleanupDuplicates());
+      }
+    });
   }
 
   @override
   void dispose() {
     _promptController.dispose();
-    _shimmerController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
-  void _fillPrompt(String text) {
-    setState(() {
-      _promptController.text = text;
-    });
-  }
-
-  Future<void> _pickImage(ImageSource source) async {
-    final pickedImage = await ref.read(homeProvider.notifier).pickImage(source);
-    if (!mounted) return;
-
-    setState(() => _isMenuOpen = false);
-    final error = ref.read(homeProvider).errorMessage;
-    if (error != null && error.isNotEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(error)));
+  void _submitPrompt() {
+    final currentState = ref.read(chatProvider).value;
+    if (currentState?.hasPending ?? false) {
       return;
     }
 
-    if (pickedImage == null) {
-      return;
-    }
-
-    await _startGeneration();
-  }
-
-  Future<void> _startGeneration() async {
-    final validationError = await ref
-        .read(homeProvider.notifier)
-        .validateSelectedImage();
-    if (validationError != null) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(validationError)));
-      return;
-    }
-
-    try {
-      final scene = await ref.read(homeProvider.notifier).generateScene();
-      if (!mounted) return;
-
-      await SceneImageCache.precacheScene(context, scene);
-      if (!mounted) return;
-
-      Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (_) => ImmersiveScreen(scene: scene)));
-    } catch (e) {
-      if (!mounted) return;
-      final message = e.toString().replaceAll('Exception: ', '');
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(message)));
-    }
-  }
-
-  Future<void> _generateFromText() async {
     final prompt = _promptController.text.trim();
     if (prompt.isEmpty) {
-      if (!mounted) return;
       ScaffoldMessenger.of(context).clearSnackBars();
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a scene description.')),
+        const SnackBar(content: Text('Please describe a scene first.')),
       );
       return;
     }
 
-    // 隐藏键盘
     FocusScope.of(context).unfocus();
+    _promptController.clear();
+    unawaited(ref.read(chatProvider.notifier).sendPrompt(prompt));
+    _scrollToBottomSoon();
+  }
 
-    try {
-      // 1. 调用 Notifier 里的生成方法（确保你在 Notifier 里处理了接口请求，并返回了结果数据）
-      // 假设你的接口返回一个 ScenarioModel 或者 String 格式的生成内容
-      final generatedResult = await ref
-          .read(homeProvider.notifier)
-          .generateFromText(
-            prompt,
-            // 如果你的 LevelWheelPicker 维护了一个本地变量或状态，把它传过去
-            // level: _selectedLevel,
-          );
+  void _fillPrompt(String text) {
+    _promptController.text = text;
+    _promptController.selection = TextSelection.collapsed(offset: text.length);
+  }
 
-      if (!mounted) return;
+  void _openScene(SceneEntity scene) {
+    unawaited(SceneImageCache.precacheScene(context, scene));
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => ImmersiveScreen(scene: scene)));
+  }
 
-      await SceneImageCache.precacheScene(context, generatedResult);
-      if (!mounted) return;
-
-      // 清空输入框
-      _promptController.clear();
-
-      // 2. 把接口返回的数据通过构造函数直接送入 ImmersiveScreen 渲染
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (_) => ImmersiveScreen(scene: generatedResult),
-        ),
+  void _scrollToBottomSoon() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_scrollController.hasClients) {
+        return;
+      }
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 260),
+        curve: Curves.easeOut,
       );
-    } catch (e) {
-      if (!mounted) return;
-      final message = e.toString().replaceAll('Exception: ', '');
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(message)));
-    }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final homeState = ref.watch(homeProvider);
-    // final bodyPaddingTop = widget.showChrome ? MediaQuery.of(context).padding.top + 80 : 24.0;
-    final bodyPaddingBottom = widget.showChrome ? 120.0 : 24.0;
-    //TODO ref listen
+    ref.listen<AsyncValue<ChatState>>(chatProvider, (previous, next) {
+      final previousCount = previous?.value?.messages.length ?? 0;
+      final nextCount = next.value?.messages.length ?? 0;
+      if (nextCount != previousCount) {
+        _scrollToBottomSoon();
+      }
+    });
+
+    final chatState = ref.watch(chatProvider);
+    final keyboardOpen = MediaQuery.viewInsetsOf(context).bottom > 0;
+    final inputBottom = keyboardOpen ? 12.0 : 8.0;
+    final listBottom = inputBottom + 118.0;
+
     return Scaffold(
       backgroundColor: HomeStyle.backgroundColor(context),
-      extendBodyBehindAppBar: true,
-      extendBody: true,
-
-      // // 1. Top AppBar (Frosted Glass)
-      // appBar: widget.showChrome
-      //     ? PreferredSize(
-      //         preferredSize: const Size.fromHeight(64),
-      //         child: ClipRRect(
-      //           child: BackdropFilter(
-      //             filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-      //             child: AppBar(
-      //               backgroundColor: HomeStyle.surface.withOpacity(0.8),
-      //               elevation: 0,
-      //               bottom: PreferredSize(
-      //                 preferredSize: const Size.fromHeight(1),
-      //                 child: Container(
-      //                   color: HomeStyle.outlineVariant.withOpacity(0.3),
-      //                   height: 1,
-      //                 ),
-      //               ),
-      //               title: const Row(
-      //                 children: [
-      //                   Icon(Icons.language, color: HomeStyle.primary),
-      //                   SizedBox(width: 12),
-      //                   Text(
-      //                     'Scenes',
-      //                     style: TextStyle(
-      //                       fontFamily: 'Space Grotesk',
-      //                       fontSize: 24,
-      //                       fontWeight: FontWeight.w700,
-      //                       color: HomeStyle.primary,
-      //                     ),
-      //                   ),
-      //                 ],
-      //               ),
-      //               actions: [
-      //                 IconButton(
-      //                   icon: const Icon(
-      //                     Icons.help_outline,
-      //                     color: HomeStyle.onSurfaceVariant,
-      //                   ),
-      //                   onPressed: () {},
-      //                 ),
-      //                 const SizedBox(width: 8),
-      //               ],
-      //             ),
-      //           ),
-      //         ),
-      //       )
-      //     : null,
-
-      // 2. Main Content
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          final uploadAreaHeight = _uploadAreaHeight(
-            context,
-            bodyPaddingBottom,
-            constraints.maxHeight,
-          );
-
-          return ListView(
-            padding: EdgeInsets.only(
-              // top: bodyPaddingTop,
-              left: 16,
-              right: 16,
-              bottom: bodyPaddingBottom,
-            ),
+      body: chatState.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, stack) => _ChatStateMessage(
+          icon: Icons.error_outline,
+          text: error.toString(),
+        ),
+        data: (state) {
+          return Stack(
             children: [
-              // Header Texts
-              Text('Create Scene', style: HomeStyle.titleTextStyleFor(context)),
-              const SizedBox(height: 8),
-              Text(
-                'Capture the world or describe a moment to start your immersion journey.',
-                style: HomeStyle.subtitleTextStyleFor(context),
+              ListView(
+                controller: _scrollController,
+                padding: HomeStyle.chatPagePadding.copyWith(bottom: listBottom),
+                children: [
+                  _ChatHeader(onPromptSelected: _fillPrompt),
+                  const SizedBox(height: 18),
+                  if (state.messages.isEmpty)
+                    const _ChatStateMessage(
+                      icon: Icons.auto_awesome,
+                      text: 'Describe a place or moment to generate a scene.',
+                    )
+                  else
+                    ...state.messages.map(
+                      (message) => _ChatMessageBubble(
+                        message: message,
+                        onOpenScene: _openScene,
+                        onRetry: () =>
+                            ref.read(chatProvider.notifier).retry(message),
+                      ),
+                    ),
+                ],
               ),
-              const SizedBox(height: 32),
-
-              // 3. Image Upload Area
-              SizedBox(
-                height: uploadAreaHeight,
-                child: MouseRegion(
-                  onHover: (event) =>
-                      setState(() => _particleTouchPoint = event.localPosition),
-                  onExit: (_) => setState(() => _particleTouchPoint = null),
-                  child: GestureDetector(
-                    onPanUpdate: (details) => setState(
-                      () => _particleTouchPoint = details.localPosition,
-                    ),
-                    onPanEnd: (_) => setState(() => _particleTouchPoint = null),
-                    child: ClipRRect(
-                      borderRadius: HomeStyle.uploadRadius,
-                      child: Stack(
-                        fit: StackFit.expand,
-                        children: [
-                          DecoratedBox(
-                            decoration: HomeStyle.uploadBackgroundDecorationFor(
-                              context,
-                            ),
-                          ),
-                          AnimatedBuilder(
-                            animation: _shimmerController,
-                            builder: (context, _) {
-                              return CustomPaint(
-                                painter: _UploadParticlePainter(
-                                  progress: _shimmerController.value,
-                                  touchPoint: _particleTouchPoint,
-                                  primary: HomeStyle.primaryColor(context),
-                                  accent: HomeStyle.uploadAccentColor(context),
-                                ),
-                              );
-                            },
-                          ),
-                          Positioned.fill(
-                            child: CustomPaint(
-                              painter: _DashedRRectPainter(
-                                radius: 32,
-                                color: HomeStyle.primaryColor(
-                                  context,
-                                ).withValues(alpha: 0.34),
-                              ),
-                            ),
-                          ),
-
-                          // Center Add Button & Menu
-                          Center(
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                GestureDetector(
-                                  onTap: () => setState(
-                                    () => _isMenuOpen = !_isMenuOpen,
-                                  ),
-                                  child: HomeGlassContainer(
-                                    radius: 24,
-                                    padding: HomeStyle.uploadButtonPadding,
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Icon(
-                                          Icons.add_a_photo,
-                                          size: 36,
-                                          color: HomeStyle.primaryColor(
-                                            context,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 12),
-                                        Text(
-                                          'Add Scene Image',
-                                          style:
-                                              HomeStyle.uploadButtonTextStyleFor(
-                                                context,
-                                              ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-
-                                // Expandable Menu
-                                AnimatedSize(
-                                  duration: const Duration(milliseconds: 200),
-                                  curve: Curves.easeInOut,
-                                  child: _isMenuOpen
-                                      ? Padding(
-                                          padding: const EdgeInsets.only(
-                                            top: 16,
-                                          ),
-                                          child: HomeGlassContainer(
-                                            radius: 16,
-                                            padding: EdgeInsets.zero,
-                                            child: Column(
-                                              children: [
-                                                HomeMenuOption(
-                                                  icon: Icons.photo_camera,
-                                                  title: 'Camera',
-                                                  onTap: () => _pickImage(
-                                                    ImageSource.camera,
-                                                  ),
-                                                ),
-                                                Divider(
-                                                  height: 1,
-                                                  color:
-                                                      HomeStyle.colors(context)
-                                                          .outlineVariant
-                                                          .withValues(
-                                                            alpha: 0.3,
-                                                          ),
-                                                ),
-                                                HomeMenuOption(
-                                                  icon: Icons.image,
-                                                  title: 'Gallery',
-                                                  onTap: () => _pickImage(
-                                                    ImageSource.gallery,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        )
-                                      : const SizedBox.shrink(),
-                                ),
-                              ],
-                            ),
-                          ),
-
-                          if (homeState.selectedImage != null)
-                            Positioned(
-                              right: 18,
-                              bottom: 16,
-                              child: HomeGlassContainer(
-                                radius: 999,
-                                padding: HomeStyle.selectedBadgePadding,
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      Icons.check_circle,
-                                      size: 16,
-                                      color: HomeStyle.primaryColor(context),
-                                    ),
-                                    const SizedBox(width: 6),
-                                    Text(
-                                      'Image selected',
-                                      style:
-                                          HomeStyle.selectedBadgeTextStyleFor(
-                                            context,
-                                          ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // 4. Generation Dialogue Panel
-              HomeGlassContainer(
-                radius: 28,
-                padding: HomeStyle.promptPanelPadding,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Input Row
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: Container(
-                            height: 48,
-                            decoration: HomeStyle.promptInputDecorationFor(
-                              context,
-                            ),
-                            child: TextField(
-                              controller: _promptController,
-                              onSubmitted: homeState.isGenerating
-                                  ? null
-                                  : (_) => _generateFromText(),
-                              style: HomeStyle.promptInputTextStyleFor(context),
-                              decoration:
-                                  HomeStyle.promptInputDecorationDataFor(
-                                    context,
-                                  ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-
-                        // Level Picker Strip
-                        // Container(
-                        //   height: 48,
-                        //   padding: const EdgeInsets.all(4),
-                        //   decoration: BoxDecoration(
-                        //     color: Colors.black.withOpacity(0.05),
-                        //     borderRadius: BorderRadius.circular(12),
-                        //   ),
-                        //   child:
-
-                        // LevelWheelPicker(
-                        //   levels: const ['A1', 'A2', 'B1', 'B2', 'C1'],
-                        //   initialLevel: 'A1',
-                        //   onLevelChanged: (newLevel) {
-                        //     ScaffoldMessenger.of(context).clearSnackBars();
-                        //     ScaffoldMessenger.of(context).showSnackBar(
-                        //       SnackBar(
-                        //         content: Text('change to $newLevel'),
-                        //         behavior: SnackBarBehavior.floating,
-                        //         duration: const Duration(seconds: 1),
-                        //       ),
-                        //     );
-                        //   },
-                        // ),
-
-                        // ),
-                        // Row(
-                        //   children: ['A1', 'A2', 'B1'].map((level) {
-                        //     final isSelected = _selectedLevel == level;
-                        //     return GestureDetector(
-                        //       onTap: () => setState(() => _selectedLevel = level),
-                        //       child: Container(
-                        //         padding: const EdgeInsets.symmetric(horizontal: 12),
-                        //         alignment: Alignment.center,
-                        //         decoration: BoxDecoration(
-                        //           color: isSelected ? Colors.white : Colors.transparent,
-                        //           borderRadius: BorderRadius.circular(8),
-                        //           boxShadow: isSelected
-                        //               ? [const BoxShadow(color: Colors.black12, blurRadius: 2, offset: Offset(0, 1))]
-                        //               : null,
-                        //         ),
-                        //         child: Text(
-                        //           level,
-                        //           style: TextStyle(
-                        //             fontFamily: 'Inter',
-                        //             fontSize: 14,
-                        //             fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                        //             color: isSelected ? HomeStyle.primary : HomeStyle.onSurfaceVariant,
-                        //           ),
-                        //         ),
-                        //       ),
-                        //     );
-                        //   }).toList(),
-                        // ),
-                        const SizedBox(width: 8),
-
-                        // Submit Button
-                        GestureDetector(
-                          onTap: homeState.isGenerating
-                              ? null
-                              : _generateFromText,
-                          child: Container(
-                            height: 48,
-                            width: 48,
-                            decoration: HomeStyle.submitButtonDecorationFor(
-                              context,
-                            ),
-                            child: homeState.isGenerating
-                                ? const Padding(
-                                    padding: EdgeInsets.all(12),
-                                    child: CircularProgressIndicator(
-                                      color: Colors.white,
-                                      strokeWidth: 2,
-                                    ),
-                                  )
-                                : const Icon(
-                                    Icons.arrow_upward,
-                                    color: Colors.white,
-                                  ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-
-                    // Quick Starters
-                    SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: [
-                          HomeQuickStarter(
-                            label: 'Bakery',
-                            onTap: () => _fillPrompt(
-                              'A busy bakery in Berlin during morning rush.',
-                            ),
-                          ),
-                          HomeQuickStarter(
-                            label: 'Train Station',
-                            onTap: () => _fillPrompt(
-                              'A rainy evening at a train station in Munich.',
-                            ),
-                          ),
-                          HomeQuickStarter(
-                            label: 'Park',
-                            onTap: () => _fillPrompt(
-                              'A sunny weekend at the Tiergarten park.',
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    // Loading Shimmer Effect
-                    if (homeState.isGenerating)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 12),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(999),
-                          child: SizedBox(
-                            height: 4,
-                            child: AnimatedBuilder(
-                              animation: _shimmerController,
-                              builder: (context, child) {
-                                return FractionalTranslation(
-                                  translation: Offset(
-                                    (_shimmerController.value * 2) - 1,
-                                    0,
-                                  ),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      gradient: LinearGradient(
-                                        colors: [
-                                          HomeStyle.primaryColor(
-                                            context,
-                                          ).withValues(alpha: 0),
-                                          HomeStyle.primaryColor(
-                                            context,
-                                          ).withValues(alpha: 0.5),
-                                          HomeStyle.primaryColor(
-                                            context,
-                                          ).withValues(alpha: 0),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                        ),
-                      ),
-                    if (homeState.isGenerating)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8),
-                        child: Text(
-                          'AI is generating...',
-                          style: HomeStyle.generatingTextStyleFor(context),
-                        ),
-                      ),
-                  ],
+              Positioned(
+                left: 16,
+                right: 16,
+                bottom: inputBottom,
+                child: _ChatInputBar(
+                  controller: _promptController,
+                  hasPending: state.hasPending,
+                  onSubmit: state.hasPending ? null : _submitPrompt,
                 ),
               ),
             ],
           );
         },
       ),
-
-      // 5. Bottom Navigation Bar
-      // bottomNavigationBar: widget.showChrome
-      //     ? ClipRRect(
-      //         child: BackdropFilter(
-      //           filter: ImageFilter.blur(sigmaX: 32, sigmaY: 32),
-      //           child: Container(
-      //             height: 84,
-      //             decoration: BoxDecoration(
-      //               color: Colors.white.withOpacity(0.7),
-      //               border: Border(
-      //                 top: BorderSide(color: Colors.black.withOpacity(0.05)),
-      //               ),
-      //             ),
-      //             child: Row(
-      //               mainAxisAlignment: MainAxisAlignment.spaceAround,
-      //               children: [
-      //                 _buildNavItem(Icons.home, 'Home', true),
-      //                 _buildNavItem(Icons.favorite_border, 'Favorites', false),
-      //                 _buildNavItem(Icons.person_outline, 'Profile', false),
-      //               ],
-      //             ),
-      //           ),
-      //         ),
-      //       )
-      //     : null,
     );
-  }
-
-  double _uploadAreaHeight(
-    BuildContext context,
-    double bodyPaddingBottom,
-    double viewportHeight,
-  ) {
-    final mediaQuery = MediaQuery.of(context);
-    final shortestSide = mediaQuery.size.shortestSide;
-
-    // 对话框贴近底部 nav，上传区吃掉中间剩余空间。
-    // 这些估算值对应标题、说明、固定间距、底部输入面板和 navbar 避让。
-    final reservedHeight =
-        bodyPaddingBottom + 28.0 + 8.0 + 44.0 + 32.0 + 16.0 + 118.0;
-    final preferredHeight = viewportHeight - reservedHeight;
-    final minHeight = shortestSide < 360 ? 150.0 : 180.0;
-
-    return math.max(preferredHeight, minHeight).toDouble();
   }
 }
 
-class _DashedRRectPainter extends CustomPainter {
-  final double radius;
-  final Color color;
+class _ChatHeader extends StatelessWidget {
+  final ValueChanged<String> onPromptSelected;
 
-  const _DashedRRectPainter({required this.radius, required this.color});
+  const _ChatHeader({required this.onPromptSelected});
 
   @override
-  void paint(Canvas canvas, Size size) {
-    final rect = Offset.zero & size;
-    final rrect = RRect.fromRectAndRadius(
-      rect.deflate(1.5),
-      Radius.circular(radius),
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Text('Chat', style: HomeStyle.titleTextStyleFor(context)),
+        const SizedBox(height: 8),
+        Text(
+          'Send an instruction. Scene generation can take a while, and completed scenes will appear here and in History.',
+          style: HomeStyle.subtitleTextStyleFor(context),
+        ),
+        // const SizedBox(height: 14),
+        // SingleChildScrollView(
+        //   scrollDirection: Axis.horizontal,
+        //   child: Row(
+        //     children: [
+        //       HomeQuickStarter(
+        //         label: 'Bakery',
+        //         onTap: () => onPromptSelected(
+        //           'A busy bakery in Berlin during morning rush.',
+        //         ),
+        //       ),
+        //       HomeQuickStarter(
+        //         label: 'Train Station',
+        //         onTap: () => onPromptSelected(
+        //           'A rainy evening at a train station in Munich.',
+        //         ),
+        //       ),
+        //       HomeQuickStarter(
+        //         label: 'Park',
+        //         onTap: () =>
+        //             onPromptSelected('A sunny weekend at the Tiergarten park.'),
+        //       ),
+        //     ],
+        //   ),
+        // ),
+      ],
     );
-    final path = Path()..addRRect(rrect);
-    final metric = path.computeMetrics().first;
-    final paint = Paint()
-      ..color = color
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2
-      ..strokeCap = StrokeCap.round;
-
-    const dash = 10.0;
-    const gap = 8.0;
-    var distance = 0.0;
-    while (distance < metric.length) {
-      final nextDistance = math.min(distance + dash, metric.length);
-      canvas.drawPath(metric.extractPath(distance, nextDistance), paint);
-      distance += dash + gap;
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _DashedRRectPainter oldDelegate) {
-    return oldDelegate.radius != radius || oldDelegate.color != color;
   }
 }
 
-class _UploadParticlePainter extends CustomPainter {
-  final double progress;
-  final Offset? touchPoint;
-  final Color primary;
-  final Color accent;
+class _ChatInputBar extends StatelessWidget {
+  final TextEditingController controller;
+  final bool hasPending;
+  final VoidCallback? onSubmit;
 
-  const _UploadParticlePainter({
-    required this.progress,
-    required this.touchPoint,
-    required this.primary,
-    required this.accent,
+  const _ChatInputBar({
+    required this.controller,
+    required this.hasPending,
+    required this.onSubmit,
   });
 
   @override
-  void paint(Canvas canvas, Size size) {
-    final count = size.shortestSide < 220 ? 22 : 34;
-
-    for (var index = 0; index < count; index++) {
-      final seed = index * 37.0;
-      final baseX = (math.sin(seed) * 0.5 + 0.5) * size.width;
-      final baseY = (math.cos(seed * 1.7) * 0.5 + 0.5) * size.height;
-      final drift = progress * math.pi * 2;
-      final phase = seed * 0.17;
-      var point = Offset(
-        baseX + math.sin(drift + phase) * 9 + math.sin(drift * 2 + phase) * 2,
-        baseY + math.cos(drift + phase) * 7 + math.cos(drift * 2 + phase) * 1.5,
-      );
-
-      if (touchPoint != null) {
-        final delta = touchPoint! - point;
-        final distance = delta.distance;
-        if (distance < 120 && distance > 0) {
-          point += delta / distance * (120 - distance) * 0.16;
-        }
-      }
-
-      final opacity = 0.14 + (math.sin(drift + phase) * 0.5 + 0.5) * 0.18;
-      final radius = 1.8 + (index % 4) * 0.55;
-      final paint = Paint()
-        ..color = Color.lerp(
-          primary,
-          accent,
-          (index % 7) / 6,
-        )!.withValues(alpha: opacity);
-
-      canvas.drawCircle(point, radius, paint);
-    }
+  Widget build(BuildContext context) {
+    return Container(
+      padding: HomeStyle.promptPanelPadding,
+      decoration: HomeStyle.inputBarDecorationFor(context),
+      child: Row(
+        children: [
+          Expanded(
+            child: Container(
+              constraints: const BoxConstraints(minHeight: 48),
+              decoration: HomeStyle.promptInputDecorationFor(context),
+              child: TextField(
+                controller: controller,
+                minLines: 1,
+                maxLines: 4,
+                textInputAction: TextInputAction.send,
+                onSubmitted: (_) => onSubmit?.call(),
+                style: HomeStyle.promptInputTextStyleFor(context),
+                decoration: HomeStyle.promptInputDecorationDataFor(context),
+              ),
+            ),
+          ),
+          const SizedBox(width: 10),
+          GestureDetector(
+            onTap: onSubmit,
+            child: Container(
+              height: 48,
+              width: 48,
+              decoration: HomeStyle.submitButtonDecorationFor(context),
+              child: Icon(
+                hasPending ? Icons.hourglass_top : Icons.arrow_upward,
+                color: HomeStyle.colors(context).onPrimary,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
+}
+
+class _ChatMessageBubble extends StatelessWidget {
+  final ChatMessage message;
+  final ValueChanged<SceneEntity> onOpenScene;
+  final VoidCallback onRetry;
+
+  const _ChatMessageBubble({
+    required this.message,
+    required this.onOpenScene,
+    required this.onRetry,
+  });
 
   @override
-  bool shouldRepaint(covariant _UploadParticlePainter oldDelegate) {
-    return oldDelegate.progress != progress ||
-        oldDelegate.touchPoint != touchPoint ||
-        oldDelegate.primary != primary ||
-        oldDelegate.accent != accent;
+  Widget build(BuildContext context) {
+    final alignment = message.isUser
+        ? Alignment.centerRight
+        : Alignment.centerLeft;
+    final maxWidth = MediaQuery.sizeOf(context).width * 0.78;
+
+    return Align(
+      alignment: alignment,
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: maxWidth.clamp(260.0, 560.0)),
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: switch (message.kind) {
+            ChatMessageKind.userText => _TextBubble(message: message),
+            ChatMessageKind.scenePending => _PendingSceneBubble(
+              message: message,
+            ),
+            ChatMessageKind.sceneReady => _SceneReadyCard(
+              message: message,
+              onOpenScene: onOpenScene,
+            ),
+            ChatMessageKind.error => _ErrorBubble(
+              message: message,
+              onRetry: onRetry,
+            ),
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class _TextBubble extends StatelessWidget {
+  final ChatMessage message;
+
+  const _TextBubble({required this.message});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: HomeStyle.messagePadding,
+      decoration: message.isUser
+          ? HomeStyle.userMessageDecorationFor(context)
+          : HomeStyle.assistantMessageDecorationFor(context),
+      child: Text(
+        message.text,
+        style: message.isUser
+            ? HomeStyle.userMessageTextStyleFor(context)
+            : HomeStyle.messageTextStyleFor(context),
+      ),
+    );
+  }
+}
+
+class _PendingSceneBubble extends StatelessWidget {
+  final ChatMessage message;
+
+  const _PendingSceneBubble({required this.message});
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = HomeStyle.colors(context);
+    return Container(
+      padding: HomeStyle.messagePadding,
+      decoration: HomeStyle.assistantMessageDecorationFor(context),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 22,
+            height: 22,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              color: palette.primary,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Generating scene',
+                  style: HomeStyle.sceneTitleTextStyleFor(context),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  message.prompt,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: HomeStyle.messageTextStyleFor(context),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'This can take a while. You can visit other pages; the scene will be saved to History when ready.',
+                  style: HomeStyle.sceneMetaTextStyleFor(context),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SceneReadyCard extends StatelessWidget {
+  final ChatMessage message;
+  final ValueChanged<SceneEntity> onOpenScene;
+
+  const _SceneReadyCard({required this.message, required this.onOpenScene});
+
+  @override
+  Widget build(BuildContext context) {
+    final scene = message.scene;
+    if (scene == null) {
+      return const SizedBox.shrink();
+    }
+
+    final imageUrl = SceneImageCache.resolveSceneImageUrl(scene);
+    final title = _sceneTitle(scene, message.prompt);
+    final prompt = message.prompt.trim();
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: HomeStyle.sceneCardRadius,
+        onTap: () => onOpenScene(scene),
+        child: Container(
+          padding: HomeStyle.sceneCardPadding,
+          decoration: HomeStyle.sceneCardDecorationFor(context),
+          child: Row(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(14),
+                child: SizedBox(
+                  width: 76,
+                  height: 76,
+                  child: imageUrl.isEmpty
+                      ? ColoredBox(
+                          color: HomeStyle.colors(
+                            context,
+                          ).surfaceContainerHighest,
+                          child: Icon(
+                            Icons.image_outlined,
+                            color: HomeStyle.colors(context).onSurfaceVariant,
+                          ),
+                        )
+                      : CachedNetworkImage(
+                          imageUrl: imageUrl,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => ColoredBox(
+                            color: HomeStyle.colors(
+                              context,
+                            ).surfaceContainerHighest,
+                          ),
+                          errorWidget: (context, url, error) => ColoredBox(
+                            color: HomeStyle.colors(
+                              context,
+                            ).surfaceContainerHighest,
+                            child: Icon(
+                              Icons.broken_image_outlined,
+                              color: HomeStyle.colors(context).onSurfaceVariant,
+                            ),
+                          ),
+                        ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: HomeStyle.sceneTitleTextStyleFor(context),
+                    ),
+                    if (prompt.isNotEmpty) ...[
+                      const SizedBox(height: 6),
+                      Text(
+                        prompt,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: HomeStyle.messageTextStyleFor(context),
+                      ),
+                    ],
+                    if (message.text.trim().isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        message.text,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: HomeStyle.sceneMetaTextStyleFor(context),
+                      ),
+                    ],
+                    const SizedBox(height: 8),
+                    Text(
+                      '${scene.cards.length} words | Tap to immerse',
+                      style: HomeStyle.sceneMetaTextStyleFor(context).copyWith(
+                        color: HomeStyle.colors(context).primary,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              Icon(
+                Icons.chevron_right,
+                color: HomeStyle.colors(context).onSurfaceVariant,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _sceneTitle(SceneEntity scene, String prompt) {
+    final firstTag = scene.cards
+        .expand((card) => card.sceneTags)
+        .map((tag) => tag.trim())
+        .where((tag) => tag.isNotEmpty)
+        .cast<String?>()
+        .firstWhere((tag) => tag != null, orElse: () => null);
+    if (firstTag != null) {
+      return firstTag;
+    }
+    final trimmedPrompt = prompt.trim();
+    if (trimmedPrompt.isNotEmpty) {
+      return trimmedPrompt;
+    }
+    return 'Generated scene';
+  }
+}
+
+class _ErrorBubble extends StatelessWidget {
+  final ChatMessage message;
+  final VoidCallback onRetry;
+
+  const _ErrorBubble({required this.message, required this.onRetry});
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = HomeStyle.colors(context);
+    return Container(
+      padding: HomeStyle.messagePadding,
+      decoration: HomeStyle.assistantMessageDecorationFor(context),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.error_outline, color: palette.error, size: 20),
+              const SizedBox(width: 8),
+              Text(
+                'Generation failed',
+                style: HomeStyle.sceneTitleTextStyleFor(
+                  context,
+                ).copyWith(color: palette.error),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(message.text, style: HomeStyle.messageTextStyleFor(context)),
+          const SizedBox(height: 10),
+          TextButton.icon(
+            onPressed: onRetry,
+            icon: const Icon(Icons.refresh, size: 18),
+            label: const Text('Retry'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ChatStateMessage extends StatelessWidget {
+  final IconData icon;
+  final String text;
+
+  const _ChatStateMessage({required this.icon, required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, color: HomeStyle.colors(context).onSurfaceVariant),
+            const SizedBox(height: 10),
+            Text(
+              text,
+              textAlign: TextAlign.center,
+              style: HomeStyle.sceneMetaTextStyleFor(context),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
